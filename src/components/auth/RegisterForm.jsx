@@ -1,4 +1,3 @@
-
 // // src/components/auth/RegisterForm.jsx
 // import React, { useState } from "react";
 // import { Link, useNavigate } from "react-router-dom";
@@ -92,9 +91,6 @@
 //   );
 // }
 
-
-
-
 // src/components/auth/RegisterForm.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -146,8 +142,13 @@ export default function RegisterForm() {
   };
 
   const handleGitHubSignup = () => {
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-    const authWindow = window.open(`${API_BASE}/api/auth/github`, "_blank", "width=600,height=700");
+    const API_BASE =
+      import.meta.env.VITE_API_BASE_URL || window.location.origin;
+    const authWindow = window.open(
+      `${API_BASE}/api/auth/github`,
+      "_blank",
+      "width=600,height=700"
+    );
 
     if (!authWindow) {
       toast.error("Enable pop-ups to use GitHub sign-up");
@@ -163,7 +164,9 @@ export default function RegisterForm() {
       if (success) {
         const { data } = await axios.get("/auth/me");
         login(data?.user || data);
-        const dest = ADMIN_ROLES.includes(data.user?.role) ? "/admin" : "/dashboard";
+        const dest = ADMIN_ROLES.includes(data.user?.role)
+          ? "/admin"
+          : "/dashboard";
         navigate(dest, { replace: true });
       } else if (error) {
         toast.error("GitHub sign-up failed: " + error);
@@ -188,17 +191,29 @@ export default function RegisterForm() {
 
   return (
     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
-      <h2 className="text-3xl font-extrabold text-center mb-6">Create Account</h2>
+      <h2 className="text-3xl font-extrabold text-center mb-6">
+        Create Account
+      </h2>
 
       {/* Social Signup Buttons */}
       <div className="flex flex-col gap-4 mb-6">
         <div id="google-signup-btn"></div>
+
         <button
           onClick={handleGitHubSignup}
-          className="flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition"
+          className="relative w-full flex items-center justify-center border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50 transition"
         >
-          <img src="/github-logo.svg" alt="GitHub" className="w-5 h-5" />
-          Sign up with GitHub
+          {/* Left-aligned icon */}
+          <img
+            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+            alt="GitHub"
+            className="w-5 h-5 absolute left-4"
+          />
+
+          {/* Centered text */}
+          <span className="text-sm font-medium text-gray-700">
+            Sign up with GitHub
+          </span>
         </button>
       </div>
 
@@ -247,8 +262,14 @@ export default function RegisterForm() {
         </div>
         <p className="text-xs text-gray-500">
           By signing up, you agree to our{" "}
-          <Link to="/terms" className="text-indigo-600">Terms</Link> &{" "}
-          <Link to="/privacy" className="text-indigo-600">Privacy</Link>.
+          <Link to="/terms" className="text-indigo-600">
+            Terms
+          </Link>{" "}
+          &{" "}
+          <Link to="/privacy" className="text-indigo-600">
+            Privacy
+          </Link>
+          .
         </p>
         <button
           type="submit"

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -49,68 +48,70 @@ export default function LoginForm() {
     }
   };
 
-const handleGitHubLogin = () => {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
+  const handleGitHubLogin = () => {
+    const API_BASE =
+      import.meta.env.VITE_API_BASE_URL || window.location.origin;
 
-  const authWindow = window.open(
-    `${API_BASE}/api/auth/github`,
-    '_blank',
-    'width=600,height=700'
-  );
+    const authWindow = window.open(
+      `${API_BASE}/api/auth/github`,
+      "_blank",
+      "width=600,height=700"
+    );
 
-  if (!authWindow) {
-    alert('Please allow pop-ups for this site to enable GitHub sign-in.');
-    return;
-  }
-
-  /** ✅ Securely listen for postMessage from popup */
-  const handleMessage = async (event) => {
-    try {
-      // Optional: restrict allowed origins
-      const expectedOrigin = new URL(API_BASE).origin;
-      if (event.origin !== expectedOrigin) return;
-
-      const { success, error } = event.data;
-
-      if (success) {
-        const { data } = await API.get('/auth/me');
-        const authedUser = data?.user || data;
-
-        if (authedUser && authedUser.role) {
-          login(authedUser);
-
-          const dest = ADMIN_ROLES.includes(authedUser.role)
-            ? '/admin'
-            : '/dashboard';
-
-          navigate(dest, { replace: true });
-        }
-      } else if (error) {
-        alert('GitHub login failed: ' + error);
-      }
-    } catch (err) {
-      console.error("Error in postMessage handler:", err);
-      alert('Failed to fetch authenticated user');
-    } finally {
-      window.removeEventListener('message', handleMessage);
+    if (!authWindow) {
+      alert("Please allow pop-ups for this site to enable GitHub sign-in.");
+      return;
     }
+
+    /** ✅ Securely listen for postMessage from popup */
+    const handleMessage = async (event) => {
+      try {
+        // Optional: restrict allowed origins
+        const expectedOrigin = new URL(API_BASE).origin;
+        if (event.origin !== expectedOrigin) return;
+
+        const { success, error } = event.data;
+
+        if (success) {
+          const { data } = await API.get("/auth/me");
+          const authedUser = data?.user || data;
+
+          if (authedUser && authedUser.role) {
+            login(authedUser);
+
+            const dest = ADMIN_ROLES.includes(authedUser.role)
+              ? "/admin"
+              : "/dashboard";
+
+            navigate(dest, { replace: true });
+          }
+        } else if (error) {
+          alert("GitHub login failed: " + error);
+        }
+      } catch (err) {
+        console.error("Error in postMessage handler:", err);
+        alert("Failed to fetch authenticated user");
+      } finally {
+        window.removeEventListener("message", handleMessage);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
   };
 
-  window.addEventListener('message', handleMessage);
-};
-
-  
-  
   const handleLogin = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setLoading(true);
 
     try {
       const res = await API.post("/auth/login", { email, password });
       login(res.data.user);
-      navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", {
-        replace: true,
-      });
+      navigate(
+        ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard",
+        {
+          replace: true,
+        }
+      );
     } catch (err) {
       alert(err.response?.data?.message || "Login failed");
     } finally {
@@ -126,12 +127,22 @@ const handleGitHubLogin = () => {
         <div id="google-login-btn"></div>
 
         <button
-          onClick={handleGitHubLogin}
-          className="flex items-center justify-center gap-2 border border-gray-300 py-2 rounded-md hover:bg-gray-50 transition"
-        >
-          <img src="/github-logo.svg" alt="GitHub" className="w-5 h-5" />
-          Sign in with GitHub
-        </button>
+  onClick={handleGitHubLogin}
+  className="relative w-full flex items-center justify-center border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50 transition"
+>
+  {/* Left-aligned icon using absolute positioning */}
+  <img
+    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+    alt="GitHub"
+    className="w-5 h-5 absolute left-4"
+  />
+
+  {/* Centered text */}
+  <span className="text-sm font-medium text-gray-700">
+    Sign in with GitHub
+  </span>
+</button>
+
       </div>
 
       <div className="flex items-center my-4">
@@ -199,15 +210,3 @@ const handleGitHubLogin = () => {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
