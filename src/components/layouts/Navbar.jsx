@@ -1,0 +1,131 @@
+
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FaHome, FaBriefcase, FaBook, FaPenNib, FaRocket, FaGraduationCap,FaKey,
+  FaBell, FaUserCircle, FaSignOutAlt, FaTachometerAlt
+} from "react-icons/fa";
+
+import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
+import API from "../../services/axios";
+
+function Navbar() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  //console.log("Full user object:", user);
+  const avatarUrl = user?.avatar || user?.picture || "/default-avatar.png";
+
+
+  const { isDark, setIsDark } = useTheme();
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+       
+
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await API.post("/auth/logout");
+    } catch (err) {
+      console.warn("Logout failed, clearing anyway.");
+    }
+    logout();
+    navigate("/login");
+  };
+
+  return (
+    <header className="w-full fixed top-0 z-50 bg-white/70 dark:bg-gray-900 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+      <nav className="h-16 flex items-center justify-between max-w-7xl mx-auto px-6">
+        <Link to="/" className="flex items-center gap-2 text-indigo-600 text-lg font-bold">
+          <FaRocket className="text-xl" />
+          <span>JobNeura</span>
+        </Link>
+
+        <div className="flex items-center gap-4 text-sm text-gray-700 dark:text-gray-100 font-medium">
+          <Link to="/" className="flex items-center gap-1 hover:text-indigo-600"><FaHome /> Home</Link>
+          <Link to="/tutorials" className="flex items-center gap-1 hover:text-indigo-600"><FaGraduationCap /> Tutorials</Link>
+          <Link to="/jobs" className="flex items-center gap-1 hover:text-indigo-600"><FaBriefcase /> Jobs</Link>
+          <Link to="/quizzes" className="flex items-center gap-1 hover:text-indigo-600"><FaBook /> Quizzes</Link>
+          <Link to="/blogs" className="flex items-center gap-1 hover:text-indigo-600"><FaPenNib /> Blogs</Link>
+
+          {!user ? (
+            <Link to="/register" className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700">
+              <FaRocket className="inline mr-1" /> Get Started
+            </Link>
+          ) : (
+            <div className="flex items-center gap-4 relative" ref={dropdownRef}>
+              <FaBell className="text-xl cursor-pointer hover:text-indigo-600" />
+              <button onClick={() => setDropdownOpen(!dropdownOpen)} className="focus:outline-none">                
+                {avatarUrl ? (
+                  <img
+                    src={encodeURI(avatarUrl)}  // Encode URL to handle special characters
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full object-cover border border-indigo-500"
+                  />
+                ) : (
+                  <img
+                    src="/default-avatar.png" // Use a default avatar image
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full object-cover border border-indigo-500"
+                  />
+                )}
+              </button>
+
+              {dropdownOpen && (
+                <div className="absolute right-0 top-12 w-52 bg-white dark:bg-gray-800 rounded-md shadow-lg p-2 z-50">
+                  <p className="px-4 py-1 text-sm text-gray-600 dark:text-gray-300">Hi, {user.name?.split(" ")[0]}</p>
+                  <hr className="my-1 border-gray-200 dark:border-gray-700" />
+
+                  <Link to="/dashboard" className="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    <FaTachometerAlt /> <span>Dashboard</span>
+                  </Link>
+                  <Link to="/dashboard/profile" className="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    <FaUserCircle /> <span>Profile</span>
+                    </Link>
+                    <Link to="/dashboard/change-password" className="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    <FaKey /> <span>Change Password</span>
+                    </Link>
+                    
+
+                  <div
+                    onClick={() => setIsDark(!isDark)}
+                    className="flex items-center justify-between px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  >
+                    <span>Dark Mode</span>
+                    <span>{isDark ? "🌞" : "🌙"}</span>
+                  </div>
+
+                  {user?.role === "superadmin" && (
+                    <Link to="/admin" className="flex items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300">
+                      <FaRocket /> <span>Admin Panel</span>
+                    </Link>
+                  )}
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left flex items-center justify-between px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <FaSignOutAlt /> <span>Logout</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+export default Navbar;
