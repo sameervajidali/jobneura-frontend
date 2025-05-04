@@ -17,14 +17,14 @@ const navItems = [
 export default function SidebarNav() {
   const { user } = useAuth();
   console.log("💡 Auth user:", user);
-  
+
   const location = useLocation();
 
   return (
     <aside className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 hidden md:block">
       <div className="p-6 font-bold text-indigo-600 text-xl">JobNeura Admin</div>
       <nav className="px-4 space-y-1">
-        {navItems.filter(item => item.roles.includes(user?.role)).map((item) => (
+        {navItems.filter(item => item.roles.includes(user?.role.toLowerCase())).map((item) => (
           <Link
             key={item.path}
             to={item.path}
