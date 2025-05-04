@@ -36,7 +36,8 @@ export default function ResetPasswordPage() {
     setType("");
 
     try {
-      await API.post("/auth/reset-password", { token, password: newPassword });
+      await API.post("/auth/reset-password", { token, password });
+
 
       setType("success");
       setMessage("✅ Password reset successful. Redirecting to login...");
