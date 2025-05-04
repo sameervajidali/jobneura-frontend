@@ -51,8 +51,25 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { ADMIN_ROLES } from "./constants/roles.js";
 
+import { useLocation, useNavigate } from "react-router-dom";
+
+// Inside App.jsx
 function AppInitializer({ children }) {
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!loading && user && location.pathname === "/login") {
+      const role = user.role?.toUpperCase();  // Ensure casing is correct
+      const isAdmin = ADMIN_ROLES.includes(role);
+      const redirectTo = isAdmin ? "/admin" : "/dashboard";
+
+      console.log("🔁 Redirecting based on role:", role, "→", redirectTo);
+      navigate(redirectTo, { replace: true });
+    }
+  }, [loading, user, location.pathname, navigate]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -60,8 +77,10 @@ function AppInitializer({ children }) {
       </div>
     );
   }
+
   return <>{children}</>;
 }
+
 
 function LayoutWrapper() {
   const { user } = useAuth();
