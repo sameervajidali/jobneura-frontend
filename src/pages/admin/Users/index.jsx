@@ -121,7 +121,7 @@ export default function AdminUsersPage() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5;
+  const usersPerPage = 10;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
