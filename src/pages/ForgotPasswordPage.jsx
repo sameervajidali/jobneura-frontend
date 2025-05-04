@@ -13,11 +13,16 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setStatus(null);
     setSubmitting(true);
-
+  
+    console.log("📤 Submitting password reset request for:", email);
+  
     try {
-      await API.post("/auth/request-password-reset", { email });
+      const res = await API.post("/auth/request-password-reset", { email });
+      console.log("✅ Backend responded:", res.data);
+  
       setStatus({ type: "success", message: "✅ Reset link sent. Check your email." });
     } catch (err) {
+      console.log("❌ Error during password reset:", err);
       setStatus({
         type: "error",
         message: err.response?.data?.message || "❌ Failed to send reset link.",
@@ -26,6 +31,7 @@ export default function ForgotPasswordPage() {
       setSubmitting(false);
     }
   };
+  
 
   return (
     <AuthLayout>
