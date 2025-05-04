@@ -168,6 +168,8 @@ import Footer from "./components/layouts/Footer.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { ADMIN_ROLES } from "./constants/roles.js";
+// Admin Pages
+import AdminUsersPage from "./pages/admin/Users/index.jsx";
 
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
