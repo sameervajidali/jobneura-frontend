@@ -59,6 +59,8 @@ export default function ProtectedRoute({ allowedRoles }) {
 
   if (!allowedRoles.includes(userRole)) {
     console.warn(`Access denied: role [${userRole}] not in [${allowedRoles}]`);
+    console.log("ProtectedRoute check", { user, allowedRoles });
+
     return <Navigate to="/403" replace />;
   }
   
