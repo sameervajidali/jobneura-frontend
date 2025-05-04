@@ -37,7 +37,8 @@
 // }
 
 
-// src/components/ProtectedRoute.jsx
+
+
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -50,13 +51,11 @@ export default function ProtectedRoute({ allowedRoles }) {
     return <div>Loading…</div>;
   }
 
-  // Not logged in → go to login
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Normalize role check
-  const userRole = user.role?.toLowerCase();
+  const userRole = user.role?.toUpperCase(); // 🔥 normalize to match allowedRoles
 
   if (!allowedRoles.includes(userRole)) {
     return <Navigate to="/403" replace />;
