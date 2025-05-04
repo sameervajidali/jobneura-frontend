@@ -53,7 +53,7 @@ export default function LoginForm() {
       import.meta.env.VITE_API_BASE_URL || window.location.origin;
 
     const authWindow = window.open(
-      `${API_BASE}/api/auth/github`,
+      `${API_BASE}/auth/github`,
       "_blank",
       "width=600,height=700"
     );
