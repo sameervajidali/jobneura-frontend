@@ -1,8 +1,7 @@
-// frontend/src/services/axios.js
 import axios from 'axios'
 
 const API = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.jobneura.tech/api',
   withCredentials: true,
 })
 
@@ -15,40 +14,38 @@ function processQueue(err) {
 }
 
 API.interceptors.response.use(
-  r => r,
-  async (err) => {
-    const { config, response } = err
-    if (!response || response.status !== 401) return Promise.reject(err)
+  response => response,
+  async (error) => {
+    const { config, response } = error
+    if (!response || response.status !== 401) return Promise.reject(error)
 
-    // 🛑 Prevent retry on these routes
     const noRetryPaths = ['/auth/me', '/auth/refresh-token']
     if (noRetryPaths.some(path => config.url.includes(path))) {
-      return Promise.reject(err)
+      return Promise.reject(error)
     }
 
-    // 🌀 Avoid retrying multiple times
-    if (config._retry) return Promise.reject(err)
+    if (config._retry) return Promise.reject(error)
     config._retry = true
 
     if (isRefreshing) {
-      return new Promise((res, rej) => {
-        queue.push({ resolve: () => res(API(config)), reject: rej })
+      return new Promise((resolve, reject) => {
+        queue.push({ resolve: () => resolve(API(config)), reject })
       })
     }
 
     isRefreshing = true
-    return new Promise((res, rej) => {
+    return new Promise((resolve, reject) => {
       API.post('/auth/refresh-token')
         .then(() => {
           isRefreshing = false
           processQueue()
-          res(API(config))
+          resolve(API(config))
         })
-        .catch(e => {
+        .catch(err => {
           isRefreshing = false
-          processQueue(e)
+          processQueue(err)
           window.location.href = '/login'
-          rej(e)
+          reject(err)
         })
     })
   }
