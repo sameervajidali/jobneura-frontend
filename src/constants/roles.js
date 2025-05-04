@@ -7,8 +7,7 @@ export const VALID_ROLES = [
   'SUPERADMIN',
 ];
 
-// for convenience groups (still lowercase if used for UI logic)
-export const ADMIN_ROLES = ['admin', 'superadmin'];
-export const MODERATOR_ROLES = ['moderator', 'admin', 'superadmin'];
-export const SUPPORT_ROLES = ['support', 'admin', 'superadmin'];
-export const CREATOR_ROLES = ['creator', 'admin', 'superadmin'];
+export const ADMIN_ROLES = ['ADMIN', 'SUPERADMIN'];
+export const MODERATOR_ROLES = ['MODERATOR', 'ADMIN', 'SUPERADMIN'];
+export const SUPPORT_ROLES = ['SUPPORT', 'ADMIN', 'SUPERADMIN'];
+export const CREATOR_ROLES = ['CREATOR', 'ADMIN', 'SUPERADMIN'];
