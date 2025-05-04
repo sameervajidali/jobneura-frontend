@@ -65,7 +65,9 @@ function AppInitializer({ children }) {
       const role = user.role?.toUpperCase();  // Ensure casing is correct
       const isAdmin = ADMIN_ROLES.includes(role);
       const redirectTo = isAdmin ? "/admin" : "/dashboard";
-
+      console.log("🔁 App Init: role =", user?.role);
+      console.log("🔁 App Init: isAdmin =", ADMIN_ROLES.includes(user?.role?.toUpperCase()));
+      
       console.log("🔁 Redirecting based on role:", role, "→", redirectTo);
       navigate(redirectTo, { replace: true });
     }

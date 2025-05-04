@@ -1,44 +1,3 @@
-// // src/components/ProtectedRoute.jsx
-// import React from 'react';
-// import { Navigate, Outlet, useLocation } from 'react-router-dom';
-// import { useAuth } from '../contexts/AuthContext';
-
-// /**
-//  * Renders child routes only if the current user’s role
-//  * is in the allowedRoles array. Otherwise redirects to /login
-//  * or a /403 page.
-//  */
-// export default function ProtectedRoute({ allowedRoles }) {
-//   const { user, loading } = useAuth();
-//   const location = useLocation();
-
-//   if (loading) {
-//     return <div>Loading…</div>;
-//   }
-
-//   // Not logged in → go to login, but keep the original path in state
-//   if (!user) {
-//     return (
-//       <Navigate
-//         to="/login"
-//         state={{ from: location }}
-//         replace
-//       />
-//     );
-//   }
-
-//   // Logged in but not in an allowed role → 403
-//   if (!allowedRoles.includes(user.role)) {
-//     return <Navigate to="/403" replace />;
-//   }
-
-//   // OK! Render the child routes
-//   return <Outlet />;
-// }
-
-
-
-
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -48,22 +7,20 @@ export default function ProtectedRoute({ allowedRoles }) {
   const location = useLocation();
 
   if (loading) {
-    return <div>Loading…</div>;
+    return <div className="flex justify-center items-center min-h-screen">Loading…</div>;
   }
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const userRole = (user?.role || '').toUpperCase();
+  // Convert to uppercase to ensure match
+  const userRole = user.role?.toUpperCase();
+  const isAllowed = allowedRoles.includes(userRole);
 
-  if (!allowedRoles.includes(userRole)) {
-    console.warn(`Access denied: role [${userRole}] not in [${allowedRoles}]`);
-    console.log("ProtectedRoute check", { user, allowedRoles });
-
+  if (!isAllowed) {
     return <Navigate to="/403" replace />;
   }
-  
 
   return <Outlet />;
 }

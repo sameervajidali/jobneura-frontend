@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -10,16 +9,17 @@ export default function LoginPage() {
   const location = useLocation();
   const { user, loading } = useAuth();
 
-  // Path the user attempted before redirect, or default dashboards
   const from = location.state?.from?.pathname || "/dashboard";
 
   useEffect(() => {
     if (!loading && user) {
-      // Redirect admins to admin dashboard
-      if (ADMIN_ROLES.includes(user.role)) {
+      const role = user.role?.toUpperCase(); // ✅ ensure uppercase match
+      console.log("🔐 User after login:", user);
+console.log("🔐 Role check:", user.role?.toUpperCase(), ADMIN_ROLES.includes(user.role?.toUpperCase()));
+
+      if (ADMIN_ROLES.includes(role)) {
         navigate("/admin", { replace: true });
       } else {
-        // Non-admins go to their intended or regular dashboard
         navigate(from, { replace: true });
       }
     }
