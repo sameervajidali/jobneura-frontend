@@ -15,13 +15,23 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       const { data } = await API.get('/admin/users');
-      setUsers(data);
+      console.log("✅ Users API response:", data); // <-- ADD THIS LINE
+  
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else if (Array.isArray(data.users)) {
+        setUsers(data.users); // handle if response is { users: [...] }
+      } else {
+        throw new Error("Invalid users format from API.");
+      }
     } catch (err) {
+      console.error(err);
       setError('Failed to fetch users.');
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
