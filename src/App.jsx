@@ -7,6 +7,8 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { useLocation, useNavigate } from "react-router-dom";
+
 // Public Pages
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
