@@ -55,11 +55,13 @@ export default function ProtectedRoute({ allowedRoles }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const userRole = user.role?.toUpperCase(); // 🔥 normalize to match allowedRoles
+  const userRole = (user?.role || '').toUpperCase();
 
   if (!allowedRoles.includes(userRole)) {
+    console.warn(`Access denied: role [${userRole}] not in [${allowedRoles}]`);
     return <Navigate to="/403" replace />;
   }
+  
 
   return <Outlet />;
 }
