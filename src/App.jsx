@@ -7,7 +7,6 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import { useLocation, useNavigate } from "react-router-dom";
 
 // Public Pages
 import HomePage from "./pages/HomePage.jsx";
@@ -53,7 +52,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { ADMIN_ROLES } from "./constants/roles.js";
 
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // Inside App.jsx
 function AppInitializer({ children }) {
