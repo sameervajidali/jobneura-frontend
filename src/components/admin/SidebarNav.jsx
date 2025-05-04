@@ -16,6 +16,8 @@ const navItems = [
 
 export default function SidebarNav() {
   const { user } = useAuth();
+  console.log("💡 Auth user:", user);
+  
   const location = useLocation();
 
   return (
