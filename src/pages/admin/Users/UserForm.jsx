@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../../../services/axios";
-
 import { VALID_ROLES } from "../../../constants/roles";
 
 export default function UserForm({ mode }) {
   const { id } = useParams();
   const navigate = useNavigate();
-
   const isEdit = mode === "edit";
 
   const [form, setForm] = useState({
     name: "",
     email: "",
-    role: "user",
+    role: "USER", // backend expects uppercase
     password: "",
     status: true,
   });
@@ -29,7 +27,7 @@ export default function UserForm({ mode }) {
           setForm({
             name: data.name,
             email: data.email,
-            role: data.role,
+            role: data.role.toUpperCase(), // normalize to uppercase
             password: "",
             status: data.status,
           });
@@ -52,13 +50,19 @@ export default function UserForm({ mode }) {
     setMessage(null);
 
     try {
+      const payload = {
+        ...form,
+        role: form.role.toUpperCase(), // always send uppercase
+      };
+
       if (isEdit) {
-        await API.put(`/admin/users/${id}`, form);
+        await API.put(`/admin/users/${id}`, payload);
         setMessage("User updated successfully.");
       } else {
-        await API.post(`/admin/users`, form);
+        await API.post(`/admin/users`, payload);
         setMessage("User created successfully.");
       }
+
       setTimeout(() => navigate("/admin/users"), 1200);
     } catch (err) {
       setMessage(err.response?.data?.message || "Failed to submit user");
@@ -112,7 +116,7 @@ export default function UserForm({ mode }) {
               name="password"
               value={form.password}
               onChange={handleChange}
-              required={!isEdit}
+              required
               className="w-full px-3 py-2 border rounded"
             />
           </div>
@@ -121,15 +125,20 @@ export default function UserForm({ mode }) {
         <div>
           <label className="block text-sm font-medium mb-1">Role</label>
           <select
+            name="role"
             value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
+            onChange={handleChange}
             className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-500 focus:border-indigo-500"
           >
-            {VALID_ROLES.map((role) => (
-              <option key={role} value={role.toUpperCase()}>
-                {role.charAt(0).toUpperCase() + role.slice(1)}
-              </option>
-            ))}
+            {VALID_ROLES.map((role) => {
+              const value = role.toUpperCase();
+              const label = role.charAt(0).toUpperCase() + role.slice(1);
+              return (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              );
+            })}
           </select>
         </div>
 
