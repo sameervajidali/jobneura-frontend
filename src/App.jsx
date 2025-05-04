@@ -33,7 +33,8 @@ import ChangePassword from "./components/profile/ChangePassword";
 // Admin Pages
 import AdminDashboardLayout from "./layouts/AdminDashboard.jsx";
 import AdminDashboardHome from "./pages/admin/AdminDashboardHome.jsx";
-import { AdminUsersPage, UserForm, UserDetails } from "./pages/admin/users";
+import { AdminUsersPage, UserForm, UserDetails } from "./pages/admin/Users/index.jsx";
+
 
 
 // Layouts

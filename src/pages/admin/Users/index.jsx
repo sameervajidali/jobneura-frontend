@@ -1,4 +1,4 @@
-// src/pages/admin/users/index.jsx
+// src/pages/admin/users/AdminUsersPage.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../../services/axios';
@@ -39,7 +39,7 @@ export default function AdminUsersPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-gray-800">User Management</h1>
         <button
-          onClick={() => navigate('/admin/users/create')}
+          onClick={() => navigate('/admin/users/new')}
           className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
         >
           + New User
