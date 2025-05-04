@@ -121,7 +121,7 @@ import ContactPage              from "./pages/ContactPage.jsx";
 import FeaturesPage             from "./pages/FeaturesPage.jsx";
 import PricingPage              from "./pages/PricingPage.jsx";
 import QuizLandingPage          from "./pages/QuizLandingPage.jsx";
-import AccountActivation        from "./pages/AccountActivation.jsx";
+import AccountActivationPage    from "./pages/AccountActivation.jsx";
 import AccountActivationInfo    from "./pages/AccountActivationInfo.jsx";
 import NotFoundPage             from "./pages/NotFoundPage.jsx";
 import Profile                  from "./pages/Profile";
@@ -143,6 +143,7 @@ import { ADMIN_ROLES }          from "./constants/roles.js";
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
 import { ThemeProvider }         from "./contexts/ThemeContext.jsx";
+
 
 /**
  * Waits for the AuthProvider to finish its initial "bootstrap" (loading session)
@@ -188,7 +189,7 @@ function LayoutWrapper() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/quizzes" element={<QuizLandingPage />} />
-          <Route path="/account-activation" element={<AccountActivation />} />
+          <Route path="/activate" element={<AccountActivationPage />} />
           <Route path="/account-activation-info" element={<AccountActivationInfo />} />
          
           
