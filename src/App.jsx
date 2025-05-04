@@ -1,4 +1,3 @@
-
 // // src/App.jsx
 // import React from "react";
 // import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
@@ -126,17 +125,21 @@
 //   );
 // }
 
-
 // src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 // Pages
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
-import ChangePassword from './components/profile/ChangePassword';
+import ChangePassword from "./components/profile/ChangePassword";
 import AboutPage from "./pages/AboutPage.jsx";
 import TermsPage from "./pages/TermsPage.jsx";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
@@ -188,7 +191,10 @@ function LayoutWrapper() {
   const { user } = useAuth();
   const location = useLocation();
   const isDashboard = location.pathname.startsWith("/dashboard");
-  const isAdmin = location.pathname.startsWith("/admin") && user && ADMIN_ROLES.includes(user.role);
+  const isAdmin =
+    location.pathname.startsWith("/admin") &&
+    user &&
+    ADMIN_ROLES.includes(user.role);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -210,7 +216,10 @@ function LayoutWrapper() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/quizzes" element={<QuizLandingPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
-          <Route path="/account-activation-info" element={<AccountActivationInfo />} />
+          <Route
+            path="/account-activation-info"
+            element={<AccountActivationInfo />}
+          />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Dashboard */}
@@ -228,8 +237,10 @@ function LayoutWrapper() {
           </Route>
 
           {/* Any authenticated user fallback */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/dashboard/*" element={<DashboardLayout />} />
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="change-password" element={<ChangePassword />} />
           </Route>
 
           {/* 404 */}
