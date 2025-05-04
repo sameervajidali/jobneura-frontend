@@ -39,6 +39,7 @@ import { ADMIN_ROLES }          from "./constants/roles.js";
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
 import { ThemeProvider }         from "./contexts/ThemeContext.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 
 
 /**
@@ -87,7 +88,8 @@ function LayoutWrapper() {
           <Route path="/quizzes" element={<QuizLandingPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
           <Route path="/account-activation-info" element={<AccountActivationInfo />} />
-         
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+
           
           {/* Dashboard Layout with nested routes */}
           <Route path="/dashboard" element={<DashboardLayout />}>
