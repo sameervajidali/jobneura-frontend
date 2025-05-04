@@ -172,6 +172,9 @@ import { ADMIN_ROLES } from "./constants/roles.js";
 // Context
 import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
 import { ThemeProvider } from "./contexts/ThemeContext.jsx";
+import UserForm from "./pages/admin/Users/UserForm.jsx";
+import UserDetails from "./pages/admin/Users/UserDetails.jsx";
+import AdminUsersPage from "./pages/admin/Users/index.jsx";
 
 function AppInitializer({ children }) {
   const { loading } = useAuth();
