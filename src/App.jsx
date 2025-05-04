@@ -31,10 +31,11 @@ import Profile from "./pages/Profile";
 import ChangePassword from "./components/profile/ChangePassword";
 
 // Admin Pages
-import AdminDashboardLayout from "./layouts/AdminDashboard.jsx";
-import AdminDashboardHome from "./pages/admin/AdminDashboardHome.jsx";
-import AdminUsersPage from './pages/admin/Users';
-
+import AdminDashboardLayout from './layouts/AdminDashboard.jsx';
+import AdminDashboardHome from './pages/admin/AdminDashboardHome.jsx';
+import AdminUsersPage from './pages/admin/Users/index.jsx';
+import UserDetails from './pages/admin/Users/UserDetails.jsx';
+import UserForm from './pages/admin/Users/UserForm.jsx';
 
 
 
