@@ -1,16 +1,13 @@
-// src/constants/roles.js
 export const VALID_ROLES = [
-    'user',
-    'moderator',
-    'creator',
-    'support',
-    'admin',
-    'superadmin',
-  ];
-  
-  // for convenience groups
-  export const ADMIN_ROLES = ['admin', 'superadmin'];
-  export const MODERATOR_ROLES = ['moderator', 'admin', 'superadmin'];
-  export const SUPPORT_ROLES = ['support', 'admin', 'superadmin'];
-  export const CREATOR_ROLES = ['creator', 'admin', 'superadmin'];
-  
+  'USER',
+  'MODERATOR',
+  'CREATOR',
+  'SUPPORT',
+  'ADMIN',
+  'SUPERADMIN',
+];
+
+export const ADMIN_ROLES = ['ADMIN', 'SUPERADMIN'];
+export const MODERATOR_ROLES = ['MODERATOR', 'ADMIN', 'SUPERADMIN'];
+export const SUPPORT_ROLES = ['SUPPORT', 'ADMIN', 'SUPERADMIN'];
+export const CREATOR_ROLES = ['CREATOR', 'ADMIN', 'SUPERADMIN'];
