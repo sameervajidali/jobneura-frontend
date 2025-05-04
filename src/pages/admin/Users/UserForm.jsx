@@ -132,7 +132,7 @@ export default function UserForm({ mode }) {
           >
             {VALID_ROLES.map((role) => {
               const value = role.toUpperCase();
-              const label = role.charAt(0).toLowerCase();
+              const label = role.charAt(0).toLowerCase().slice(1).toUpperCase();
               return (
                 <option key={value} value={value}>
                   {label}
