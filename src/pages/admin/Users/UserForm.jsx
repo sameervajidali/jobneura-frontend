@@ -121,14 +121,13 @@ export default function UserForm({ mode }) {
         <div>
           <label className="block text-sm font-medium mb-1">Role</label>
           <select
-            name="role"
             value={form.role}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-500 focus:border-indigo-500"
           >
-            {VALID_ROLES.map((r) => (
-              <option key={r} value={r}>
-                {r.charAt(0).toUpperCase() + r.slice(1)}
+            {VALID_ROLES.map((role) => (
+              <option key={role} value={role.toUpperCase()}>
+                {role.charAt(0).toUpperCase() + role.slice(1)}
               </option>
             ))}
           </select>
