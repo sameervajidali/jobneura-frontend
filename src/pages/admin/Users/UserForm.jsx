@@ -124,7 +124,7 @@ export default function UserForm({ mode }) {
 
         <div>
           <label className="block text-sm font-medium mb-1">Role</label>
-          <select
+          {/* <select
             name="role"
             value={form.role}
             onChange={handleChange}
@@ -139,7 +139,24 @@ export default function UserForm({ mode }) {
                 </option>
               );
             })}
-          </select>
+          </select> */}
+
+<select
+  name="role"
+  value={form.role}
+  onChange={handleChange}
+  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-500 focus:border-indigo-500"
+>
+  {VALID_ROLES.map((role) => {
+    const value = role.toUpperCase();
+    return (
+      <option key={value} value={value}>
+        {value}
+      </option>
+    );
+  })}
+</select>
+
         </div>
 
         <div className="flex items-center gap-2">
