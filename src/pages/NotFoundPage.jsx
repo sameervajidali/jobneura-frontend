@@ -92,7 +92,7 @@
 
 // src/pages/NotFoundPage.jsx
 import React, { useState } from 'react';
-import axios from '../services/axios';
+import API from '../services/axios'; // make sure you're importing your API instance
 
 function NotFoundPage() {
   const [formData, setFormData] = useState({ name: '', email: '', interest: '' });
@@ -110,7 +110,7 @@ function NotFoundPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('/public/waitlist', formData);
+      await API.post('/public/waitlist', formData); // ✅ correct usage
       setSubmitted(true);
     } catch (error) {
       console.error('Waitlist submission failed:', error);
