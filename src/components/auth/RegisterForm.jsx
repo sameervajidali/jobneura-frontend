@@ -195,7 +195,6 @@
 //   );
 // }
 
-
 // ✅ Improved RegisterForm.jsx with
 // - Inline form validation messages
 // - Password strength indicator
@@ -220,6 +219,8 @@ export default function RegisterForm() {
 
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [formMessage, setFormMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // "success" | "error"
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -269,7 +270,8 @@ export default function RegisterForm() {
   };
 
   const handleGitHubSignup = () => {
-    const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
+    const API_BASE =
+      import.meta.env.VITE_API_BASE_URL || window.location.origin;
     const authWindow = window.open(
       `${API_BASE}/api/auth/github`,
       "_blank",
@@ -285,7 +287,9 @@ export default function RegisterForm() {
       if (success) {
         const { data } = await axios.get("/auth/me");
         login(data?.user || data);
-        const dest = ADMIN_ROLES.includes(data.user?.role) ? "/admin" : "/dashboard";
+        const dest = ADMIN_ROLES.includes(data.user?.role)
+          ? "/admin"
+          : "/dashboard";
         navigate(dest, { replace: true });
       } else if (error) {
         toast.error("GitHub sign-up failed: " + error);
@@ -298,17 +302,22 @@ export default function RegisterForm() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setFormError(null);
-    setLoading(true);
+    setFormMessage(""); // Reset
+
+    if (password.length < 8) {
+      setFormMessage("Password must be at least 8 characters long.");
+      setMessageType("error");
+      return;
+    }
+
     try {
       await axios.post("/auth/register", { name, email, password });
-      toast.success("Registration successful! Please check your email.");
+      setFormMessage("✅ Registration successful! Check your email.");
+      setMessageType("success");
       navigate("/account-activation-info");
     } catch (err) {
-      const msg = err.response?.data?.message || "Registration failed.";
-      setFormError(msg);
-    } finally {
-      setLoading(false);
+      setFormMessage(err.response?.data?.message || "Registration failed.");
+      setMessageType("error");
     }
   };
 
@@ -323,7 +332,9 @@ export default function RegisterForm() {
 
   return (
     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
-      <h2 className="text-3xl font-extrabold text-center mb-6">Create Account</h2>
+      <h2 className="text-3xl font-extrabold text-center mb-6">
+        Create Account
+      </h2>
 
       <div className="flex flex-col gap-4 mb-6">
         <div id="google-signup-btn"></div>
@@ -337,7 +348,9 @@ export default function RegisterForm() {
             alt="GitHub"
             className="w-5 h-5 absolute left-4"
           />
-          <span className="text-sm font-medium text-gray-700">Sign up with GitHub</span>
+          <span className="text-sm font-medium text-gray-700">
+            Sign up with GitHub
+          </span>
         </button>
       </div>
 
@@ -400,15 +413,34 @@ export default function RegisterForm() {
             {showPwd ? "Hide" : "Show"}
           </span>
           {password && (
-            <p className="text-xs mt-1 text-gray-500">Strength: {passwordStrength}</p>
+            <p className="text-xs mt-1 text-gray-500">
+              Strength: {passwordStrength}
+            </p>
           )}
         </div>
 
         <p className="text-xs text-gray-500">
           By signing up, you agree to our
-          <Link to="/terms" className="text-indigo-600 ml-1">Terms</Link> &
-          <Link to="/privacy" className="text-indigo-600 ml-1">Privacy</Link>.
+          <Link to="/terms" className="text-indigo-600 ml-1">
+            Terms
+          </Link>{" "}
+          &
+          <Link to="/privacy" className="text-indigo-600 ml-1">
+            Privacy
+          </Link>
+          .
         </p>
+        {formMessage && (
+          <div
+            className={`text-sm px-4 py-2 rounded-md ${
+              messageType === "success"
+                ? "bg-green-100 text-green-700 border border-green-300"
+                : "bg-red-100 text-red-700 border border-red-300"
+            }`}
+          >
+            {formMessage}
+          </div>
+        )}
 
         <button
           type="submit"
@@ -420,7 +452,9 @@ export default function RegisterForm() {
 
         <p className="text-center text-sm">
           Already have an account?
-          <Link to="/login" className="text-indigo-600 font-semibold ml-1">Log In</Link>
+          <Link to="/login" className="text-indigo-600 font-semibold ml-1">
+            Log In
+          </Link>
         </p>
       </form>
     </div>
