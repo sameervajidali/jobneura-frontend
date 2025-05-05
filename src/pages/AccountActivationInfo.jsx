@@ -33,7 +33,7 @@
 import { MailCheck } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../services/axios";
+import axios from "../services/axios";
 
 export default function AccountActivationInfo() {
   const navigate = useNavigate();
