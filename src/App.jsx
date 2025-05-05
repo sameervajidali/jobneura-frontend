@@ -5,6 +5,7 @@ import {
   Routes,
   Route,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 
 // Public Pages
@@ -49,9 +50,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { ADMIN_ROLES } from "./constants/roles.js";
 
-import { useNavigate } from "react-router-dom";
-
-// Inside App.jsx
+// Init logic for redirect after login/refresh
 function AppInitializer({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -59,26 +58,21 @@ function AppInitializer({ children }) {
 
   React.useEffect(() => {
     if (!loading && user && location.pathname === "/login") {
-      const role = user.role?.toUpperCase(); // Ensure casing is correct
-
+      const role = user.role?.toUpperCase();
       const isAdmin = ADMIN_ROLES.includes(role);
-
       const redirectTo = isAdmin ? "/admin" : "/dashboard";
-      console.log("🔁 App Init: role =", user?.role);
-      console.log(
-        "🔁 App Init: isAdmin =",
-        ADMIN_ROLES.includes(user?.role?.toUpperCase())
-      );
-
-      console.log("🔁 Redirecting based on role:", role, "→", redirectTo);
+      console.log("🔁 App Init: role =", role, "→ redirect:", redirectTo);
       navigate(redirectTo, { replace: true });
     }
   }, [loading, user, location.pathname, navigate]);
 
-  if (loading || (mayHaveSession && !user)) {
-    return <div>Loading session…</div>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading session…</p>
+      </div>
+    );
   }
-  
 
   return <>{children}</>;
 }
@@ -90,7 +84,7 @@ function LayoutWrapper() {
   const isAdmin =
     location.pathname.startsWith("/admin") &&
     user &&
-    ADMIN_ROLES.includes(user.role);
+    ADMIN_ROLES.includes(user.role?.toUpperCase());
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -112,10 +106,7 @@ function LayoutWrapper() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/quizzes" element={<QuizLandingPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
-          <Route
-            path="/account-activation-info"
-            element={<AccountActivationInfo />}
-          />
+          <Route path="/account-activation-info" element={<AccountActivationInfo />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Dashboard */}
@@ -136,7 +127,7 @@ function LayoutWrapper() {
             </Route>
           </Route>
 
-          {/* Fallback for unmatched routes */}
+          {/* 404 Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
