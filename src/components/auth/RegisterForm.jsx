@@ -312,8 +312,7 @@ export default function RegisterForm() {
 
     try {
       await axios.post("/auth/register", { name, email, password });
-      setFormMessage("✅ Registration successful! Check your email.");
-      setMessageType("success");
+     
       navigate("/account-activation-info");
     } catch (err) {
       setFormMessage(err.response?.data?.message || "Registration failed.");
