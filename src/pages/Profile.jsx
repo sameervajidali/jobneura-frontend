@@ -410,6 +410,8 @@ export default function Profile() {
         formData.append("resume", resumeFile);
       }
 
+      console.log('🛠️ API baseURL:', API.defaults.baseURL);
+
       console.log("[Profile] Sending PUT request...");
       const res = await API.put("/auth/profile", formData, { withCredentials: true });
       console.log("[Profile] PUT response:", res.data);
