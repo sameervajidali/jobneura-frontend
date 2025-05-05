@@ -299,24 +299,21 @@ export default function Profile() {
   }, [user]);
 
   // Calculate profile completion percentage
-  const calculateCompletion = (u) => {
-    console.log("[Profile] calculateCompletion input:", u);
-    const total = 10;
-    let filled = 0;
-    if (u.name) filled++;
-    if (u.email) filled++;
-    if (u.phone) filled++;
-    if (u.location) filled++;
-    if (u.skills.length) filled++;
-    if (u.languages.length) filled++;
-    if (u.experience.length) filled++;
-    if (u.education.length) filled++;
-    if (u.avatar) filled++;
-    if (u.resume) filled++;
-    const percent = Math.round((filled / total) * 100);
-    console.log("[Profile] Completion:", percent);
-    setCompletion(percent);
-  };
+   const calculateCompletion = (u) => {
+      const total = 10;
+        let filled = 0;
+        if (u.name) filled++;
+        if (u.email) filled++;
+        if (u.phone) filled++;
+        if (u.location) filled++;
+        if ((u.skills || []).length > 0) filled++;
+        if ((u.languages || []).length > 0) filled++;
+        if ((u.experience || []).length > 0) filled++;
+        if ((u.education || []).length > 0) filled++;
+        if (u.avatar) filled++;
+        if (u.resume) filled++;
+        setCompletion(Math.round((filled / total) * 100));
+      };
 
   // Handle text input changes
   const handleChange = (e) => {
