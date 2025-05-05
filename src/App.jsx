@@ -7,7 +7,6 @@ import {
   useLocation,
 } from "react-router-dom";
 
-
 // Public Pages
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
@@ -32,13 +31,11 @@ import Profile from "./pages/Profile";
 import ChangePassword from "./components/profile/ChangePassword";
 
 // Admin Pages
-import AdminDashboardLayout from './layouts/AdminDashboard.jsx';
-import AdminDashboardHome from './pages/admin/AdminDashboardHome.jsx';
-import AdminUsersPage from './pages/admin/Users/index.jsx';
-import UserDetails from './pages/admin/Users/UserDetails.jsx';
-import UserForm from './pages/admin/Users/UserForm.jsx';
-
-
+import AdminDashboardLayout from "./layouts/AdminDashboard.jsx";
+import AdminDashboardHome from "./pages/admin/AdminDashboardHome.jsx";
+import AdminUsersPage from "./pages/admin/Users/index.jsx";
+import UserDetails from "./pages/admin/Users/UserDetails.jsx";
+import UserForm from "./pages/admin/Users/UserForm.jsx";
 
 // Layouts
 import DashboardLayout from "./layouts/DashboardLayout.jsx";
@@ -62,34 +59,38 @@ function AppInitializer({ children }) {
 
   React.useEffect(() => {
     if (!loading && user && location.pathname === "/login") {
-      const role = user.role?.toUpperCase();  // Ensure casing is correct
+      const role = user.role?.toUpperCase(); // Ensure casing is correct
+
       const isAdmin = ADMIN_ROLES.includes(role);
+
       const redirectTo = isAdmin ? "/admin" : "/dashboard";
       console.log("🔁 App Init: role =", user?.role);
-      console.log("🔁 App Init: isAdmin =", ADMIN_ROLES.includes(user?.role?.toUpperCase()));
-      
+      console.log(
+        "🔁 App Init: isAdmin =",
+        ADMIN_ROLES.includes(user?.role?.toUpperCase())
+      );
+
       console.log("🔁 Redirecting based on role:", role, "→", redirectTo);
       navigate(redirectTo, { replace: true });
     }
   }, [loading, user, location.pathname, navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading session…</p>
-      </div>
-    );
+  if (loading || (mayHaveSession && !user)) {
+    return <div>Loading session…</div>
   }
+  
 
   return <>{children}</>;
 }
-
 
 function LayoutWrapper() {
   const { user } = useAuth();
   const location = useLocation();
   const isDashboard = location.pathname.startsWith("/dashboard");
-  const isAdmin = location.pathname.startsWith("/admin") && user && ADMIN_ROLES.includes(user.role);
+  const isAdmin =
+    location.pathname.startsWith("/admin") &&
+    user &&
+    ADMIN_ROLES.includes(user.role);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -111,7 +112,10 @@ function LayoutWrapper() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/quizzes" element={<QuizLandingPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
-          <Route path="/account-activation-info" element={<AccountActivationInfo />} />
+          <Route
+            path="/account-activation-info"
+            element={<AccountActivationInfo />}
+          />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* Dashboard */}

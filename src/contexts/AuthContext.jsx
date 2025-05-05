@@ -20,7 +20,9 @@ export function AuthProvider({ children }) {
     try {
       // Try to fetch current session
       const { data } = await API.get("/auth/me");
-      setUser(data);
+      console.log("🔥 /auth/me response =", data);
+      setUser(data.user || data); // <- Normalize just in case
+
       localStorage.setItem("hasSession", "true");
       console.log("✅ Session restored:", data);
     } catch (err) {
