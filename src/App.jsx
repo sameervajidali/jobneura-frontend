@@ -50,7 +50,7 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { ADMIN_ROLES } from "./constants/roles.js";
 
-// Init logic for redirect after login/refresh
+// 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -66,7 +66,7 @@ function AppInitializer({ children }) {
     }
   }, [loading, user, location.pathname, navigate]);
 
-  if (loading) {
+  if (loading || (!user && localStorage.getItem("hasSession") === "true")) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading session…</p>
@@ -77,9 +77,11 @@ function AppInitializer({ children }) {
   return <>{children}</>;
 }
 
+// 🌟 Layout logic based on route + role
 function LayoutWrapper() {
   const { user } = useAuth();
   const location = useLocation();
+
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isAdmin =
     location.pathname.startsWith("/admin") &&
@@ -89,7 +91,6 @@ function LayoutWrapper() {
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdmin && <Navbar />}
-
       <div className={`flex-grow ${!isDashboard && !isAdmin ? "pt-16" : ""}`}>
         <Routes>
           {/* Public */}
@@ -109,7 +110,7 @@ function LayoutWrapper() {
           <Route path="/account-activation-info" element={<AccountActivationInfo />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* Dashboard */}
+          {/* User Dashboard */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="profile" element={<Profile />} />
@@ -127,11 +128,10 @@ function LayoutWrapper() {
             </Route>
           </Route>
 
-          {/* 404 Fallback */}
+          {/* Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
-
       {!isDashboard && !isAdmin && <Footer />}
     </div>
   );

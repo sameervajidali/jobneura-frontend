@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
-    const mayHaveSession = localStorage.getItem("hasSession") === "true"; // ✅ MOVE THIS INSIDE FUNCTION
+    const mayHaveSession = localStorage.getItem("hasSession") === "true";
 
     if (!mayHaveSession) {
       setLoading(false);
@@ -18,17 +18,17 @@ export function AuthProvider({ children }) {
 
     try {
       const { data } = await API.get("/auth/me");
-      setUser(data);
+      setUser(data.user || data);
       localStorage.setItem("hasSession", "true");
-      console.log("✅ Session restored:", data);
+      console.log("✅ Session restored:", data.user || data);
     } catch (err) {
       if (err.response?.status === 401) {
         try {
           await API.post("/auth/refresh-token");
           const { data } = await API.get("/auth/me");
-          setUser(data);
+          setUser(data.user || data);
           localStorage.setItem("hasSession", "true");
-          console.log("🔄 Token refreshed and session restored:", data);
+          console.log("🔄 Token refreshed and session restored:", data.user || data);
         } catch (refreshErr) {
           console.warn("❌ Failed to refresh session:", refreshErr);
           setUser(null);
@@ -56,7 +56,9 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await API.post("/auth/logout");
-    } catch (_) {}
+    } catch (_) {
+      // Silent fail is okay
+    }
     setUser(null);
     localStorage.removeItem("hasSession");
   };
