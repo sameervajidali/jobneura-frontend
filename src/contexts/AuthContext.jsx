@@ -8,27 +8,22 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check if a session might exist (based on a localStorage flag)
-  const mayHaveSession = localStorage.getItem("hasSession") === "true";
-
   const refreshUser = async () => {
+    const mayHaveSession = localStorage.getItem("hasSession") === "true"; // ✅ MOVE THIS INSIDE FUNCTION
+
     if (!mayHaveSession) {
       setLoading(false);
       return;
     }
 
     try {
-      // Try to fetch current session
       const { data } = await API.get("/auth/me");
-      console.log("🔥 /auth/me response =", data);
-      setUser(data.user || data); // <- Normalize just in case
-
+      setUser(data);
       localStorage.setItem("hasSession", "true");
       console.log("✅ Session restored:", data);
     } catch (err) {
       if (err.response?.status === 401) {
         try {
-          // Try to refresh token
           await API.post("/auth/refresh-token");
           const { data } = await API.get("/auth/me");
           setUser(data);
@@ -61,9 +56,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await API.post("/auth/logout");
-    } catch (_) {
-      // ignore logout failure
-    }
+    } catch (_) {}
     setUser(null);
     localStorage.removeItem("hasSession");
   };
