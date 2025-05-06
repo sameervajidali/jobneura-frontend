@@ -334,6 +334,8 @@ export default function LoginForm() {
       // Handle errors based on the response from the backend
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
+        
+        // Handle different types of errors
         if (errorMessage === "Invalid credentials") {
           alert("Invalid email or password. Please try again.");
         } else if (errorMessage === "Verify your email first.") {
@@ -346,6 +348,7 @@ export default function LoginForm() {
       }
     }
   };
+  
   
 
 
