@@ -318,29 +318,45 @@ export default function LoginForm() {
   
     try {
       const res = await API.post("/auth/login", { email, password });
-      login(res.data.user);  // Store user data in context
-      navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
+      
+      // Ensure the response contains both user and tokens
+      if (!res.data.user || !res.data.accessToken) {
+        throw new Error("Invalid response from server");
+      }
+      
+      login(res.data.user, res.data.accessToken); // Pass both user and token to login
+      navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { 
+        replace: true 
+      });
     } catch (err) {
-      setLoading(false); // Stop loading
-  
-      // Check if the error response is valid and display it
+      setLoading(false);
+      
+      // Handle different error scenarios
       if (err.response) {
-        const errorMessage = err.response.data.message || "Login failed";
-        console.error("Login error:", errorMessage);  // Log to console for debugging
-  
-        if (errorMessage === "Invalid credentials") {
+        // Backend returned an error response
+        const errorMessage = err.response.data?.message || "Login failed";
+        
+        if (errorMessage.includes("credentials")) {
           alert("Invalid email or password. Please try again.");
-        } else if (errorMessage === "Please verify your email first") {
+        } else if (errorMessage.includes("verify")) {
           alert("Please verify your email before logging in.");
+        } else if (errorMessage.includes("refresh token")) {
+          // Handle specific refresh token error
+          console.error("Refresh token issue:", errorMessage);
+          alert("Authentication error. Please try again.");
         } else {
-          alert(errorMessage);  // Display other errors from the backend
+          alert(errorMessage);
         }
+      } else if (err.request) {
+        // Request was made but no response received
+        alert("Network error. Please check your connection.");
       } else {
-        alert("An error occurred. Please try again.");
+        // Something else happened
+        console.error("Login error:", err.message);
+        alert("An unexpected error occurred. Please try again.");
       }
     }
   };
-  
   
   
 
