@@ -80,6 +80,17 @@ export default function Profile() {
     setResumeFile(null);
   }, [user]);
 
+
+
+  const languageOptions = [
+    { value: "english", label: "English" },
+    { value: "hindi", label: "Hindi" },
+    { value: "spanish", label: "Spanish" },
+  ];
+
+
+
+
   // 5️⃣ compute profile completion
   const calculateCompletion = (u) => {
     let filled = 0;
@@ -382,9 +393,29 @@ export default function Profile() {
 
             {/* Languages */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              {/* <label className="block text-sm font-medium text-gray-700 mb-1">
                 Languages
-              </label>
+              </label> */}
+
+<div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Languages
+  </label>
+  <CreatableSelect
+    isMulti
+    options={languageOptions}
+    onChange={(selected) => setFormData({ ...formData, languages: selected })}
+    value={formData.languages}
+    placeholder="Select or add languages"
+    className="text-sm"
+    classNamePrefix="react-select"
+  />
+</div>
+
+
+
+
+
               <div className="flex flex-wrap gap-2 mb-2">
                 {profile.languages.map((l, i) => (
                   <span
