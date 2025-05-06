@@ -314,7 +314,7 @@ export default function LoginForm() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     try {
       const res = await API.post("/auth/login", { email, password });
       login(res.data.user);
@@ -325,11 +325,25 @@ export default function LoginForm() {
         }
       );
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed. Please try again.");
-    } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading state
+      console.error("Login failed:", err);
+  
+      // Handle different error types and show appropriate messages
+      if (err.response) {
+        const errorMessage = err.response.data.message || "Login failed";
+        if (errorMessage === "Invalid credentials") {
+          alert("Invalid email or password. Please try again.");
+        } else if (errorMessage === "Verify your email first.") {
+          alert("Please verify your email before logging in.");
+        } else {
+          alert(errorMessage); // Show generic error
+        }
+      } else {
+        alert("An error occurred. Please try again.");
+      }
     }
   };
+  
 
   return (
     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
