@@ -82,7 +82,6 @@ export default function Profile() {
 
 
   useEffect(() => {
-    console.log("User in Profile.jsx:", user);
     if (!user) return;
   
     const u = {
@@ -107,17 +106,16 @@ export default function Profile() {
         to: e.to ? e.to.slice(0, 7) : "",
         current: !!e.current,
       })),
-      avatar: user.avatar || "",
+      avatar: user.avatar || "",  // Ensure avatar is set properly
       resume: user.resume || "",
     };
   
-    setProfile(u);
+    setProfile(u); // Update profile state
     calculateCompletion(u); // Recalculate profile completion
     setAvatarFile(null);
     setResumeFile(null);
-  }, [user]); // This should now trigger whenever the `user` changes
+  }, [user]);  // This hook will be triggered when the user context changes
   
-
   // const languageOptions = [
   //   { value: "english", label: "English" },
   //   { value: "hindi", label: "Hindi" },

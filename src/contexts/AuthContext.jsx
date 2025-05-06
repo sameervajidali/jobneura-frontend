@@ -7,87 +7,79 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // src/contexts/AuthContext.jsx
-
-function login(payload) {
-  console.log("Login called with payload:", payload);
-  
-  // Fetch the latest user data after login
+  // Fetch the latest user data from backend (on login or refresh)
   const fetchUserData = async () => {
     try {
       const { data } = await API.get("/auth/me");  // Fetch the latest user data from the backend
       setUser(data.user ?? data);  // Ensure correct user data is set
-      localStorage.setItem("hasSession", "true"); // Mark session as active
+      localStorage.setItem("hasSession", "true");  // Mark session as active
     } catch (err) {
-      console.error("Failed to fetch user data after login:", err);
-      setUser(null);
-      localStorage.removeItem("hasSession");
+      console.error("Failed to fetch user data:", err);
+      setUser(null);  // Clear user if fetching fails
+      localStorage.removeItem("hasSession");  // Remove session if fetching fails
     }
   };
 
-  fetchUserData();
-}
-
-
-  // Try to restore from cookie + refresh-token
+  // Call to refresh user data from session or token
   const refreshUser = async () => {
     const hasSession = localStorage.getItem("hasSession") === "true";
     if (!hasSession) {
-      setLoading(false);
+      setLoading(false);  // No session found, stop loading
       return;
     }
 
     try {
-      // 1) see if our cookie already authorizes us
-      const { data } = await API.get("/auth/me");
-      setUser(data.user ?? data);  // Ensure we handle both scenarios where user might be in data or directly as data
-      localStorage.setItem("hasSession", "true");
+      // 1) Try to fetch user data from session
+      await fetchUserData();
     } catch (err) {
+      // 2) If failed, try refreshing the session
       if (err.response?.status === 401) {
-        // 2) if not, try refreshing
         try {
           await API.post("/auth/refresh-token");
-          const { data } = await API.get("/auth/me");
-          setUser(data.user ?? data);
-          localStorage.setItem("hasSession", "true");
-        } catch {
-          // refresh failed
-          setUser(null);
-          localStorage.removeItem("hasSession");
+          await fetchUserData();  // Retry fetching after refreshing token
+        } catch (refreshError) {
+          setUser(null);  // If refresh fails, clear user
+          localStorage.removeItem("hasSession");  // Clear session
         }
       } else {
-        // some other error
-        setUser(null);
-        localStorage.removeItem("hasSession");
+        setUser(null);  // Handle any other errors
+        localStorage.removeItem("hasSession");  // Clear session
       }
     } finally {
-      // no matter what, we’re done trying to restore
-      setLoading(false);
+      setLoading(false);  // End loading, regardless of success/failure
     }
   };
 
-  useEffect(() => {
-    refreshUser();
-  }, []); // Only run once on initial load
+  // Call to login user and fetch their data after login
+  const login = async (payload) => {
+    console.log("Login called with user:", payload.user);  // Log user to verify it's correctly passed
+    try {
+      const u = payload.user ?? payload;  // Ensure the user object is correctly set
+      setUser(u);  // Update the user state
+      localStorage.setItem("hasSession", "true");  // Set session in localStorage
+      await fetchUserData();  // Fetch latest user data from the backend
+    } catch (err) {
+      console.error("Login failed:", err);
+      setUser(null);
+      localStorage.removeItem("hasSession");  // Remove session on failure
+    }
+  };
 
-  // Call this on real login or after a successful profile update
-  function login(payload) {
-    console.log("Login called with user:", payload.user); // Log user to verify it's correctly passed
-    const u = payload.user ?? payload;
-    setUser(u);
-    localStorage.setItem("hasSession", "true");
-  }
-  
-
+  // Logout function
   const logout = async () => {
     try {
-      await API.post("/auth/logout");
+      await API.post("/auth/logout");  // Call logout API endpoint
     } catch {
-      // Ignore error, proceed with logout
+      // Ignore error and continue with logout
     }
-    setUser(null);
-    localStorage.removeItem("hasSession");
+    setUser(null);  // Clear user state
+    localStorage.removeItem("hasSession");  // Clear session from localStorage
   };
+
+  // Refresh user data on initial load
+  useEffect(() => {
+    refreshUser();  // Fetch user data if session exists
+  }, []);  // This effect only runs on initial load
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
