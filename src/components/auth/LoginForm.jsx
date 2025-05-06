@@ -329,8 +329,10 @@ export default function LoginForm() {
       );
     } catch (err) {
       setLoading(false); // Stop loading
+  
       console.error("Login failed:", err);
   
+      // Ensure no additional requests (like refresh token) are made after failed login
       // Handle errors based on the response from the backend
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
@@ -346,9 +348,6 @@ export default function LoginForm() {
       } else {
         alert("An error occurred. Please try again.");
       }
-  
-      // Ensure no further requests (such as refresh token) are sent
-      // Avoid triggering any refresh token logic
     }
   };
   
