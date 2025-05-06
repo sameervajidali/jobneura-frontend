@@ -454,7 +454,6 @@
 //   );
 // }
 
-
 // src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
@@ -499,9 +498,7 @@ export default function Profile() {
   // 3️⃣ show a loading screen while restoring session
   if (sessionLoading && !user) {
     return (
-      <div className="p-8 text-center text-gray-500">
-        Loading session…
-      </div>
+      <div className="p-8 text-center text-gray-500">Loading session…</div>
     );
   }
 
@@ -520,10 +517,14 @@ export default function Profile() {
       languages: user.languages || [],
       experience: (user.experience || []).map((e) => ({
         ...e,
+        from: e.from ? e.from.slice(0, 7) : "", // "2022-08"
+        to: e.to ? e.to.slice(0, 7) : "",
         current: !!e.current,
       })),
       education: (user.education || []).map((e) => ({
         ...e,
+        from: e.from ? e.from.slice(0, 7) : "",
+        to: e.to ? e.to.slice(0, 7) : "",
         current: !!e.current,
       })),
       avatar: user.avatar || "",
@@ -603,7 +604,14 @@ export default function Profile() {
       ...p,
       experience: [
         ...p.experience,
-        { title: "", company: "", from: "", to: "", description: "", current: false },
+        {
+          title: "",
+          company: "",
+          from: "",
+          to: "",
+          description: "",
+          current: false,
+        },
       ],
     }));
   const removeExperience = (i) =>
@@ -629,7 +637,14 @@ export default function Profile() {
       ...p,
       education: [
         ...p.education,
-        { degree: "", institution: "", from: "", to: "", description: "", current: false },
+        {
+          degree: "",
+          institution: "",
+          from: "",
+          to: "",
+          description: "",
+          current: false,
+        },
       ],
     }));
   const removeEducation = (i) =>
@@ -694,7 +709,9 @@ export default function Profile() {
             {profile.name || "Your Name"}
           </h2>
           <p className="text-sm text-gray-500">{profile.email}</p>
-          {profile.phone && <p className="text-sm text-gray-500">{profile.phone}</p>}
+          {profile.phone && (
+            <p className="text-sm text-gray-500">{profile.phone}</p>
+          )}
           {profile.location && (
             <p className="text-sm text-gray-500">{profile.location}</p>
           )}
@@ -737,7 +754,11 @@ export default function Profile() {
         <div className="lg:col-span-3 bg-white rounded-2xl shadow p-6 space-y-6">
           <h3 className="text-xl font-semibold text-gray-800">Edit Profile</h3>
 
-          <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            encType="multipart/form-data"
+            className="space-y-6"
+          >
             {/* Name / Email / Phone / Location */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
@@ -899,6 +920,7 @@ export default function Profile() {
                       }`}
                     />
                   </div>
+
                   <label className="flex items-center gap-2 mb-2">
                     <input
                       type="checkbox"
