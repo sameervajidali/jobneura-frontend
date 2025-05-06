@@ -314,35 +314,26 @@ export default function LoginForm() {
  
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Show loading indicator
+    setLoading(true);
   
     try {
-      // Send login request to the backend
       const res = await API.post("/auth/login", { email, password });
-  
-      // Handle successful login
-      login(res.data.user); // Store user data in context
-      navigate(
-        ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard",
-        { replace: true }
-      );
+      login(res.data.user);  // Store user data in context
+      navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
     } catch (err) {
       setLoading(false); // Stop loading
   
-      console.error("Login failed:", err);
-  
-      // Ensure no additional requests (like refresh token) are made after failed login
-      // Handle errors based on the response from the backend
+      // Check if the error response is valid and display it
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
+        console.error("Login error:", errorMessage);  // Log to console for debugging
   
-        // Handle specific error messages
         if (errorMessage === "Invalid credentials") {
           alert("Invalid email or password. Please try again.");
-        } else if (errorMessage === "Verify your email first.") {
+        } else if (errorMessage === "Please verify your email first") {
           alert("Please verify your email before logging in.");
         } else {
-          alert(errorMessage); // Display error message from backend
+          alert(errorMessage);  // Display other errors from the backend
         }
       } else {
         alert("An error occurred. Please try again.");
