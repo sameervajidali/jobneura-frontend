@@ -329,25 +329,28 @@ export default function LoginForm() {
       );
     } catch (err) {
       setLoading(false); // Stop loading
+  
+      // Log error to console for debugging
       console.error("Login failed:", err);
   
       // Handle errors based on the response from the backend
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
         
-        // Handle different types of errors
+        // Check for specific error messages and show appropriate alerts
         if (errorMessage === "Invalid credentials") {
           alert("Invalid email or password. Please try again.");
         } else if (errorMessage === "Verify your email first.") {
           alert("Please verify your email before logging in.");
         } else {
-          alert(errorMessage); // Display the error message from the backend
+          alert(errorMessage); // Show other error messages from the backend
         }
       } else {
         alert("An error occurred. Please try again.");
       }
     }
   };
+  
   
   
 
