@@ -12,10 +12,14 @@
 // import API from "../services/axios";
 
 // export default function Profile() {
-//   // 1) pull sessionLoading from context *and* login/setUser
-//   const { user, login, setUser, loading: sessionLoading } = useAuth();
+//   // 1️⃣ Pull sessionLoading (renamed), login(), and user out of context
+//   const {
+//     user,
+//     login,
+//     loading: sessionLoading,
+//   } = useAuth();
 
-//   // 2) local state
+//   // 2️⃣ Local state for the form
 //   const [profile, setProfile] = useState({
 //     name: "",
 //     email: "",
@@ -39,7 +43,7 @@
 //   const [message, setMessage] = useState(null);
 //   const [submitting, setSubmitting] = useState(false);
 
-//   // 3) only show spinner on *initial* load if we truly have no user
+//   // 3️⃣ Show “Loading session…” ONLY while we're restoring a session and have no user yet
 //   if (sessionLoading && !user) {
 //     return (
 //       <div className="p-8 text-center text-gray-500">
@@ -48,7 +52,7 @@
 //     );
 //   }
 
-//   // 4) initialize form once we get `user`
+//   // 4️⃣ Whenever `user` changes (login, refresh, or post-update), re-populate the form
 //   useEffect(() => {
 //     if (!user) return;
 //     const u = {
@@ -68,11 +72,13 @@
 //     };
 //     setProfile(u);
 //     calculateCompletion(u);
+//     // wipe out any lingering file‐inputs
+//     setAvatarFile(null);
+//     setResumeFile(null);
 //   }, [user]);
 
-//   // 5) profile‐completion
+//   // 5️⃣ Compute the “profile completion” bar
 //   const calculateCompletion = (u) => {
-//     const total = 10;
 //     let filled = 0;
 //     if (u.name) filled++;
 //     if (u.email) filled++;
@@ -84,19 +90,22 @@
 //     if (u.education.length) filled++;
 //     if (u.avatar) filled++;
 //     if (u.resume) filled++;
-//     setCompletion(Math.round((filled / total) * 100));
+//     setCompletion(Math.round((filled / 10) * 100));
 //   };
 
-//   // 6) generic text input handler
+//   // 6️⃣ Generic text‐input handler
 //   const handleChange = (e) => {
 //     const { name, value } = e.target;
 //     setProfile((p) => ({ ...p, [name]: value }));
 //   };
 
-//   // 7) skills + languages
+//   // 7️⃣ Skills + Languages helpers
 //   const addSkill = () => {
 //     if (!newSkill.trim()) return;
-//     setProfile((p) => ({ ...p, skills: [...p.skills, newSkill.trim()] }));
+//     setProfile((p) => ({
+//       ...p,
+//       skills: [...p.skills, newSkill.trim()],
+//     }));
 //     setNewSkill("");
 //   };
 //   const removeSkill = (i) =>
@@ -119,7 +128,7 @@
 //       languages: p.languages.filter((_, idx) => idx !== i),
 //     }));
 
-//   // 8) experience
+//   // 8️⃣ Experience helpers
 //   const handleExperienceChange = (i, field, val) => {
 //     const arr = [...profile.experience];
 //     arr[i] = { ...arr[i], [field]: val };
@@ -139,7 +148,7 @@
 //       experience: p.experience.filter((_, idx) => idx !== i),
 //     }));
 
-//   // 9) education
+//   // 9️⃣ Education helpers
 //   const handleEducationChange = (i, field, val) => {
 //     const arr = [...profile.education];
 //     arr[i] = { ...arr[i], [field]: val };
@@ -159,7 +168,7 @@
 //       education: p.education.filter((_, idx) => idx !== i),
 //     }));
 
-//   // 10) form submit
+//   // 🔟 Form submission
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     setSubmitting(true);
@@ -167,29 +176,23 @@
 
 //     try {
 //       const formData = new FormData();
-//       // append all fields (arrays → JSON)
-//       Object.entries(profile).forEach(([k, v]) => {
-//         formData.append(k, Array.isArray(v) ? JSON.stringify(v) : v);
-//       });
+//       // append all fields, JSON‐stringify arrays
+//       Object.entries(profile).forEach(([k, v]) =>
+//         formData.append(k, Array.isArray(v) ? JSON.stringify(v) : v)
+//       );
 //       if (avatarFile) formData.append("avatar", avatarFile);
 //       if (resumeFile) formData.append("resume", resumeFile);
 
 //       const res = await API.put("/auth/profile", formData);
-//       // 11) push into context so everything (navbar, /me, profile) updates immediately
-//       setUser(res.data.user);
-//       setProfile((_) => ({
-//         ...res.data.user,
-//         skills: res.data.user.skills || [],
-//         languages: res.data.user.languages || [],
-//         experience: res.data.user.experience || [],
-//         education: res.data.user.education || [],
-//       }));
-//       calculateCompletion(res.data.user);
 
-//       // also call login() if you rely on its side-effects
+//       // immediately push the new user into context…
+//       // login() calls setUser() under the hood and persists hasSession
 //       login(res.data.user);
 
-//       setMessage({ type: "success", text: "Profile updated successfully!" });
+//       setMessage({
+//         type: "success",
+//         text: "Profile updated successfully!",
+//       });
 //     } catch (err) {
 //       setMessage({
 //         type: "error",
@@ -200,7 +203,7 @@
 //     }
 //   };
 
-//   // 12) render
+//   // ✔️ Render
 //   return (
 //     <div className="max-w-4xl mx-auto p-6 space-y-8">
 //       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -226,6 +229,7 @@
 //               />
 //             </label>
 //           </div>
+
 //           <h2 className="mt-4 text-xl font-semibold text-gray-800">
 //             {profile.name || "Your Name"}
 //           </h2>
@@ -236,6 +240,7 @@
 //           {profile.location && (
 //             <p className="text-sm text-gray-500">{profile.location}</p>
 //           )}
+
 //           <div className="flex space-x-4 mt-4">
 //             {profile.website && (
 //               <a
@@ -258,6 +263,7 @@
 //               </a>
 //             )}
 //           </div>
+
 //           <div className="w-full mt-6">
 //             <p className="text-sm font-medium text-gray-700 mb-1">
 //               Profile Completion: {completion}%
@@ -273,13 +279,15 @@
 
 //         {/* Main Form */}
 //         <div className="lg:col-span-3 bg-white rounded-2xl shadow p-6 space-y-6">
-//           <h3 className="text-lg font-semibold text-gray-800">Edit Profile</h3>
+//           <h3 className="text-lg font-semibold text-gray-800">
+//             Edit Profile
+//           </h3>
 //           <form
 //             onSubmit={handleSubmit}
 //             encType="multipart/form-data"
 //             className="space-y-6"
 //           >
-//             {/* Basic fields */}
+//             {/* Name / Email / Phone / Location */}
 //             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 //               <input
 //                 name="name"
@@ -310,6 +318,7 @@
 //               />
 //             </div>
 
+//             {/* Bio */}
 //             <textarea
 //               name="bio"
 //               value={profile.bio}
@@ -391,11 +400,8 @@
 //               </div>
 //             </div>
 
-//             {/* Experience */}
-//             {/* …same as above… */}
-
-//             {/* Education */}
-//             {/* …same as above… */}
+//             {/* Experience & Education (same pattern) */}
+//             {/* … */}
 
 //             {/* Resume */}
 //             <div>
@@ -433,7 +439,9 @@
 //             {message && (
 //               <p
 //                 className={`text-center mt-2 ${
-//                   message.type === "success" ? "text-green-600" : "text-red-600"
+//                   message.type === "success"
+//                     ? "text-green-600"
+//                     : "text-red-600"
 //                 }`}
 //               >
 //                 {message.text}
@@ -463,14 +471,13 @@ import {
 import API from "../services/axios";
 
 export default function Profile() {
-  // 1️⃣ Pull sessionLoading (renamed), login(), and user out of context
   const {
     user,
     login,
     loading: sessionLoading,
   } = useAuth();
 
-  // 2️⃣ Local state for the form
+  // 1. Local form state
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -494,7 +501,7 @@ export default function Profile() {
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // 3️⃣ Show “Loading session…” ONLY while we're restoring a session and have no user yet
+  // 2. Show loading screen while we restore a session
   if (sessionLoading && !user) {
     return (
       <div className="p-8 text-center text-gray-500">
@@ -503,7 +510,7 @@ export default function Profile() {
     );
   }
 
-  // 4️⃣ Whenever `user` changes (login, refresh, or post-update), re-populate the form
+  // 3. On mount / user change, populate the form
   useEffect(() => {
     if (!user) return;
     const u = {
@@ -516,19 +523,24 @@ export default function Profile() {
       linkedin: user.linkedin || "",
       skills: user.skills || [],
       languages: user.languages || [],
-      experience: user.experience || [],
-      education: user.education || [],
+      experience: (user.experience || []).map((e) => ({
+        ...e,
+        current: !!e.current, // default false
+      })),
+      education: (user.education || []).map((e) => ({
+        ...e,
+        current: !!e.current,
+      })),
       avatar: user.avatar || "",
       resume: user.resume || "",
     };
     setProfile(u);
     calculateCompletion(u);
-    // wipe out any lingering file‐inputs
     setAvatarFile(null);
     setResumeFile(null);
   }, [user]);
 
-  // 5️⃣ Compute the “profile completion” bar
+  // 4. Calculate profile completion
   const calculateCompletion = (u) => {
     let filled = 0;
     if (u.name) filled++;
@@ -544,13 +556,13 @@ export default function Profile() {
     setCompletion(Math.round((filled / 10) * 100));
   };
 
-  // 6️⃣ Generic text‐input handler
+  // 5. Input handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfile((p) => ({ ...p, [name]: value }));
   };
 
-  // 7️⃣ Skills + Languages helpers
+  // 6. Skill / Language helpers
   const addSkill = () => {
     if (!newSkill.trim()) return;
     setProfile((p) => ({
@@ -559,10 +571,10 @@ export default function Profile() {
     }));
     setNewSkill("");
   };
-  const removeSkill = (i) =>
+  const removeSkill = (idx) =>
     setProfile((p) => ({
       ...p,
-      skills: p.skills.filter((_, idx) => idx !== i),
+      skills: p.skills.filter((_, i) => i !== idx),
     }));
 
   const addLanguage = () => {
@@ -573,16 +585,23 @@ export default function Profile() {
     }));
     setNewLanguage("");
   };
-  const removeLanguage = (i) =>
+  const removeLanguage = (idx) =>
     setProfile((p) => ({
       ...p,
-      languages: p.languages.filter((_, idx) => idx !== i),
+      languages: p.languages.filter((_, i) => i !== idx),
     }));
 
-  // 8️⃣ Experience helpers
-  const handleExperienceChange = (i, field, val) => {
+  // 7. Experience helpers (with “Present” toggle)
+  const handleExperienceChange = (idx, field, val) => {
     const arr = [...profile.experience];
-    arr[i] = { ...arr[i], [field]: val };
+    arr[idx] = { ...arr[idx], [field]: val };
+    setProfile((p) => ({ ...p, experience: arr }));
+  };
+  const toggleExperienceCurrent = (idx) => {
+    const arr = [...profile.experience];
+    arr[idx].current = !arr[idx].current;
+    // if marking current, clear `to`
+    if (arr[idx].current) arr[idx].to = "";
     setProfile((p) => ({ ...p, experience: arr }));
   };
   const addExperience = () =>
@@ -590,19 +609,25 @@ export default function Profile() {
       ...p,
       experience: [
         ...p.experience,
-        { title: "", company: "", from: "", to: "", description: "" },
+        { title: "", company: "", from: "", to: "", description: "", current: false },
       ],
     }));
-  const removeExperience = (i) =>
+  const removeExperience = (idx) =>
     setProfile((p) => ({
       ...p,
-      experience: p.experience.filter((_, idx) => idx !== i),
+      experience: p.experience.filter((_, i) => i !== idx),
     }));
 
-  // 9️⃣ Education helpers
-  const handleEducationChange = (i, field, val) => {
+  // 8. Education helpers (with “Present” toggle)
+  const handleEducationChange = (idx, field, val) => {
     const arr = [...profile.education];
-    arr[i] = { ...arr[i], [field]: val };
+    arr[idx] = { ...arr[idx], [field]: val };
+    setProfile((p) => ({ ...p, education: arr }));
+  };
+  const toggleEducationCurrent = (idx) => {
+    const arr = [...profile.education];
+    arr[idx].current = !arr[idx].current;
+    if (arr[idx].current) arr[idx].to = "";
     setProfile((p) => ({ ...p, education: arr }));
   };
   const addEducation = () =>
@@ -610,16 +635,16 @@ export default function Profile() {
       ...p,
       education: [
         ...p.education,
-        { degree: "", institution: "", from: "", to: "", description: "" },
+        { degree: "", institution: "", from: "", to: "", description: "", current: false },
       ],
     }));
-  const removeEducation = (i) =>
+  const removeEducation = (idx) =>
     setProfile((p) => ({
       ...p,
-      education: p.education.filter((_, idx) => idx !== i),
+      education: p.education.filter((_, i) => i !== idx),
     }));
 
-  // 🔟 Form submission
+  // 9. Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -627,7 +652,6 @@ export default function Profile() {
 
     try {
       const formData = new FormData();
-      // append all fields, JSON‐stringify arrays
       Object.entries(profile).forEach(([k, v]) =>
         formData.append(k, Array.isArray(v) ? JSON.stringify(v) : v)
       );
@@ -635,15 +659,8 @@ export default function Profile() {
       if (resumeFile) formData.append("resume", resumeFile);
 
       const res = await API.put("/auth/profile", formData);
-
-      // immediately push the new user into context…
-      // login() calls setUser() under the hood and persists hasSession
       login(res.data.user);
-
-      setMessage({
-        type: "success",
-        text: "Profile updated successfully!",
-      });
+      setMessage({ type: "success", text: "Profile updated successfully!" });
     } catch (err) {
       setMessage({
         type: "error",
@@ -654,11 +671,11 @@ export default function Profile() {
     }
   };
 
-  // ✔️ Render
+  // ◀️ Render ▶️
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar */}
+        {/* ─── Sidebar ───────────────────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
           <div className="relative">
             <img
@@ -728,11 +745,9 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Main Form */}
+        {/* ─── Main Form ─────────────────────────────────────────────────────── */}
         <div className="lg:col-span-3 bg-white rounded-2xl shadow p-6 space-y-6">
-          <h3 className="text-lg font-semibold text-gray-800">
-            Edit Profile
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-800">Edit Profile</h3>
           <form
             onSubmit={handleSubmit}
             encType="multipart/form-data"
@@ -851,10 +866,173 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Experience & Education (same pattern) */}
-            {/* … */}
+            {/* Experience */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Experience
+              </label>
+              {profile.experience.map((exp, i) => (
+                <div key={i} className="border rounded p-3 mb-2 relative">
+                  <FaTimes
+                    className="absolute top-2 right-2 cursor-pointer text-red-500"
+                    onClick={() => removeExperience(i)}
+                  />
+                  <input
+                    value={exp.title}
+                    onChange={(e) =>
+                      handleExperienceChange(i, "title", e.target.value)
+                    }
+                    placeholder="Job Title"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                  />
+                  <input
+                    value={exp.company}
+                    onChange={(e) =>
+                      handleExperienceChange(i, "company", e.target.value)
+                    }
+                    placeholder="Company"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                  />
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="month"
+                      value={exp.from}
+                      onChange={(e) =>
+                        handleExperienceChange(i, "from", e.target.value)
+                      }
+                      className="flex-1 border rounded px-2 py-1"
+                    />
+                    {!exp.current ? (
+                      <input
+                        type="month"
+                        value={exp.to}
+                        onChange={(e) =>
+                          handleExperienceChange(i, "to", e.target.value)
+                        }
+                        className="flex-1 border rounded px-2 py-1"
+                      />
+                    ) : (
+                      <span className="flex-1 flex items-center justify-center italic text-gray-500">
+                        Present
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center mb-2">
+                    <input
+                      id={`exp-current-${i}`}
+                      type="checkbox"
+                      checked={exp.current}
+                      onChange={() => toggleExperienceCurrent(i)}
+                      className="mr-2"
+                    />
+                    <label htmlFor={`exp-current-${i}`} className="text-sm">
+                      I currently work here
+                    </label>
+                  </div>
+                  <textarea
+                    value={exp.description}
+                    onChange={(e) =>
+                      handleExperienceChange(i, "description", e.target.value)
+                    }
+                    placeholder="Description"
+                    rows={2}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addExperience}
+                className="flex items-center gap-1 text-indigo-600 hover:underline"
+              >
+                <FaPlus /> Add Experience
+              </button>
+            </div>
 
-            {/* Resume */}
+            {/* Education */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Education
+              </label>
+              {profile.education.map((ed, i) => (
+                <div key={i} className="border rounded p-3 mb-2 relative">
+                  <FaTimes
+                    className="absolute top-2 right-2 cursor-pointer text-red-500"
+                    onClick={() => removeEducation(i)}
+                  />
+                  <input
+                    value={ed.degree}
+                    onChange={(e) =>
+                      handleEducationChange(i, "degree", e.target.value)
+                    }
+                    placeholder="Degree"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                  />
+                  <input
+                    value={ed.institution}
+                    onChange={(e) =>
+                      handleEducationChange(i, "institution", e.target.value)
+                    }
+                    placeholder="Institution"
+                    className="w-full mb-2 border rounded px-2 py-1"
+                  />
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="month"
+                      value={ed.from}
+                      onChange={(e) =>
+                        handleEducationChange(i, "from", e.target.value)
+                      }
+                      className="flex-1 border rounded px-2 py-1"
+                    />
+                    {!ed.current ? (
+                      <input
+                        type="month"
+                        value={ed.to}
+                        onChange={(e) =>
+                          handleEducationChange(i, "to", e.target.value)
+                        }
+                        className="flex-1 border rounded px-2 py-1"
+                      />
+                    ) : (
+                      <span className="flex-1 flex items-center justify-center italic text-gray-500">
+                        Present
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center mb-2">
+                    <input
+                      id={`ed-current-${i}`}
+                      type="checkbox"
+                      checked={ed.current}
+                      onChange={() => toggleEducationCurrent(i)}
+                      className="mr-2"
+                    />
+                    <label htmlFor={`ed-current-${i}`} className="text-sm">
+                      I am currently studying here
+                    </label>
+                  </div>
+                  <textarea
+                    value={ed.description}
+                    onChange={(e) =>
+                      handleEducationChange(i, "description", e.target.value)
+                    }
+                    placeholder="Description"
+                    rows={2}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addEducation}
+                className="flex items-center gap-1 text-indigo-600 hover:underline"
+              >
+                <FaPlus /> Add Education
+              </button>
+            </div>
+
+            {/* Resume Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Upload Resume
@@ -890,9 +1068,7 @@ export default function Profile() {
             {message && (
               <p
                 className={`text-center mt-2 ${
-                  message.type === "success"
-                    ? "text-green-600"
-                    : "text-red-600"
+                  message.type === "success" ? "text-green-600" : "text-red-600"
                 }`}
               >
                 {message.text}
@@ -904,3 +1080,4 @@ export default function Profile() {
     </div>
   );
 }
+
