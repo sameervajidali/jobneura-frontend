@@ -50,11 +50,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Call this on real login or after a successful profile update
-  const login = (userObj) => {
-    setUser(userObj);
+    // THIS login accepts the raw user object and replaces it
+   const login = (userData) => {
+    setUser(userData);
     localStorage.setItem("hasSession","true");
-    // clear any “still restoring” state
-    if (loading) setLoading(false);
   };
 
   const logout = async () => {
