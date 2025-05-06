@@ -47,8 +47,44 @@ export default function Profile() {
   }
 
   // 4️⃣ whenever user changes (initial load, or after update), populate our form
+  // useEffect(() => {
+  //   if (!user) return;
+  //   const u = {
+  //     name: user.name || "",
+  //     email: user.email || "",
+  //     phone: user.phone || "",
+  //     location: user.location || "",
+  //     bio: user.bio || "",
+  //     website: user.website || "",
+  //     linkedin: user.linkedin || "",
+  //     skills: user.skills || [],
+  //     languages: user.languages || [],
+  //     experience: (user.experience || []).map((e) => ({
+  //       ...e,
+  //       from: e.from ? e.from.slice(0, 7) : "", // "2022-08"
+  //       to: e.to ? e.to.slice(0, 7) : "",
+  //       current: !!e.current,
+  //     })),
+  //     education: (user.education || []).map((e) => ({
+  //       ...e,
+  //       from: e.from ? e.from.slice(0, 7) : "",
+  //       to: e.to ? e.to.slice(0, 7) : "",
+  //       current: !!e.current,
+  //     })),
+  //     avatar: user.avatar || "",
+  //     resume: user.resume || "",
+  //   };
+  //   setProfile(u);
+  //   calculateCompletion(u);
+  //   setAvatarFile(null);
+  //   setResumeFile(null);
+  // }, [user]);
+
+
   useEffect(() => {
     if (!user) return;
+  
+    // Sync updated profile from context
     const u = {
       name: user.name || "",
       email: user.email || "",
@@ -74,22 +110,19 @@ export default function Profile() {
       avatar: user.avatar || "",
       resume: user.resume || "",
     };
-    setProfile(u);
-    calculateCompletion(u);
+  
+    setProfile(u); // Update profile state with the fresh data
+    calculateCompletion(u); // Recalculate completion status
     setAvatarFile(null);
     setResumeFile(null);
-  }, [user]);
-
-
+  }, [user]); // Ensure this useEffect runs when the `user` object changes
+  
 
   // const languageOptions = [
   //   { value: "english", label: "English" },
   //   { value: "hindi", label: "Hindi" },
   //   { value: "spanish", label: "Spanish" },
   // ];
-
-
-
 
   // 5️⃣ compute profile completion
   const calculateCompletion = (u) => {
@@ -209,6 +242,31 @@ export default function Profile() {
     }));
 
   // 🔟 form submission
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setSubmitting(true);
+  //   setMessage(null);
+  //   try {
+  //     const formData = new FormData();
+  //     Object.entries(profile).forEach(([k, v]) =>
+  //       formData.append(k, Array.isArray(v) ? JSON.stringify(v) : v)
+  //     );
+  //     if (avatarFile) formData.append("avatar", avatarFile);
+  //     if (resumeFile) formData.append("resume", resumeFile);
+
+  //     const res = await API.put("/auth/profile", formData);
+  //     login(res.data.user); // immediately update context
+  //     setMessage({ type: "success", text: "Profile updated!" });
+  //   } catch (err) {
+  //     setMessage({
+  //       type: "error",
+  //       text: err.response?.data?.message || "Update failed",
+  //     });
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -220,9 +278,12 @@ export default function Profile() {
       );
       if (avatarFile) formData.append("avatar", avatarFile);
       if (resumeFile) formData.append("resume", resumeFile);
-
+  
       const res = await API.put("/auth/profile", formData);
-      login(res.data.user); // immediately update context
+  
+      // Update the context with the latest user data
+      const { data } = await API.get("/auth/me"); // Fetch fresh user data
+      login(data.user); // Update context with the latest profile data
       setMessage({ type: "success", text: "Profile updated!" });
     } catch (err) {
       setMessage({
@@ -233,6 +294,7 @@ export default function Profile() {
       setSubmitting(false);
     }
   };
+  
 
   // 🎨 render
   return (
@@ -393,11 +455,13 @@ export default function Profile() {
 
             {/* Languages */}
             <div>
-              { <label className="block text-sm font-medium text-gray-700 mb-1">
-                Languages
-              </label> }
+              {
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Languages
+                </label>
+              }
 
-{/* <div className="mb-4">
+              {/* <div className="mb-4">
   <label className="block text-sm font-medium text-gray-700 mb-1">
     Languages
   </label>
@@ -411,10 +475,6 @@ export default function Profile() {
     classNamePrefix="react-select"
   />
 </div> */}
-
-
-
-
 
               <div className="flex flex-wrap gap-2 mb-2">
                 {profile.languages.map((l, i) => (
