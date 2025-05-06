@@ -82,11 +82,11 @@ export default function Profile() {
 
 
 
-  const languageOptions = [
-    { value: "english", label: "English" },
-    { value: "hindi", label: "Hindi" },
-    { value: "spanish", label: "Spanish" },
-  ];
+  // const languageOptions = [
+  //   { value: "english", label: "English" },
+  //   { value: "hindi", label: "Hindi" },
+  //   { value: "spanish", label: "Spanish" },
+  // ];
 
 
 
@@ -393,11 +393,11 @@ export default function Profile() {
 
             {/* Languages */}
             <div>
-              {/* <label className="block text-sm font-medium text-gray-700 mb-1">
+              { <label className="block text-sm font-medium text-gray-700 mb-1">
                 Languages
-              </label> */}
+              </label> }
 
-<div className="mb-4">
+{/* <div className="mb-4">
   <label className="block text-sm font-medium text-gray-700 mb-1">
     Languages
   </label>
@@ -410,7 +410,7 @@ export default function Profile() {
     className="text-sm"
     classNamePrefix="react-select"
   />
-</div>
+</div> */}
 
 
 
