@@ -317,26 +317,24 @@ export default function LoginForm() {
     setLoading(true); // Show loading indicator
   
     try {
-      // Ensure email and password are correctly passed
-      console.log("Attempting to login with:", { email, password });
       const res = await API.post("/auth/login", { email, password });
   
-      // Proceed with successful login
-      login(res.data.user); // Store user data in context
+      // Successful login
+      login(res.data.user);
       navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
     } catch (err) {
       setLoading(false); // Stop loading
       console.error("Login failed:", err);
   
-      // Handle errors based on the response from the backend
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
-        alert(errorMessage);
+        alert(errorMessage); // Show the specific backend error message
       } else {
         alert("An error occurred. Please try again.");
       }
     }
   };
+  
   
   
 
