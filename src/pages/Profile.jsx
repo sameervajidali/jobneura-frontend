@@ -667,7 +667,7 @@ export default function Profile() {
       if (resumeFile) formData.append("resume", resumeFile);
 
       const res = await API.put("/auth/profile", formData);
-      login(res.data.user); // immediately update context
+      login(data);     // immediately update context
       setMessage({ type: "success", text: "Profile updated!" });
     } catch (err) {
       setMessage({

@@ -105,7 +105,7 @@ export default function LoginForm() {
 
     try {
       const res = await API.post("/auth/login", { email, password });
-      login(res.data.user);
+      login(data);  
       navigate(
         ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard",
         {
