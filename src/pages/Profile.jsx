@@ -275,6 +275,18 @@ export default function Profile() {
 
   const { setUser } = useAuth()
 
+
+
+  // ONLY show the “Loading session…” screen if we truly have
+// no user yet _and_ we’re still waiting on the initial fetch.
+if (loading && !user) {
+  return (
+    <div className="p-8 text-center text-gray-500">
+      Loading session…
+    </div>
+  )
+}
+
   // Load and initialize profile
   useEffect(() => {
     console.log("[Profile] useEffect - user:", user);
