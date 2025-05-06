@@ -455,8 +455,6 @@
 // }
 
 
-
-
 // src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
@@ -471,13 +469,10 @@ import {
 import API from "../services/axios";
 
 export default function Profile() {
-  const {
-    user,
-    login,
-    loading: sessionLoading,
-  } = useAuth();
+  // 1️⃣ pull sessionLoading, user, and login() from context
+  const { user, login, loading: sessionLoading } = useAuth();
 
-  // 1. Local form state
+  // 2️⃣ local state for the form
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -501,7 +496,7 @@ export default function Profile() {
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // 2. Show loading screen while we restore a session
+  // 3️⃣ show a loading screen while restoring session
   if (sessionLoading && !user) {
     return (
       <div className="p-8 text-center text-gray-500">
@@ -510,7 +505,7 @@ export default function Profile() {
     );
   }
 
-  // 3. On mount / user change, populate the form
+  // 4️⃣ whenever user changes (initial load, or after update), populate our form
   useEffect(() => {
     if (!user) return;
     const u = {
@@ -525,7 +520,7 @@ export default function Profile() {
       languages: user.languages || [],
       experience: (user.experience || []).map((e) => ({
         ...e,
-        current: !!e.current, // default false
+        current: !!e.current,
       })),
       education: (user.education || []).map((e) => ({
         ...e,
@@ -540,7 +535,7 @@ export default function Profile() {
     setResumeFile(null);
   }, [user]);
 
-  // 4. Calculate profile completion
+  // 5️⃣ compute profile completion
   const calculateCompletion = (u) => {
     let filled = 0;
     if (u.name) filled++;
@@ -556,13 +551,13 @@ export default function Profile() {
     setCompletion(Math.round((filled / 10) * 100));
   };
 
-  // 5. Input handlers
+  // 6️⃣ generic text‐input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProfile((p) => ({ ...p, [name]: value }));
   };
 
-  // 6. Skill / Language helpers
+  // 7️⃣ Skills & Languages
   const addSkill = () => {
     if (!newSkill.trim()) return;
     setProfile((p) => ({
@@ -571,10 +566,10 @@ export default function Profile() {
     }));
     setNewSkill("");
   };
-  const removeSkill = (idx) =>
+  const removeSkill = (i) =>
     setProfile((p) => ({
       ...p,
-      skills: p.skills.filter((_, i) => i !== idx),
+      skills: p.skills.filter((_, idx) => idx !== i),
     }));
 
   const addLanguage = () => {
@@ -585,23 +580,22 @@ export default function Profile() {
     }));
     setNewLanguage("");
   };
-  const removeLanguage = (idx) =>
+  const removeLanguage = (i) =>
     setProfile((p) => ({
       ...p,
-      languages: p.languages.filter((_, i) => i !== idx),
+      languages: p.languages.filter((_, idx) => idx !== i),
     }));
 
-  // 7. Experience helpers (with “Present” toggle)
-  const handleExperienceChange = (idx, field, val) => {
+  // 8️⃣ Experience (with “Present” toggle)
+  const handleExperienceChange = (i, field, val) => {
     const arr = [...profile.experience];
-    arr[idx] = { ...arr[idx], [field]: val };
+    arr[i] = { ...arr[i], [field]: val };
     setProfile((p) => ({ ...p, experience: arr }));
   };
-  const toggleExperienceCurrent = (idx) => {
+  const toggleExperienceCurrent = (i) => {
     const arr = [...profile.experience];
-    arr[idx].current = !arr[idx].current;
-    // if marking current, clear `to`
-    if (arr[idx].current) arr[idx].to = "";
+    arr[i].current = !arr[i].current;
+    if (arr[i].current) arr[i].to = "";
     setProfile((p) => ({ ...p, experience: arr }));
   };
   const addExperience = () =>
@@ -612,22 +606,22 @@ export default function Profile() {
         { title: "", company: "", from: "", to: "", description: "", current: false },
       ],
     }));
-  const removeExperience = (idx) =>
+  const removeExperience = (i) =>
     setProfile((p) => ({
       ...p,
-      experience: p.experience.filter((_, i) => i !== idx),
+      experience: p.experience.filter((_, idx) => idx !== i),
     }));
 
-  // 8. Education helpers (with “Present” toggle)
-  const handleEducationChange = (idx, field, val) => {
+  // 9️⃣ Education (with “Present” toggle)
+  const handleEducationChange = (i, field, val) => {
     const arr = [...profile.education];
-    arr[idx] = { ...arr[idx], [field]: val };
+    arr[i] = { ...arr[i], [field]: val };
     setProfile((p) => ({ ...p, education: arr }));
   };
-  const toggleEducationCurrent = (idx) => {
+  const toggleEducationCurrent = (i) => {
     const arr = [...profile.education];
-    arr[idx].current = !arr[idx].current;
-    if (arr[idx].current) arr[idx].to = "";
+    arr[i].current = !arr[i].current;
+    if (arr[i].current) arr[i].to = "";
     setProfile((p) => ({ ...p, education: arr }));
   };
   const addEducation = () =>
@@ -638,18 +632,17 @@ export default function Profile() {
         { degree: "", institution: "", from: "", to: "", description: "", current: false },
       ],
     }));
-  const removeEducation = (idx) =>
+  const removeEducation = (i) =>
     setProfile((p) => ({
       ...p,
-      education: p.education.filter((_, i) => i !== idx),
+      education: p.education.filter((_, idx) => idx !== i),
     }));
 
-  // 9. Submit form
+  // 🔟 form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setMessage(null);
-
     try {
       const formData = new FormData();
       Object.entries(profile).forEach(([k, v]) =>
@@ -659,8 +652,8 @@ export default function Profile() {
       if (resumeFile) formData.append("resume", resumeFile);
 
       const res = await API.put("/auth/profile", formData);
-      login(res.data.user);
-      setMessage({ type: "success", text: "Profile updated successfully!" });
+      login(res.data.user); // immediately update context
+      setMessage({ type: "success", text: "Profile updated!" });
     } catch (err) {
       setMessage({
         type: "error",
@@ -671,12 +664,12 @@ export default function Profile() {
     }
   };
 
-  // ◀️ Render ▶️
+  // 🎨 render
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="max-w-5xl mx-auto p-6 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* ─── Sidebar ───────────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
+        {/* — Sidebar */}
+        <aside className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
           <div className="relative">
             <img
               src={
@@ -697,18 +690,14 @@ export default function Profile() {
               />
             </label>
           </div>
-
           <h2 className="mt-4 text-xl font-semibold text-gray-800">
             {profile.name || "Your Name"}
           </h2>
           <p className="text-sm text-gray-500">{profile.email}</p>
-          {profile.phone && (
-            <p className="text-sm text-gray-500">{profile.phone}</p>
-          )}
+          {profile.phone && <p className="text-sm text-gray-500">{profile.phone}</p>}
           {profile.location && (
             <p className="text-sm text-gray-500">{profile.location}</p>
           )}
-
           <div className="flex space-x-4 mt-4">
             {profile.website && (
               <a
@@ -731,7 +720,6 @@ export default function Profile() {
               </a>
             )}
           </div>
-
           <div className="w-full mt-6">
             <p className="text-sm font-medium text-gray-700 mb-1">
               Profile Completion: {completion}%
@@ -743,16 +731,13 @@ export default function Profile() {
               />
             </div>
           </div>
-        </div>
+        </aside>
 
-        {/* ─── Main Form ─────────────────────────────────────────────────────── */}
+        {/* — Main Form */}
         <div className="lg:col-span-3 bg-white rounded-2xl shadow p-6 space-y-6">
-          <h3 className="text-lg font-semibold text-gray-800">Edit Profile</h3>
-          <form
-            onSubmit={handleSubmit}
-            encType="multipart/form-data"
-            className="space-y-6"
-          >
+          <h3 className="text-xl font-semibold text-gray-800">Edit Profile</h3>
+
+          <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
             {/* Name / Email / Phone / Location */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
@@ -805,7 +790,7 @@ export default function Profile() {
                     key={i}
                     className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full flex items-center"
                   >
-                    {s}{" "}
+                    {s}
                     <FaTimes
                       className="ml-1 cursor-pointer"
                       onClick={() => removeSkill(i)}
@@ -841,7 +826,7 @@ export default function Profile() {
                     key={i}
                     className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full flex items-center"
                   >
-                    {l}{" "}
+                    {l}
                     <FaTimes
                       className="ml-1 cursor-pointer"
                       onClick={() => removeLanguage(i)}
@@ -902,33 +887,26 @@ export default function Profile() {
                       }
                       className="flex-1 border rounded px-2 py-1"
                     />
-                    {!exp.current ? (
-                      <input
-                        type="month"
-                        value={exp.to}
-                        onChange={(e) =>
-                          handleExperienceChange(i, "to", e.target.value)
-                        }
-                        className="flex-1 border rounded px-2 py-1"
-                      />
-                    ) : (
-                      <span className="flex-1 flex items-center justify-center italic text-gray-500">
-                        Present
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center mb-2">
                     <input
-                      id={`exp-current-${i}`}
+                      type="month"
+                      value={exp.to}
+                      disabled={exp.current}
+                      onChange={(e) =>
+                        handleExperienceChange(i, "to", e.target.value)
+                      }
+                      className={`flex-1 border rounded px-2 py-1 ${
+                        exp.current ? "bg-gray-100" : ""
+                      }`}
+                    />
+                  </div>
+                  <label className="flex items-center gap-2 mb-2">
+                    <input
                       type="checkbox"
                       checked={exp.current}
                       onChange={() => toggleExperienceCurrent(i)}
-                      className="mr-2"
                     />
-                    <label htmlFor={`exp-current-${i}`} className="text-sm">
-                      I currently work here
-                    </label>
-                  </div>
+                    <span className="text-sm">Present</span>
+                  </label>
                   <textarea
                     value={exp.description}
                     onChange={(e) =>
@@ -985,33 +963,26 @@ export default function Profile() {
                       }
                       className="flex-1 border rounded px-2 py-1"
                     />
-                    {!ed.current ? (
-                      <input
-                        type="month"
-                        value={ed.to}
-                        onChange={(e) =>
-                          handleEducationChange(i, "to", e.target.value)
-                        }
-                        className="flex-1 border rounded px-2 py-1"
-                      />
-                    ) : (
-                      <span className="flex-1 flex items-center justify-center italic text-gray-500">
-                        Present
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center mb-2">
                     <input
-                      id={`ed-current-${i}`}
+                      type="month"
+                      value={ed.to}
+                      disabled={ed.current}
+                      onChange={(e) =>
+                        handleEducationChange(i, "to", e.target.value)
+                      }
+                      className={`flex-1 border rounded px-2 py-1 ${
+                        ed.current ? "bg-gray-100" : ""
+                      }`}
+                    />
+                  </div>
+                  <label className="flex items-center gap-2 mb-2">
+                    <input
                       type="checkbox"
                       checked={ed.current}
                       onChange={() => toggleEducationCurrent(i)}
-                      className="mr-2"
                     />
-                    <label htmlFor={`ed-current-${i}`} className="text-sm">
-                      I am currently studying here
-                    </label>
-                  </div>
+                    <span className="text-sm">Present</span>
+                  </label>
                   <textarea
                     value={ed.description}
                     onChange={(e) =>
@@ -1042,9 +1013,7 @@ export default function Profile() {
                 onChange={(e) => setResumeFile(e.target.files[0])}
                 className="border rounded px-3 py-2 w-full"
               />
-              {resumeFile && (
-                <p className="mt-1 text-sm">{resumeFile.name}</p>
-              )}
+              {resumeFile && <p className="mt-1 text-sm">{resumeFile.name}</p>}
               {profile.resume && (
                 <a
                   href={profile.resume}
@@ -1062,7 +1031,7 @@ export default function Profile() {
               disabled={submitting}
               className="w-full bg-indigo-600 text-white rounded py-2 hover:bg-indigo-700 transition"
             >
-              {submitting ? "Saving..." : "Save Changes"}
+              {submitting ? "Saving…" : "Save Changes"}
             </button>
 
             {message && (
@@ -1080,4 +1049,3 @@ export default function Profile() {
     </div>
   );
 }
-
