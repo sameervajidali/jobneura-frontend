@@ -75,92 +75,60 @@
 
 
 // src/contexts/AuthContext.jsx
-import React, { createContext, useContext, useState, useEffect } from "react";
-import API from "../services/axios";
+import React, { createContext, useContext, useState, useEffect } from "react"
+import API from "../services/axios"
 
-const AuthContext = createContext();
+const AuthContext = createContext()
 
-/**
- * AuthProvider handles:
- *  • Initial `/auth/me` + refresh flow
- *  • Exposes user, setUser, login, logout, refreshUser, loading
- */
 export function AuthProvider({ children }) {
-  const [user, setUser]       = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser]       = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  /**
-   * Try to restore session:
-   * 1) If no “hasSession” flag, bail
-   * 2) GET /auth/me
-   * 3) on 401, POST /auth/refresh-token + retry /auth/me
-   */
   const refreshUser = async () => {
-    const mayHaveSession = localStorage.getItem("hasSession") === "true";
-    if (!mayHaveSession) {
-      setLoading(false);
-      return;
-    }
+    const ok = localStorage.getItem("hasSession")==="true"
+    if (!ok) { setLoading(false); return }
 
     try {
-      const { data } = await API.get("/auth/me");
-      setUser(data.user ?? data);
-      localStorage.setItem("hasSession", "true");
+      const { data } = await API.get("/auth/me")
+      setUser(data.user ?? data)
+      localStorage.setItem("hasSession","true")
     } catch (err) {
-      if (err.response?.status === 401) {
+      if (err.response?.status===401) {
         try {
-          await API.post("/auth/refresh-token");
-          const { data } = await API.get("/auth/me");
-          setUser(data.user ?? data);
-          localStorage.setItem("hasSession", "true");
+          await API.post("/auth/refresh-token")
+          const { data } = await API.get("/auth/me")
+          setUser(data.user ?? data)
+          localStorage.setItem("hasSession","true")
         } catch {
-          setUser(null);
-          localStorage.removeItem("hasSession");
+          setUser(null)
+          localStorage.removeItem("hasSession")
         }
       } else {
-        setUser(null);
-        localStorage.removeItem("hasSession");
+        setUser(null)
+        localStorage.removeItem("hasSession")
       }
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  useEffect(() => {
-    refreshUser();
-  }, []);
+  useEffect(() => { refreshUser() }, [])
 
-  /**
-   * Call on successful login to seed context & localStorage
-   */
-  const login = ({ user: userData }) => {
-    setUser(userData);
-    localStorage.setItem("hasSession", "true");
-  };
-
-  /**
-   * Call on logout to clear everything
-   */
+  const login = ({ user }) => {
+    setUser(user)
+    localStorage.setItem("hasSession","true")
+  }
   const logout = async () => {
-    try {
-      await API.post("/auth/logout");
-    } catch {
-      /* silent */
-    }
-    setUser(null);
-    localStorage.removeItem("hasSession");
-  };
+    try { await API.post("/auth/logout") } catch {}
+    setUser(null)
+    localStorage.removeItem("hasSession")
+  }
 
   return (
-    <AuthContext.Provider
-      value={{ user, setUser, login, logout, refreshUser, loading }}
-    >
+    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
 
-/**
- * Simple hook for consumers
- */
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext)

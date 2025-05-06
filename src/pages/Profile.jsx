@@ -273,6 +273,8 @@ export default function Profile() {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  
+
   // Load and initialize profile
   useEffect(() => {
     console.log("[Profile] useEffect - user:", user);
@@ -411,6 +413,7 @@ export default function Profile() {
 
       console.log("[Profile] Sending PUT request...");
       const res = await API.put("/auth/profile", formData, { withCredentials: true });
+      setUser(res.data.user)                // ← this makes navbar, etc. update instantly
       console.log("[Profile] PUT response:", res.data);
       login(res.data.user);
       setMessage({ type: "success", text: "Profile updated successfully!" });
