@@ -51,10 +51,20 @@ export function AuthProvider({ children }) {
 
   // Call this on real login or after a successful profile update
     // THIS login accepts the raw user object and replaces it
-   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("hasSession","true");
-  };
+  //  const login = (userData) => {
+  //   setUser(userData);
+  //   localStorage.setItem("hasSession","true");
+  // };
+
+
+   // ✂️ CHANGE: accept either `res.data` or `res.data.user`
+   function login(payload) {
+    // if your API returns { user: {...}, accessToken: … }
+    // make sure we always store the actual .user object
+    const u = payload.user ?? payload;
+    setUser(u);
+    localStorage.setItem("hasSession", "true");
+  }
 
   const logout = async () => {
     try {
