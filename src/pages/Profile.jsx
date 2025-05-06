@@ -273,7 +273,7 @@ export default function Profile() {
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  
+  const { setUser } = useAuth()
 
   // Load and initialize profile
   useEffect(() => {
