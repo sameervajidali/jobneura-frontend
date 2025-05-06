@@ -319,25 +319,19 @@ export default function LoginForm() {
     try {
       const res = await API.post("/auth/login", { email, password });
   
-      // Check if response contains refresh token
-      if (res.data.message === "Login successful") {
-        login(res.data.user);  // Store user data in context
-        navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
-      }
+      // Successfully logged in, now get the user data
+      login(res.data.user);
+      navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
+  
     } catch (err) {
-      setLoading(false); // Stop loading
+      setLoading(false);  // Stop loading
       console.error("Login failed:", err);
   
-      // Handle errors based on the response from the backend
-      if (err.response) {
-        const errorMessage = err.response.data.message || "Login failed";
-        if (errorMessage === "Invalid credentials") {
-          alert("Invalid email or password. Please try again.");
-        } else if (errorMessage === "Please verify your email first") {
-          alert("Please verify your email before logging in.");
-        } else {
-          alert(errorMessage);  // Display other errors from the backend
-        }
+      // Handle invalid login attempt
+      if (err.response && err.response.status === 401) {
+        alert("Invalid email or password. Please try again.");
+      } else if (err.response && err.response.data.message === "Verify your email first.") {
+        alert("Please verify your email before logging in.");
       } else {
         alert("An error occurred. Please try again.");
       }
