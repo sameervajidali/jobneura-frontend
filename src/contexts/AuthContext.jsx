@@ -50,12 +50,12 @@ export function AuthProvider({ children }) {
 
   // Call this on real login or after a successful profile update
   function login(payload) {
-    // if your API returns { user: {...}, accessToken: … }
-    // make sure we always store the actual .user object
+    console.log("Login called with user:", payload.user);
     const u = payload.user ?? payload;
     setUser(u);
-    localStorage.setItem("hasSession", "true"); // Mark session as active in localStorage
+    localStorage.setItem("hasSession", "true");
   }
+  
 
   const logout = async () => {
     try {

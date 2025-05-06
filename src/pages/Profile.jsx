@@ -82,9 +82,9 @@ export default function Profile() {
 
 
   useEffect(() => {
+    console.log("User in Profile.jsx:", user);
     if (!user) return;
   
-    // Sync updated profile from context
     const u = {
       name: user.name || "",
       email: user.email || "",
@@ -97,7 +97,7 @@ export default function Profile() {
       languages: user.languages || [],
       experience: (user.experience || []).map((e) => ({
         ...e,
-        from: e.from ? e.from.slice(0, 7) : "", // "2022-08"
+        from: e.from ? e.from.slice(0, 7) : "",
         to: e.to ? e.to.slice(0, 7) : "",
         current: !!e.current,
       })),
@@ -111,11 +111,11 @@ export default function Profile() {
       resume: user.resume || "",
     };
   
-    setProfile(u); // Update profile state with the fresh data
-    calculateCompletion(u); // Recalculate completion status
+    setProfile(u);
+    calculateCompletion(u); // Recalculate profile completion
     setAvatarFile(null);
     setResumeFile(null);
-  }, [user]); // Ensure this useEffect runs when the `user` object changes
+  }, [user]); // This should now trigger whenever the `user` changes
   
 
   // const languageOptions = [
@@ -281,9 +281,10 @@ export default function Profile() {
   
       const res = await API.put("/auth/profile", formData);
   
-      // Update the context with the latest user data
-      const { data } = await API.get("/auth/me"); // Fetch fresh user data
-      login(data.user); // Update context with the latest profile data
+      // Re-fetch user data and update context immediately after the profile update
+      const { data } = await API.get("/auth/me");
+      login(data.user);  // Update the context with fresh user data
+  
       setMessage({ type: "success", text: "Profile updated!" });
     } catch (err) {
       setMessage({
