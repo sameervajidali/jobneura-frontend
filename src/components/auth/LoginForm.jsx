@@ -332,6 +332,10 @@ export default function LoginForm() {
       } else {
         alert("An error occurred. Please try again.");
       }
+  
+      // Optional: Reset form fields or take other actions
+      setEmail("");
+      setPassword("");
     }
   };
   
