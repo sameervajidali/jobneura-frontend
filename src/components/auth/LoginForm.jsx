@@ -311,24 +311,27 @@ export default function LoginForm() {
     window.addEventListener("message", handleMessage);
   };
 
+ 
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoading(true); // Show loading indicator
   
     try {
+      // Send login request to the backend
       const res = await API.post("/auth/login", { email, password });
-      login(res.data.user);
+  
+      // Handle successful login
+      login(res.data.user); // Store user data in context
       navigate(
         ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard",
-        {
-          replace: true,
-        }
+        { replace: true }
       );
     } catch (err) {
-      setLoading(false); // Stop loading state
+      setLoading(false); // Stop loading
       console.error("Login failed:", err);
   
-      // Handle different error types and show appropriate messages
+      // Handle errors based on the response from the backend
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
         if (errorMessage === "Invalid credentials") {
@@ -336,7 +339,7 @@ export default function LoginForm() {
         } else if (errorMessage === "Verify your email first.") {
           alert("Please verify your email before logging in.");
         } else {
-          alert(errorMessage); // Show generic error
+          alert(errorMessage); // Display the error message from the backend
         }
       } else {
         alert("An error occurred. Please try again.");
@@ -344,6 +347,7 @@ export default function LoginForm() {
     }
   };
   
+
 
   return (
     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
