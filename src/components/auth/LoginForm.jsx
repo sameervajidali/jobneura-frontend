@@ -318,16 +318,19 @@ export default function LoginForm() {
   
     try {
       const res = await API.post("/auth/login", { email, password });
-      login(res.data.user);  // Store user data in context
-      navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
+  
+      // Check if response contains refresh token
+      if (res.data.message === "Login successful") {
+        login(res.data.user);  // Store user data in context
+        navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
+      }
     } catch (err) {
       setLoading(false); // Stop loading
+      console.error("Login failed:", err);
   
-      // Check if the error response is valid and display it
+      // Handle errors based on the response from the backend
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
-        console.error("Login error:", errorMessage);  // Log to console for debugging
-  
         if (errorMessage === "Invalid credentials") {
           alert("Invalid email or password. Please try again.");
         } else if (errorMessage === "Please verify your email first") {
