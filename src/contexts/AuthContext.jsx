@@ -7,6 +7,28 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // src/contexts/AuthContext.jsx
+
+function login(payload) {
+  console.log("Login called with payload:", payload);
+  
+  // Fetch the latest user data after login
+  const fetchUserData = async () => {
+    try {
+      const { data } = await API.get("/auth/me");  // Fetch the latest user data from the backend
+      setUser(data.user ?? data);  // Ensure correct user data is set
+      localStorage.setItem("hasSession", "true"); // Mark session as active
+    } catch (err) {
+      console.error("Failed to fetch user data after login:", err);
+      setUser(null);
+      localStorage.removeItem("hasSession");
+    }
+  };
+
+  fetchUserData();
+}
+
+
   // Try to restore from cookie + refresh-token
   const refreshUser = async () => {
     const hasSession = localStorage.getItem("hasSession") === "true";
