@@ -6,9 +6,9 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
-  const [loading, setLoading] = useState(true);  // ← “is the session still restoring?”
+  const [loading, setLoading] = useState(true);
 
-  // Try to restore an existing session (accessToken in httpOnly cookie)…
+  // Attempt to restore session by hitting /auth/me, then fallback to refresh-token
   const refreshUser = async () => {
     const hasSession = localStorage.getItem("hasSession") === "true";
     if (!hasSession) {
@@ -17,25 +17,25 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      // 1) hit /auth/me
+      // 1) Try to fetch current user
       const { data } = await API.get("/auth/me");
       setUser(data.user ?? data);
       localStorage.setItem("hasSession", "true");
     } catch (err) {
-      // 2) if 401, try refresh-token
       if (err.response?.status === 401) {
         try {
+          // 2) Try refreshing token if unauthorized
           await API.post("/auth/refresh-token");
           const { data } = await API.get("/auth/me");
           setUser(data.user ?? data);
           localStorage.setItem("hasSession", "true");
         } catch {
-          // failed to refresh
+          // Refresh failed → clear session
           setUser(null);
           localStorage.removeItem("hasSession");
         }
       } else {
-        // some other error
+        // Other error → clear session
         setUser(null);
         localStorage.removeItem("hasSession");
       }
@@ -48,9 +48,9 @@ export function AuthProvider({ children }) {
     refreshUser();
   }, []);
 
-  // -- login now accepts the raw user object --
-  const login = (userData) => {
-    setUser(userData);
+  // Accept the raw user object
+  const login = (userObj) => {
+    setUser(userObj);
     localStorage.setItem("hasSession", "true");
   };
 
@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
     try {
       await API.post("/auth/logout");
     } catch {
-      /* silent */
+      // ignore
     }
     setUser(null);
     localStorage.removeItem("hasSession");
@@ -68,10 +68,10 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
-        loading,   // expose so pages can show “Loading session…” while true
+        loading,   // true while /auth/me or refresh-token is in flight
         login,
         logout,
-        setUser,   // handy if you ever want to do a direct set
+        setUser,
       }}
     >
       {children}
