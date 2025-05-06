@@ -281,9 +281,9 @@ export default function Profile() {
   
       const res = await API.put("/auth/profile", formData);
   
-      // Re-fetch user data and update context immediately after the profile update
+      // After updating, re-fetch the user data to get the latest profile information
       const { data } = await API.get("/auth/me");
-      login(data.user);  // Update the context with fresh user data
+      login(data.user);  // Ensure the user data is up-to-date
   
       setMessage({ type: "success", text: "Profile updated!" });
     } catch (err) {
@@ -295,6 +295,7 @@ export default function Profile() {
       setSubmitting(false);
     }
   };
+  
   
 
   // 🎨 render

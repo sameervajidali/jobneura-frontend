@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
 
   // Call this on real login or after a successful profile update
   function login(payload) {
-    console.log("Login called with user:", payload.user);
+    console.log("Login called with user:", payload.user); // Log user to verify it's correctly passed
     const u = payload.user ?? payload;
     setUser(u);
     localStorage.setItem("hasSession", "true");
