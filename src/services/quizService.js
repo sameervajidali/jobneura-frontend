@@ -21,7 +21,7 @@
 
 
 // src/services/quizService.js
-import API from './axios';
+import API from './axios.js';
 
 /**
  * Quiz Management API
