@@ -1,6 +1,7 @@
+
 // import React, { useState } from 'react';
 // import { useParams, useNavigate } from 'react-router-dom';
-// import quizService from '../../../services/quizService';
+// import quizService from '../../../services/quizService.js';
 
 // export default function BulkUploadQuestionsPage() {
 //   const { quizId } = useParams();
@@ -11,6 +12,25 @@
 //   const [loading, setLoading] = useState(false);
 //   const [message, setMessage] = useState('');
 //   const [error, setError] = useState('');
+
+//   // Download a sample CSV template
+//   const downloadCsvTemplate = () => {
+//     const header = ['question','option1','option2','option3','option4','correctAnswer','topic','explanation','difficulty'];
+//     const rows = [
+//       ['What does Array.map() return?','A new array','Undefined','A string','An object','0','Arrays','map() always returns a new array of the same length.','easy'],
+//       ['Which keyword declares a block-scoped variable?','var','let','int','static','1','Variables','`let` and `const` are block scoped, whereas `var` is function scoped.','medium']
+//     ];
+//     const csvContent = [header, ...rows]
+//       .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+//       .join('\n');
+//     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+//     const link = document.createElement('a');
+//     link.href = URL.createObjectURL(blob);
+//     link.setAttribute('download', 'questions_template.csv');
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//   };
 
 //   const handleJsonSubmit = async (e) => {
 //     e.preventDefault();
@@ -54,7 +74,17 @@
 
 //   return (
 //     <div className="p-6 max-w-2xl mx-auto">
-//       <h2 className="text-xl font-semibold mb-4">Bulk Upload Questions</h2>
+//       <div className="flex items-center justify-between mb-4">
+//         <h2 className="text-xl font-semibold">Bulk Upload Questions</h2>
+//         <button
+//           type="button"
+//           onClick={downloadCsvTemplate}
+//           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+//         >
+//           Download CSV Template
+//         </button>
+//       </div>
+
 //       <div className="flex mb-6">
 //         <button
 //           className={`px-4 py-2 mr-2 border-b-2 ${mode === 'json' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'}`}
@@ -120,10 +150,9 @@
 //   );
 // }
 
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import quizService from '../../../services/quizService.js';
+import quizService from '../../services/quizService.js';
 
 export default function BulkUploadQuestionsPage() {
   const { quizId } = useParams();
@@ -201,7 +230,7 @@ export default function BulkUploadQuestionsPage() {
         <button
           type="button"
           onClick={downloadCsvTemplate}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-sm"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
         >
           Download CSV Template
         </button>
