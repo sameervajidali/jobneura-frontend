@@ -60,6 +60,7 @@ import LeaderboardPage from "./pages/LeaderboardPage.jsx";
 import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage.jsx";
 import QuizExplorerPage from "./pages/QuizExplorerPage.jsx";
 import QuizStartPage from "./pages/QuizStartPage.jsx";
+import QuizResultPage from "./pages/QuizResultPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
