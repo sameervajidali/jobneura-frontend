@@ -135,30 +135,20 @@ export function bulkUploadQuestionsFile(quizId, file) {
 
 /** Fetch current assignments for a quiz */
 // AFTER — correct path under /api/quizzes
-// src/services/quizService.js
-// … other imports …
-
-/** Fetch current assignments for a quiz */
 export function getQuizAssignments(quizId) {
-  return API
-    .get(`/admin/quizzes/${quizId}/assignments`)
-    .then(res => res.data);
+  return API.get(`/quizzes/admin/quizzes/${quizId}/assignments`)
+            .then(res => res.data);
 }
 
-/** Assign this quiz to one or more users */
 export function assignQuiz(quizId, userIds) {
-  return API
-    .post(`/admin/quizzes/${quizId}/assign`, { userIds })
-    .then(res => res.data);
+  return API.post(`/quizzes/admin/quizzes/${quizId}/assign`, { userIds })
+            .then(res => res.data);
 }
 
-/** Unassign one user from this quiz */
 export function unassignQuiz(quizId, userId) {
-  return API
-    .delete(`/admin/quizzes/${quizId}/assign/${userId}`)
-    .then(res => res.data);
+  return API.delete(`/quizzes/admin/quizzes/${quizId}/assign/${userId}`)
+            .then(res => res.data);
 }
-
 
 
 
