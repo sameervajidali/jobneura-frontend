@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getAllUsers } from '../../../services/userService.js';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { getAllUsers } from "../../../services/userService.js";
 import {
   getQuizAssignments,
   assignQuiz,
-  unassignQuiz
-} from '../../../services/quizService.js';
+  unassignQuiz,
+} from "../../../services/quizService.js";
 
 export default function AssignQuizPage() {
   const { quizId } = useParams();
@@ -13,7 +13,7 @@ export default function AssignQuizPage() {
   const [assignedIds, setAssignedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Load all users and current assignments
   useEffect(() => {
@@ -21,15 +21,16 @@ export default function AssignQuizPage() {
     Promise.all([getAllUsers(), getQuizAssignments(quizId)])
       .then(([allUsers, assignments]) => {
         setUsers(allUsers);
-        setAssignedIds(new Set(assignments.map(a => a.user._id)));
+        const list = Array.isArray(assignments) ? assignments : [];
+        setAssignedIds(new Set(list.map((a) => a.user._id)));
       })
-      .catch(err => setError(err.response?.data?.message || err.message))
+      .catch((err) => setError(err.response?.data?.message || err.message))
       .finally(() => setLoading(false));
   }, [quizId]);
 
   // Toggle a user's assignment
-  const toggleAssign = userId => {
-    setAssignedIds(prev => {
+  const toggleAssign = (userId) => {
+    setAssignedIds((prev) => {
       const copy = new Set(prev);
       copy.has(userId) ? copy.delete(userId) : copy.add(userId);
       return copy;
@@ -39,24 +40,26 @@ export default function AssignQuizPage() {
   // Save assignments: add new, remove unchecked
   const handleSave = async () => {
     setSaving(true);
-    setError('');
+    setError("");
     const current = new Set(assignedIds);
     try {
       // Determine additions and removals based on initial state
-      const initial = (await getQuizAssignments(quizId)).map(a => a.user._id);
-      const toAdd = allIds([...assignedIds]).filter(id => !initial.includes(id));
-      const toRemove = initial.filter(id => !assignedIds.has(id));
+      const initial = (await getQuizAssignments(quizId)).map((a) => a.user._id);
+      const toAdd = allIds([...assignedIds]).filter(
+        (id) => !initial.includes(id)
+      );
+      const toRemove = initial.filter((id) => !assignedIds.has(id));
 
       // Assign new users
       if (toAdd.length) {
         await assignQuiz(quizId, toAdd);
       }
       // Unassign removed users
-      await Promise.all(toRemove.map(uid => unassignQuiz(quizId, uid)));
+      await Promise.all(toRemove.map((uid) => unassignQuiz(quizId, uid)));
 
       // Refresh assignments
       const refreshed = await getQuizAssignments(quizId);
-      setAssignedIds(new Set(refreshed.map(a => a.user._id)));
+      setAssignedIds(new Set(refreshed.map((a) => a.user._id)));
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -70,7 +73,9 @@ export default function AssignQuizPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white shadow rounded-md">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-gray-800">Assign Quiz to Users</h2>
+        <h2 className="text-2xl font-semibold text-gray-800">
+          Assign Quiz to Users
+        </h2>
         <Link
           to="/admin/quizzes"
           className="text-sm text-gray-600 hover:underline"
@@ -87,20 +92,27 @@ export default function AssignQuizPage() {
                 <input
                   type="checkbox"
                   checked={assignedIds.size === users.length}
-                  onChange={e => {
-                    if (e.target.checked) setAssignedIds(new Set(users.map(u => u._id)));
+                  onChange={(e) => {
+                    if (e.target.checked)
+                      setAssignedIds(new Set(users.map((u) => u._id)));
                     else setAssignedIds(new Set());
                   }}
                 />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Role
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {users.map((u, idx) => (
-              <tr key={u._id} className={idx % 2 ? 'bg-gray-50' : 'bg-white'}>
+              <tr key={u._id} className={idx % 2 ? "bg-gray-50" : "bg-white"}>
                 <td className="px-6 py-4 text-center">
                   <input
                     type="checkbox"
@@ -109,9 +121,15 @@ export default function AssignQuizPage() {
                     className="text-blue-600"
                   />
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{u.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{u.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">{u.role}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {u.name}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  {u.email}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">
+                  {u.role}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -124,7 +142,7 @@ export default function AssignQuizPage() {
           disabled={saving}
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
-          {saving ? 'Saving…' : 'Save Assignments'}
+          {saving ? "Saving…" : "Save Assignments"}
         </button>
       </div>
     </div>
