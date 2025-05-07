@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createQuiz } from '../../services/quizService';
+import { createQuiz } from '../../../services/quizService.js';
 
 export default function CreateQuizForm() {
   const navigate = useNavigate();

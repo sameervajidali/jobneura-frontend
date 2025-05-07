@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import quizService from '../../services/quizService';
+import quizService from '../../../services/quizService';
 
 export default function BulkUploadQuestionsPage() {
   const { quizId } = useParams();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import quizService from '../../services/quizService';
+import quizService from '../../../services/quizService';
 
 export default function EditQuizPage() {
   const { quizId } = useParams();
