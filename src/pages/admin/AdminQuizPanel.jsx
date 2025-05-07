@@ -188,32 +188,6 @@ export default function AdminQuizPanel() {
                   >
                     Bulk
                   </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-
-          <tbody className="bg-white divide-y divide-gray-200">
-            {quizzes.map((q, idx) => (
-              <tr
-                key={q._id}
-                className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
-              >
-                {/* …other cells… */}
-                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-4">
-                  <Link
-                    to={`/admin/quizzes/${q._id}/edit`}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    Edit
-                  </Link>
-                  <Link
-                    to={`/admin/quizzes/${q._id}/bulk-upload`}
-                    className="text-green-600 hover:text-green-800"
-                  >
-                    Bulk
-                  </Link>
-                  +{" "}
                   <Link
                     to={`/admin/quizzes/${q._id}/assign`}
                     className="text-indigo-600 hover:text-indigo-800"
@@ -223,7 +197,7 @@ export default function AdminQuizPanel() {
                 </td>
               </tr>
             ))}
-          </tbody>
+          </tbody>         
         </table>
       </div>
     </div>
