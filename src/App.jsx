@@ -149,7 +149,8 @@ function LayoutWrapper() {
               {/* …inside your <Route path="/admin" …> block… */}
               <Route path="quizzes/:quizId/assign" element={<AssignQuizPage />} />
 
-              <Route path="/admin/leaderboard" element={<AdminLeaderboardPage />} />
+              <Route path="leaderboard" element={<AdminLeaderboardPage/>} />
+
 
           </Route>
            </Route>

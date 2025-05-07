@@ -8,7 +8,7 @@ const navItems = [
   { path: "/admin", label: "Dashboard", icon: <FaChartBar />, roles: ["superadmin", "admin", "creator", "moderator", "support"] },
   { path: "/admin/users", label: "Users", icon: <FaUser />, roles: ["superadmin", "admin"] },
   { path: "/admin/quizzes", label: "Quizzes", icon: <FaBook />, roles: ["creator", "admin", "superadmin"] },
-  { path: "/admin/leaderboard", label: "Leaderboard", icon: <FaChartBar />, roles: ["creator", "admin", "superadmin"] },
+  { path: "/admin/leaderboard", label: "Leaderboard", icon: <FaChartBar />, roles: ["admin","superadmin"] },
   { path: "/admin/blogs", label: "Blogs", icon: <FaBook />, roles: ["creator", "moderator","superadmin"] },
   { path: "/admin/tickets", label: "Support", icon: <FaComments />, roles: ["support", "admin", "superadmin"] },
   { path: "/admin/roles", label: "Roles", icon: <FaShieldAlt />, roles: ["superadmin"] },
