@@ -25,38 +25,44 @@
 //     }
 //   }
 
+//   if (loading) return <p className="p-6 text-center text-gray-500">Loading…</p>;
+//   if (error) return <p className="p-6 text-center text-red-500">{error}</p>;
+
 //   return (
-//     <div className="p-6">
-//       <div className="flex justify-between items-center mb-4">
-//         <h1 className="text-2xl font-bold">Manage Quizzes</h1>
+//     <div className="p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-md">
+//       <div className="flex justify-between items-center mb-6">
+//         <h1 className="text-2xl font-bold text-gray-800">Manage Quizzes</h1>
 //         <button
-//           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
 //           onClick={() => navigate("/admin/quizzes/create")}
+//           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 //         >
 //           + New Quiz
 //         </button>
 //       </div>
 
-//       {loading && <p>Loading…</p>}
-//       {error && <p className="text-red-500">{error}</p>}
-
-//       {!loading && !error && (
-//         <table className="w-full border-collapse">
-//           <thead>
-//             <tr className="bg-gray-100">
+//       <div className="overflow-x-auto">
+//         <table className="min-w-full divide-y divide-gray-200 table-auto">
+//           <thead className="bg-gray-50">
+//             <tr>
 //               {["Title", "Category", "Topic", "Level", "Active", "Actions"].map(
 //                 (h) => (
-//                   <th key={h} className="p-2 text-left">
+//                   <th
+//                     key={h}
+//                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                   >
 //                     {h}
 //                   </th>
 //                 )
 //               )}
 //             </tr>
 //           </thead>
-//           <tbody>
-//             {quizzes.map((q) => (
-//               <tr key={q._id} className="border-t">
-//                 <td className="p-2">
+//           <tbody className="bg-white divide-y divide-gray-200">
+//             {quizzes.map((q, idx) => (
+//               <tr
+//                 key={q._id}
+//                 className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+//               >
+//                 <td className="px-6 py-4 whitespace-normal text-sm text-gray-700">
 //                   <Link
 //                     to={`/admin/quizzes/${q._id}/questions`}
 //                     className="text-blue-600 hover:underline"
@@ -64,32 +70,48 @@
 //                     {q.title}
 //                   </Link>
 //                 </td>
-//                 <td className="p-2">{q.category}</td>
-//                 <td className="p-2">{q.topic}</td>
-//                 <td className="p-2">{q.level}</td>
-//                 <td className="p-2">{q.isActive ? "✅" : "❌"}</td>
-//                 <td className="p-2 space-x-2">
+//                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+//                   {q.category}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+//                   {q.topic}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+//                   {q.level}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+//                   {q.isActive ? "✅" : "❌"}
+//                 </td>
+//                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-4">
 //                   <Link
 //                     to={`/admin/quizzes/${q._id}/edit`}
-//                     className="text-sm text-blue-600 hover:underline"
+//                     className="text-blue-600 hover:text-blue-800"
 //                   >
 //                     Edit
 //                   </Link>
 //                   <Link
 //                     to={`/admin/quizzes/${q._id}/bulk-upload`}
-//                     className="text-sm text-green-600 hover:underline"
+//                     className="text-green-600 hover:text-green-800"
 //                   >
-//                     Bulk Questions
+//                     Bulk
+//                   </Link>
+//                   <Link
+//                     to={`/admin/quizzes/${q._id}/assign`}
+//                     className="text-indigo-600 hover:text-indigo-800"
+//                   >
+//                     Assign
 //                   </Link>
 //                 </td>
 //               </tr>
 //             ))}
 //           </tbody>
 //         </table>
-//       )}
+//       </div>
 //     </div>
 //   );
 // }
+
+
 
 // src/pages/admin/AdminQuizPanel.jsx
 import React, { useEffect, useState } from "react";
@@ -100,6 +122,9 @@ export default function AdminQuizPanel() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,88 +143,109 @@ export default function AdminQuizPanel() {
     }
   }
 
-  if (loading) return <p className="p-6 text-center text-gray-500">Loading…</p>;
-  if (error) return <p className="p-6 text-center text-red-500">{error}</p>;
+  // Filtered and paginated
+  const filtered = quizzes.filter(q =>
+    q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    q.topic.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginated = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = e => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const goPrev = () => currentPage > 1 && setCurrentPage(currentPage - 1);
+  const goNext = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-md">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Manage Quizzes</h1>
+      {/* Header with title, search, and New Quiz button */}
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Manage Quizzes</h1>
+        <div className="flex-1 flex justify-center px-4">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Search quizzes..."
+            className="w-full max-w-md border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          />
+        </div>
         <button
           onClick={() => navigate("/admin/quizzes/create")}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           + New Quiz
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 table-auto">
-          <thead className="bg-gray-50">
-            <tr>
-              {["Title", "Category", "Topic", "Level", "Active", "Actions"].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    {h}
-                  </th>
-                )
-              )}
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {quizzes.map((q, idx) => (
-              <tr
-                key={q._id}
-                className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
-              >
-                <td className="px-6 py-4 whitespace-normal text-sm text-gray-700">
-                  <Link
-                    to={`/admin/quizzes/${q._id}/questions`}
-                    className="text-blue-600 hover:underline"
-                  >
-                    {q.title}
-                  </Link>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {q.category}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {q.topic}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                  {q.level}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
-                  {q.isActive ? "✅" : "❌"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-4">
-                  <Link
-                    to={`/admin/quizzes/${q._id}/edit`}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    Edit
-                  </Link>
-                  <Link
-                    to={`/admin/quizzes/${q._id}/bulk-upload`}
-                    className="text-green-600 hover:text-green-800"
-                  >
-                    Bulk
-                  </Link>
-                  <Link
-                    to={`/admin/quizzes/${q._id}/assign`}
-                    className="text-indigo-600 hover:text-indigo-800"
-                  >
-                    Assign
-                  </Link>
-                </td>
+      {loading && <p className="text-center text-gray-500">Loading…</p>}
+      {error && <p className="text-center text-red-500">{error}</p>}
+
+      {!loading && !error && (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 table-auto">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-          </tbody>         
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {paginated.map((q, idx) => (
+                <tr key={q._id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                  <td className="px-6 py-4 whitespace-normal text-sm text-gray-700">
+                    <Link to={`/admin/quizzes/${q._id}/questions`} className="text-indigo-600 hover:underline">
+                      {q.title}
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.category}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.topic}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.level}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm">{q.isActive ? '✅' : '❌'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-4">
+                    <Link to={`/admin/quizzes/${q._id}/edit`} className="text-blue-600 hover:text-blue-800">Edit</Link>
+                    <Link to={`/admin/quizzes/${q._id}/bulk-upload`} className="text-green-600 hover:text-green-800">Bulk</Link>
+                    <Link to={`/admin/quizzes/${q._id}/assign`} className="text-indigo-600 hover:text-indigo-800">Assign</Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && !error && totalPages > 1 && (
+        <div className="mt-4 flex justify-center items-center space-x-4">
+          <button
+            onClick={goPrev}
+            disabled={currentPage === 1}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >Prev</button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={goNext}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+          >Next</button>
+        </div>
+      )}
     </div>
   );
 }
+
+// Helpers for pagination state
+function goPrev() {}
+function goNext() {}
