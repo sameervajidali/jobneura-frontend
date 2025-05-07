@@ -12,31 +12,30 @@ export default function AssignQuizPage() {
   const { quizId } = useParams();
 
   // State
-  const [users, setUsers]             = useState([]);
+  const [users, setUsers] = useState([]);
   const [assignedIds, setAssignedIds] = useState(new Set());
   const [initialAssigned, setInitial] = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [saving, setSaving]           = useState(false);
-  const [error, setError]             = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // 1️⃣ Load users + assignments on mount
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      getAllUsers(),
-      getQuizAssignments(quizId)
-    ])
+    Promise.all([getAllUsers(), getQuizAssignments(quizId)])
+
       .then(([allUsers, assignments]) => {
         setUsers(allUsers);
-
+        setSuccess("✅ Assignments saved!");
         // Ensure assignments is array
         const list = Array.isArray(assignments) ? assignments : [];
-        const ids  = list.map(a => a.user._id);
+        const ids = list.map((a) => a.user._id);
 
         setAssignedIds(new Set(ids));
         setInitial(ids);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Assign load error:", err);
         setError(err.response?.data?.message || err.message);
       })
@@ -44,8 +43,8 @@ export default function AssignQuizPage() {
   }, [quizId]);
 
   // 2️⃣ Toggle checkbox
-  const toggleAssign = userId => {
-    setAssignedIds(prev => {
+  const toggleAssign = (userId) => {
+    setAssignedIds((prev) => {
       const next = new Set(prev);
       next.has(userId) ? next.delete(userId) : next.add(userId);
       return next;
@@ -59,18 +58,19 @@ export default function AssignQuizPage() {
 
     try {
       const currentArr = Array.from(assignedIds);
-      const toAdd      = currentArr.filter(id => !initialAssigned.includes(id));
-      const toRemove   = initialAssigned.filter(id => !assignedIds.has(id));
+      const toAdd = currentArr.filter((id) => !initialAssigned.includes(id));
+      const toRemove = initialAssigned.filter((id) => !assignedIds.has(id));
 
       // Call backend
-      if (toAdd.length)   await assignQuiz(quizId, toAdd);
-      if (toRemove.length) await Promise.all(toRemove.map(uid => unassignQuiz(quizId, uid)));
+      if (toAdd.length) await assignQuiz(quizId, toAdd);
+      if (toRemove.length)
+        await Promise.all(toRemove.map((uid) => unassignQuiz(quizId, uid)));
 
       // Re-fetch assignments to sync state
       const refreshed = await getQuizAssignments(quizId);
       const refreshedIds = Array.isArray(refreshed)
-        ? refreshed.map(a => a.user._id)
-        : initialAssigned;  // fallback
+        ? refreshed.map((a) => a.user._id)
+        : initialAssigned; // fallback
 
       setAssignedIds(new Set(refreshedIds));
       setInitial(refreshedIds);
@@ -84,18 +84,27 @@ export default function AssignQuizPage() {
 
   // 4️⃣ Render states
   if (loading) return <p className="p-6 text-center">Loading users…</p>;
-  if (error)   return <p className="p-6 text-center text-red-500">{error}</p>;
+  if (error) return <p className="p-6 text-center text-red-500">{error}</p>;
 
   // 5️⃣ Main JSX
   return (
     <div className="p-6 max-w-4xl mx-auto bg-white shadow rounded-md">
-      <div className="flex justify-between items-center mb-4">
+      {success && (
+        <div
+          className="mb-4 px-4 py-2 bg-green-100 text-green-800 rounded transition"
+          onAnimationEnd={() => setSuccess("")}
+          style={{ animation: "fadeOut 3s forwards" }}
+        >
+          {success}
+        </div>
+      )}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-2xl font-semibold text-gray-800">
           Assign Quiz to Users
         </h2>
         <Link
           to="/admin/quizzes"
-          className="text-sm text-gray-600 hover:underline"
+          className="text-sm text-indigo-600 hover:text-indigo-800"
         >
           &larr; Back to Quizzes
         </Link>
@@ -110,9 +119,9 @@ export default function AssignQuizPage() {
                 <input
                   type="checkbox"
                   checked={assignedIds.size === users.length}
-                  onChange={e => {
+                  onChange={(e) => {
                     if (e.target.checked) {
-                      setAssignedIds(new Set(users.map(u => u._id)));
+                      setAssignedIds(new Set(users.map((u) => u._id)));
                     } else {
                       setAssignedIds(new Set());
                     }
@@ -120,7 +129,7 @@ export default function AssignQuizPage() {
                 />
               </th>
               {/* Columns */}
-              {["Name","Email","Role"].map(col => (
+              {["Name", "Email", "Role"].map((col) => (
                 <th
                   key={col}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -163,7 +172,7 @@ export default function AssignQuizPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
         >
           {saving ? "Saving…" : "Save Assignments"}
         </button>
