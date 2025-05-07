@@ -1,13 +1,13 @@
 // src/pages/admin/AdminQuizPanel.jsx
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate }      from 'react-router-dom';
-import { getAllQuizzes }          from '../../services/quizService';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getAllQuizzes } from "../../services/quizService";
 
 export default function AdminQuizPanel() {
   const [quizzes, setQuizzes] = useState([]);
-  const [loading, setLoading]  = useState(false);
-  const [error, setError]      = useState('');
-  const navigate               = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadQuizzes();
@@ -31,32 +31,43 @@ export default function AdminQuizPanel() {
         <h1 className="text-2xl font-bold">Manage Quizzes</h1>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          onClick={() => navigate('/admin/quizzes/create')}
+          onClick={() => navigate("/admin/quizzes/create")}
         >
           + New Quiz
         </button>
       </div>
 
       {loading && <p>Loading…</p>}
-      {error   && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500">{error}</p>}
 
       {!loading && !error && (
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              {['Title','Category','Topic','Level','Active','Actions'].map(h => (
-                <th key={h} className="p-2 text-left">{h}</th>
-              ))}
+              {["Title", "Category", "Topic", "Level", "Active", "Actions"].map(
+                (h) => (
+                  <th key={h} className="p-2 text-left">
+                    {h}
+                  </th>
+                )
+              )}
             </tr>
           </thead>
           <tbody>
-            {quizzes.map(q => (
+            {quizzes.map((q) => (
               <tr key={q._id} className="border-t">
-                <td className="p-2">{q.title}</td>
+                <td className="p-2">
+                  <Link
+                    to={`/admin/quizzes/${q._id}/questions`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {q.title}
+                  </Link>
+                </td>
                 <td className="p-2">{q.category}</td>
                 <td className="p-2">{q.topic}</td>
                 <td className="p-2">{q.level}</td>
-                <td className="p-2">{q.isActive ? '✅' : '❌'}</td>
+                <td className="p-2">{q.isActive ? "✅" : "❌"}</td>
                 <td className="p-2 space-x-2">
                   <Link
                     to={`/admin/quizzes/${q._id}/edit`}
