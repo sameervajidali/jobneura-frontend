@@ -32,6 +32,8 @@ import API from './axios.js';
  * Fetch all quizzes (admin only)
  * GET /quizzes/admin/quizzes
  */
+
+console.log(API)
 export function getAllQuizzes() {
   return API.get('/quizzes/admin/quizzes').then(res => res.data);
 }
