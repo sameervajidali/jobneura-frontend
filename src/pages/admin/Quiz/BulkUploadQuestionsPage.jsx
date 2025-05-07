@@ -190,82 +190,85 @@
 //   );
 // }
 
-
-
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import quizService from '../../../services/quizService.js';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import quizService from "../../../services/quizService.js";
 
 export default function BulkUploadQuestionsPage() {
   const { quizId } = useParams();
   const navigate = useNavigate();
-  const [mode, setMode] = useState('json'); // 'json' or 'csv'
-  const [jsonInput, setJsonInput] = useState('');
+  const [mode, setMode] = useState("json"); // 'json' or 'csv'
+  const [jsonInput, setJsonInput] = useState("");
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [quizTopic, setQuizTopic] = useState('');
-  const [quizLevel, setQuizLevel] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [quizTopic, setQuizTopic] = useState("");
+  const [quizLevel, setQuizLevel] = useState("");
 
   // Fetch quiz metadata for dynamic template
   useEffect(() => {
-    quizService.getQuizById(quizId)
-      .then(q => {
-        setQuizTopic(q.topic || '');
-        setQuizLevel(q.level || '');
+    quizService
+      .getQuizById(quizId)
+      .then((q) => {
+        setQuizTopic(q.topic || "");
+        setQuizLevel(q.level || "");
       })
       .catch(() => {
-        setQuizTopic('');
-        setQuizLevel('');
+        setQuizTopic("");
+        setQuizLevel("");
       });
   }, [quizId]);
 
   // Download a sample CSV template
   const downloadCsvTemplate = () => {
     const header = [
-      'question',
-      'option1',
-      'option2',
-      'option3',
-      'option4',
-      'correctAnswer',
-      'topic',
-      'explanation',
-      'difficulty'
+      "question",
+      "option1",
+      "option2",
+      "option3",
+      "option4",
+      "correctAnswer",
+      "topic",
+      "explanation",
+      "difficulty",
     ];
     const rows = [
       [
-        'What does Array.map() return?',
-        'A new array',
-        'Undefined',
-        'A string',
-        'An object',
-        '0',
+        "What does Array.map() return?",
+        "A new array",
+        "Undefined",
+        "A string",
+        "An object",
+        "0",
         quizTopic,
-        'map() always returns a new array of the same length.',
-        quizLevel
+        "map() always returns a new array of the same length.",
+        quizLevel,
       ],
       [
-        'Which keyword declares a block-scoped variable?',
-        'var',
-        'let',
-        'int',
-        'static',
-        '1',
+        "Which keyword declares a block-scoped variable?",
+        "var",
+        "let",
+        "int",
+        "static",
+        "1",
         quizTopic,
-        '`let` and `const` are block scoped, whereas `var` is function scoped.',
-        quizLevel
-      ]
+        "`let` and `const` are block scoped, whereas `var` is function scoped.",
+        quizLevel,
+      ],
     ];
     const csvContent = [header, ...rows]
-      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-      .join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+      )
+      .join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    const filename = quizTopic ? `questions_template_${quizTopic}.csv` : 'questions_template.csv';
-    link.setAttribute('download', filename);
+    const filename = quizTopic
+      ? `questions_template_${quizTopic}.csv`
+      : "questions_template.csv";
+    link.setAttribute("download", filename);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -274,11 +277,12 @@ export default function BulkUploadQuestionsPage() {
   const handleJsonSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
     try {
       const parsed = JSON.parse(jsonInput);
-      if (!Array.isArray(parsed)) throw new Error('JSON must be an array of questions');
+      if (!Array.isArray(parsed))
+        throw new Error("JSON must be an array of questions");
       const res = await quizService.bulkUploadQuestions(quizId, parsed);
       setMessage(`Successfully uploaded ${res.count} questions.`);
     } catch (err) {
@@ -295,12 +299,12 @@ export default function BulkUploadQuestionsPage() {
   const handleFileSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError('Please select a CSV or XLSX file');
+      setError("Please select a CSV or XLSX file");
       return;
     }
     setLoading(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
     try {
       const res = await quizService.bulkUploadQuestionsFile(quizId, file);
       setMessage(`Successfully uploaded ${res.count} questions.`);
@@ -315,31 +319,40 @@ export default function BulkUploadQuestionsPage() {
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Bulk Upload Questions</h2>
-        <button
-          type="button"
-          onClick={downloadCsvTemplate}
+        <a
+          href={`${
+            import.meta.env.VITE_API_BASE_URL
+          }/quizzes/admin/quizzes/${quizId}/template`}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
         >
           Download CSV Template
-        </button>
+        </a>
       </div>
       <div className="flex mb-6">
         <button
-          className={`px-4 py-2 mr-2 border-b-2 ${mode === 'json' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'}`}
-          onClick={() => setMode('json')}
+          className={`px-4 py-2 mr-2 border-b-2 ${
+            mode === "json"
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-gray-600"
+          }`}
+          onClick={() => setMode("json")}
         >
           JSON
         </button>
         <button
-          className={`px-4 py-2 border-b-2 ${mode === 'csv' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'}`}
-          onClick={() => setMode('csv')}
+          className={`px-4 py-2 border-b-2 ${
+            mode === "csv"
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-gray-600"
+          }`}
+          onClick={() => setMode("csv")}
         >
           CSV / XLSX
         </button>
       </div>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {message && <p className="text-green-600 mb-4">{message}</p>}
-      {mode === 'json' && (
+      {mode === "json" && (
         <form onSubmit={handleJsonSubmit} className="space-y-4">
           <textarea
             value={jsonInput}
@@ -353,11 +366,11 @@ export default function BulkUploadQuestionsPage() {
             disabled={loading}
             className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
           >
-            {loading ? 'Uploading…' : 'Upload JSON'}
+            {loading ? "Uploading…" : "Upload JSON"}
           </button>
         </form>
       )}
-      {mode === 'csv' && (
+      {mode === "csv" && (
         <form onSubmit={handleFileSubmit} className="space-y-4">
           <input
             type="file"
@@ -370,7 +383,7 @@ export default function BulkUploadQuestionsPage() {
             disabled={loading}
             className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
           >
-            {loading ? 'Uploading…' : 'Upload File'}
+            {loading ? "Uploading…" : "Upload File"}
           </button>
         </form>
       )}
