@@ -135,16 +135,15 @@ export function bulkUploadQuestionsFile(quizId, file) {
 
 /** Fetch current assignments for a quiz */
 // AFTER — correct path under /api/quizzes
+// AFTER (correct)
 export function getQuizAssignments(quizId) {
   return API.get(`/quizzes/admin/quizzes/${quizId}/assignments`)
             .then(res => res.data);
 }
-
 export function assignQuiz(quizId, userIds) {
   return API.post(`/quizzes/admin/quizzes/${quizId}/assign`, { userIds })
             .then(res => res.data);
 }
-
 export function unassignQuiz(quizId, userId) {
   return API.delete(`/quizzes/admin/quizzes/${quizId}/assign/${userId}`)
             .then(res => res.data);
