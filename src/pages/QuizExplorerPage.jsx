@@ -1,32 +1,37 @@
 // src/pages/QuizExplorerPage.jsx
-import React, { useState } from "react";
-import QuizSidebar       from "../components/quizzes/QuizSidebar.jsx";
-import QuizHero          from "../components/quizzes/QuizHero.jsx";
-import QuizList          from "../components/quizzes/QuizList.jsx";
-import QuizLeaderboard   from "../components/quizzes/QuizLeaderboard.jsx";
+import React, { useState } from 'react';
+import QuizSidebar from '../components/quizzes/QuizSidebar.jsx';
+import QuizList    from '../components/quizzes/QuizList.jsx';
+import QuizLeaderboard from '../components/quizzes/QuizLeaderboard.jsx';
 
 export default function QuizExplorerPage() {
-  // shared filters state
+  // filter state: category, topic, level, page, limit
   const [filters, setFilters] = useState({
-    category: "",
-    topic:    "",
-    level:    ""
+    category: '',
+    topic:    '',
+    level:    '',
+    page:     1,
+    limit:    10
   });
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex bg-gray-50 min-h-screen">
+      {/* 1) Left sidebar */}
       <QuizSidebar filters={filters} onChange={setFilters} />
-      <main className="flex-1 p-6">
-        <QuizHero filters={filters} />
-        <div className="flex gap-6 mt-6">
-          <div className="w-3/5">
-            <QuizList filters={filters} />
-          </div>
-          <div className="w-2/5">
-            <QuizLeaderboard filters={filters} />
-          </div>
-        </div>
+
+      {/* 2) Center: list of quiz cards */}
+      <main className="flex-1 p-6 space-y-6">
+        <header className="bg-white p-4 rounded shadow">
+          <h1 className="text-2xl font-bold">All Quizzes</h1>
+          <p className="text-gray-600">Browse by category, topic or level.</p>
+        </header>
+        <QuizList filters={filters} onPageChange={newPage => setFilters(f => ({ ...f, page: newPage }))} />
       </main>
+
+      {/* 3) Right: weekly leaderboard */}
+      <aside className="w-80 p-6">
+        <QuizLeaderboard filters={{ ...filters, timePeriod: 'week' }} />
+      </aside>
     </div>
   );
 }

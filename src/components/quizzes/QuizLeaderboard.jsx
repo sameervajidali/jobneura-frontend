@@ -1,11 +1,32 @@
+// src/components/quizzes/QuizLeaderboard.jsx
+import React, { useState, useEffect } from 'react';
+import API from '../../services/axios.js';
+
 export default function QuizLeaderboard({ filters }) {
-    // TODO: useLeaderboard hook → data, loading
-    return (
-      <div className="bg-white p-4 rounded-lg shadow">
-        <h3 className="font-semibold mb-2">Weekly Leaders</h3>
-        {/* TODO: list top 10 */}
-        <p>Leaderboard goes here</p>
-      </div>
-    );
-  }
-  
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    API.get('/quizzes/leaderboard', { params: filters })
+      .then(res => setEntries(res.data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, [JSON.stringify(filters)]);
+
+  if (loading) return <p>Loading leaderboard…</p>;
+
+  return (
+    <div className="bg-white p-4 rounded-xl shadow">
+      <h3 className="text-lg font-semibold mb-4">Weekly Leaders</h3>
+      <ol className="list-decimal list-inside space-y-2">
+        {entries.slice(0, 5).map((e, i) => (
+          <li key={e._id} className="flex justify-between">
+            <span>{e.user.name}</span>
+            <span className="font-mono">{e.score}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
