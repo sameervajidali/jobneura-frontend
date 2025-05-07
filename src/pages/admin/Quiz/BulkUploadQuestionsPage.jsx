@@ -1,4 +1,4 @@
-// import React, { useState } from 'react';
+// import React, { useState, useEffect } from 'react';
 // import { useParams, useNavigate } from 'react-router-dom';
 // import quizService from '../../../services/quizService.js';
 
@@ -11,21 +11,67 @@
 //   const [loading, setLoading] = useState(false);
 //   const [message, setMessage] = useState('');
 //   const [error, setError] = useState('');
+//   const [quizTopic, setQuizTopic] = useState('');
+//   const [quizLevel, setQuizLevel] = useState('');
+
+//   // Fetch quiz metadata for dynamic template
+//   useEffect(() => {
+//     quizService.getQuizById(quizId)
+//       .then(q => {
+//         setQuizTopic(q.topic || '');
+//         setQuizLevel(q.level || '');
+//       })
+//       .catch(() => {
+//         setQuizTopic('');
+//         setQuizLevel('');
+//       });
+//   }, [quizId]);
 
 //   // Download a sample CSV template
 //   const downloadCsvTemplate = () => {
-//     const header = ['question','option1','option2','option3','option4','correctAnswer','topic','explanation','difficulty'];
+//     const header = [
+//       'question',
+//       'option1',
+//       'option2',
+//       'option3',
+//       'option4',
+//       'correctAnswer',
+//       'topic',
+//       'explanation',
+//       'difficulty'
+//     ];
 //     const rows = [
-//       ['What does Array.map() return?','A new array','Undefined','A string','An object','0','Arrays','map() always returns a new array of the same length.','easy'],
-//       ['Which keyword declares a block-scoped variable?','var','let','int','static','1','Variables','`let` and `const` are block scoped, whereas `var` is function scoped.','medium']
+//       [
+//         'What does Array.map() return?',
+//         'A new array',
+//         'Undefined',
+//         'A string',
+//         'An object',
+//         '0',
+//         quizTopic,
+//         'map() always returns a new array of the same length.',
+//         quizLevel
+//       ],
+//       [
+//         'Which keyword declares a block-scoped variable?',
+//         'var',
+//         'let',
+//         'int',
+//         'static',
+//         '1',
+//         quizTopic,
+//         '`let` and `const` are block scoped, whereas `var` is function scoped.',
+//         quizLevel
+//       ]
 //     ];
 //     const csvContent = [header, ...rows]
-//       .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+//       .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
 //       .join('\n');
 //     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
 //     const link = document.createElement('a');
 //     link.href = URL.createObjectURL(blob);
-//     link.setAttribute('download', 'questions_template.csv');
+//     const filename = quizTopic ? `questions_template_${quizTopic}.csv` : 'questions_template.csv';
+//     link.setAttribute('download', filename);
 //     document.body.appendChild(link);
 //     link.click();
 //     document.body.removeChild(link);
@@ -83,7 +129,6 @@
 //           Download CSV Template
 //         </button>
 //       </div>
-
 //       <div className="flex mb-6">
 //         <button
 //           className={`px-4 py-2 mr-2 border-b-2 ${mode === 'json' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600'}`}
@@ -98,10 +143,8 @@
 //           CSV / XLSX
 //         </button>
 //       </div>
-
 //       {error && <p className="text-red-500 mb-4">{error}</p>}
 //       {message && <p className="text-green-600 mb-4">{message}</p>}
-
 //       {mode === 'json' && (
 //         <form onSubmit={handleJsonSubmit} className="space-y-4">
 //           <textarea
@@ -120,7 +163,6 @@
 //           </button>
 //         </form>
 //       )}
-
 //       {mode === 'csv' && (
 //         <form onSubmit={handleFileSubmit} className="space-y-4">
 //           <input
@@ -138,7 +180,6 @@
 //           </button>
 //         </form>
 //       )}
-
 //       <button
 //         onClick={() => navigate(-1)}
 //         className="mt-6 text-sm text-gray-600 hover:underline"
@@ -148,6 +189,7 @@
 //     </div>
 //   );
 // }
+
 
 
 import React, { useState, useEffect } from 'react';
