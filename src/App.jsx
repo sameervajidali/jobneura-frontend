@@ -57,6 +57,7 @@ import QuestionListPage from "./pages/admin/Quiz/QuestionListPage.jsx";
 import QuestionForm from "./pages/admin/Quiz/QuestionForm.jsx";
 import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage.jsx";
 import LeaderboardPage from "./pages/LeaderboardPage.jsx";
+import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {

@@ -94,11 +94,11 @@ export function getUserAttempts() {
  * Fetch leaderboard entries
  * GET /quizzes/leaderboard?category=&topic=&level=&timePeriod=
  * @param {Object} params { category, topic?, level?, timePeriod? }
- */
-export function getLeaderboard(params = {}) {
-  return API.get('/quizzes/leaderboard', { params })
-    .then(res => res.data);
-}
+//  */
+// export function getLeaderboard(params = {}) {
+//   return API.get('/quizzes/leaderboard', { params })
+//     .then(res => res.data);
+// }
 
 // ─── Bulk Upload Questions ──────────────────────────────────────────────────
 /**
@@ -180,8 +180,7 @@ export default {
   getQuizById,
   updateQuiz,
   submitQuizAttempt,
-  getUserAttempts,
-  getLeaderboard,
+  getUserAttempts, 
   bulkUploadQuestions,
   bulkUploadQuestionsFile
 };
