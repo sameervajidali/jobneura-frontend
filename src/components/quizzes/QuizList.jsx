@@ -1,6 +1,6 @@
 // src/components/QuizList.jsx
 import React from 'react';
-import useQuizList from '../hooks/useQuizList';
+import useQuizList from '../../hooks/useQuizList'; 
 
 export default function QuizList({ filters, onPageChange }) {
   const { quizzes, total, page, limit, loading, error } = useQuizList(filters);
