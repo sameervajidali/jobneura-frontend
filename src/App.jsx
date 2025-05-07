@@ -56,6 +56,7 @@ import BulkUploadQuestionsPage from "./pages/admin/Quiz/BulkUploadQuestionsPage.
 import QuestionListPage from "./pages/admin/Quiz/QuestionListPage.jsx";
 import QuestionForm from "./pages/admin/Quiz/QuestionForm.jsx";
 import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage.jsx";
+import LeaderboardPage from "./pages/LeaderboardPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -116,6 +117,7 @@ function LayoutWrapper() {
           <Route path="/activate" element={<AccountActivationPage />} />
           <Route path="/account-activation-info" element={<AccountActivationInfo />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
 
           {/* User Dashboard */}
           <Route path="/dashboard" element={<DashboardLayout />}>
@@ -145,6 +147,8 @@ function LayoutWrapper() {
 
               {/* …inside your <Route path="/admin" …> block… */}
               <Route path="quizzes/:quizId/assign" element={<AssignQuizPage />} />
+
+              <Route path="/admin/leaderboard" element={<AdminLeaderboardPage />} />
 
           </Route>
            </Route>

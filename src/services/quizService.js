@@ -157,6 +157,16 @@ export function unassignQuiz(quizId, userId) {
             .then(res => res.data);
 }
 
+/**
+ * Fetch leaderboard entries
+ * GET /leaderboard?category=&topic=&level=&timePeriod=
+ */
+export function getLeaderboard({ category, topic, level, timePeriod = 'all-time' }) {
+  return API.get('/leaderboard', {
+    params: { category, topic, level, timePeriod }
+  }).then(res => res.data);
+}
+
 
 
 // ─── Export as default for convenience ──────────────────────────────────────
@@ -166,6 +176,7 @@ export default {
   assignQuiz,
   unassignQuiz,
   createQuiz,
+  getLeaderboard,
   getQuizById,
   updateQuiz,
   submitQuizAttempt,
