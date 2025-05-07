@@ -128,8 +128,7 @@ function LayoutWrapper() {
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="users/:id/edit" element={<UserForm />} />
-              <Route path="users/new" element={<UserForm />} />
-            </Route>
+              <Route path="users/new" element={<UserForm />} />           
 
             {/* ─── Quiz Management ──────────────────────────────────────── */}
               <Route path="quizzes" element={<AdminQuizPanel />} />
@@ -138,7 +137,7 @@ function LayoutWrapper() {
               <Route path="quizzes/:quizId/bulk-upload" element={<BulkUploadQuestionsPage />} />
 
           </Route>
-
+           </Route>
           {/* Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
