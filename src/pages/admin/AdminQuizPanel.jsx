@@ -1,7 +1,11 @@
 // // src/pages/admin/AdminQuizPanel.jsx
 // import React, { useEffect, useState } from "react";
 // import { Link, useNavigate } from "react-router-dom";
-// import { getAllQuizzes } from "../../services/quizService";
+// import { FaEdit, FaUpload, FaUserPlus, FaChevronLeft, FaSearch } from "react-icons/fa";
+// import {
+//   getAllQuizzes,
+//   updateQuiz as updateQuizService
+// } from "../../services/quizService";
 
 // export default function AdminQuizPanel() {
 //   const [quizzes, setQuizzes] = useState([]);
@@ -9,7 +13,7 @@
 //   const [error, setError] = useState("");
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [currentPage, setCurrentPage] = useState(1);
-//   const itemsPerPage = 10;
+//   const [pageSize, setPageSize] = useState(10);
 //   const navigate = useNavigate();
 
 //   useEffect(() => {
@@ -28,67 +32,88 @@
 //     }
 //   }
 
-//   // Filtered and paginated
+//   const toggleActive = async (quizId, current) => {
+//     try {
+//       await updateQuizService(quizId, { isActive: !current });
+//       setQuizzes(qs => qs.map(q => q._id === quizId ? { ...q, isActive: !current } : q));
+//     } catch (err) {
+//       alert("Failed to update status: " + (err.response?.data?.message || err.message));
+//     }
+//   };
+
+//   // Filter & paginate
 //   const filtered = quizzes.filter(q =>
 //     q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
 //     q.topic.toLowerCase().includes(searchTerm.toLowerCase())
 //   );
-//   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-//   const paginated = filtered.slice(
-//     (currentPage - 1) * itemsPerPage,
-//     currentPage * itemsPerPage
-//   );
-
-//   const handleSearchChange = e => {
-//     setSearchTerm(e.target.value);
-//     setCurrentPage(1);
-//   };
-
-//   const goPrev = () => currentPage > 1 && setCurrentPage(currentPage - 1);
-//   const goNext = () => currentPage < totalPages && setCurrentPage(currentPage + 1);
+//   const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+//   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
 //   return (
-//     <div className="p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-md">
-//       {/* Header with title, search, and New Quiz button */}
-//       <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
-//         <h1 className="text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Manage Quizzes</h1>
-//         <div className="flex-1 flex justify-center px-4">
-//           <input
-//             type="text"
-//             value={searchTerm}
-//             onChange={handleSearchChange}
-//             placeholder="Search quizzes..."
-//             className="w-full max-w-md border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-//           />
+//     <div className="p-6 max-w-7xl mx-auto bg-white shadow-lg rounded-md">
+//       {/* Header */}
+//       <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4">
+//         <h1 className="text-2xl font-bold text-gray-800">Manage Quizzes</h1>
+//         <div className="flex items-center w-full sm:w-auto space-x-2">
+//           <div className="relative flex-1">
+//             <input
+//               type="text"
+//               value={searchTerm}
+//               onChange={e => setSearchTerm(e.target.value)}
+//               placeholder="Search quizzes..."
+//               className="w-full border border-gray-300 rounded pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+//             />
+//             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+//           </div>
+//           <select
+//             value={pageSize}
+//             onChange={e => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+//             className="border border-gray-300 rounded px-2 py-2"
+//           >
+//             {[5,10,20,50].map(size => (
+//               <option key={size} value={size}>{size} per page</option>
+//             ))}
+//           </select>
 //         </div>
 //         <button
 //           onClick={() => navigate("/admin/quizzes/create")}
-//           className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+//           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
 //         >
 //           + New Quiz
 //         </button>
 //       </div>
 
-//       {loading && <p className="text-center text-gray-500">Loading…</p>}
-//       {error && <p className="text-center text-red-500">{error}</p>}
-
-//       {!loading && !error && (
+//       {loading ? (
+//         <p className="text-center text-gray-500">Loading…</p>
+//       ) : error ? (
+//         <p className="text-center text-red-500">{error}</p>
+//       ) : (
 //         <div className="overflow-x-auto">
 //           <table className="min-w-full divide-y divide-gray-200 table-auto">
 //             <thead className="bg-gray-50">
 //               <tr>
-//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
-//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
-//                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
-//                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+//                 {[
+//                   "Title",
+//                   "Category",
+//                   "Topic",
+//                   "Level",
+//                   "Questions",
+//                   "Active",
+//                   "Actions"
+//                 ].map(col => (
+//                   <th
+//                     key={col}
+//                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+//                   >
+//                     {col}
+//                   </th>
+//                 ))}
 //               </tr>
 //             </thead>
 //             <tbody className="bg-white divide-y divide-gray-200">
 //               {paginated.map((q, idx) => (
-//                 <tr key={q._id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-//                   <td className="px-6 py-4 whitespace-normal text-sm text-gray-700">
+//                 <tr key={q._id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+//                   <td className="px-6 py-4 whitespace-normal">
 //                     <Link to={`/admin/quizzes/${q._id}/questions`} className="text-indigo-600 hover:underline">
 //                       {q.title}
 //                     </Link>
@@ -96,11 +121,25 @@
 //                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.category}</td>
 //                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.topic}</td>
 //                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.level}</td>
-//                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm">{q.isActive ? '✅' : '❌'}</td>
-//                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-4">
-//                     <Link to={`/admin/quizzes/${q._id}/edit`} className="text-blue-600 hover:text-blue-800">Edit</Link>
-//                     <Link to={`/admin/quizzes/${q._id}/bulk-upload`} className="text-green-600 hover:text-green-800">Bulk</Link>
-//                     <Link to={`/admin/quizzes/${q._id}/assign`} className="text-indigo-600 hover:text-indigo-800">Assign</Link>
+//                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.questions?.length || q.totalMarks || 0}</td>
+//                   <td className="px-6 py-4 whitespace-nowrap text-center">
+//                     <input
+//                       type="checkbox"
+//                       checked={q.isActive}
+//                       onChange={() => toggleActive(q._id, q.isActive)}
+//                       className="h-5 w-5 text-indigo-600"
+//                     />
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-3">
+//                     <Link to={`/admin/quizzes/${q._id}/edit`} className="text-blue-600 hover:text-blue-800">
+//                       <FaEdit />
+//                     </Link>
+//                     <Link to={`/admin/quizzes/${q._id}/bulk-upload`} className="text-green-600 hover:text-green-800">
+//                       <FaUpload />
+//                     </Link>
+//                     <Link to={`/admin/quizzes/${q._id}/assign`} className="text-indigo-600 hover:text-indigo-800">
+//                       <FaUserPlus />
+//                     </Link>
 //                   </td>
 //                 </tr>
 //               ))}
@@ -109,19 +148,17 @@
 //         </div>
 //       )}
 
-//       {/* Pagination Controls */}
-//       {!loading && !error && totalPages > 1 && (
+//       {/* Pagination */}
+//       {totalPages > 1 && (
 //         <div className="mt-4 flex justify-center items-center space-x-4">
 //           <button
-//             onClick={goPrev}
+//             onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
 //             disabled={currentPage === 1}
 //             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
 //           >Prev</button>
-//           <span className="text-sm text-gray-700">
-//             Page {currentPage} of {totalPages}
-//           </span>
+//           <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
 //           <button
-//             onClick={goNext}
+//             onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
 //             disabled={currentPage === totalPages}
 //             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
 //           >Next</button>
@@ -131,20 +168,13 @@
 //   );
 // }
 
-// // Helpers for pagination state
-// function goPrev() {}
-// function goNext() {}
-
 
 
 // src/pages/admin/AdminQuizPanel.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEdit, FaUpload, FaUserPlus, FaChevronLeft, FaSearch } from "react-icons/fa";
-import {
-  getAllQuizzes,
-  updateQuiz as updateQuizService
-} from "../../services/quizService";
+import { FaEdit, FaUpload, FaUserPlus, FaSearch } from "react-icons/fa";
+import { getAllQuizzes, updateQuiz as updateQuizService } from "../../services/quizService";
 
 export default function AdminQuizPanel() {
   const [quizzes, setQuizzes] = useState([]);
@@ -155,9 +185,7 @@ export default function AdminQuizPanel() {
   const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadQuizzes();
-  }, []);
+  useEffect(() => { loadQuizzes(); }, []);
 
   async function loadQuizzes() {
     setLoading(true);
@@ -185,7 +213,7 @@ export default function AdminQuizPanel() {
     q.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     q.topic.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  const totalPages = Math.max(Math.ceil(filtered.length / pageSize), 1);
   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
@@ -198,7 +226,7 @@ export default function AdminQuizPanel() {
             <input
               type="text"
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               placeholder="Search quizzes..."
               className="w-full border border-gray-300 rounded pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
@@ -210,16 +238,14 @@ export default function AdminQuizPanel() {
             className="border border-gray-300 rounded px-2 py-2"
           >
             {[5,10,20,50].map(size => (
-              <option key={size} value={size}>{size} per page</option>
+              <option key={size} value={size}>{size}</option>
             ))}
           </select>
         </div>
         <button
           onClick={() => navigate("/admin/quizzes/create")}
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          + New Quiz
-        </button>
+        >+ New Quiz</button>
       </div>
 
       {loading ? (
@@ -238,30 +264,32 @@ export default function AdminQuizPanel() {
                   "Level",
                   "Questions",
                   "Active",
-                  "Actions"
+                  "Edit",
+                  "Bulk",
+                  "Assign"
                 ].map(col => (
                   <th
                     key={col}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    {col}
-                  </th>
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >{col}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {paginated.map((q, idx) => (
                 <tr key={q._id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-6 py-4 whitespace-normal">
+                  <td className="px-6 py-4 text-center whitespace-normal">
                     <Link to={`/admin/quizzes/${q._id}/questions`} className="text-indigo-600 hover:underline">
                       {q.title}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.category}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.topic}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.level}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{q.questions?.length || q.totalMarks || 0}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.topic}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.level}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">
+                    {q.questions?.length ?? 0}
+                  </td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap">
                     <input
                       type="checkbox"
                       checked={q.isActive}
@@ -269,13 +297,17 @@ export default function AdminQuizPanel() {
                       className="h-5 w-5 text-indigo-600"
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-3">
+                  <td className="px-6 py-4 text-center text-sm font-medium">
                     <Link to={`/admin/quizzes/${q._id}/edit`} className="text-blue-600 hover:text-blue-800">
                       <FaEdit />
                     </Link>
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm font-medium">
                     <Link to={`/admin/quizzes/${q._id}/bulk-upload`} className="text-green-600 hover:text-green-800">
                       <FaUpload />
                     </Link>
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm font-medium">
                     <Link to={`/admin/quizzes/${q._id}/assign`} className="text-indigo-600 hover:text-indigo-800">
                       <FaUserPlus />
                     </Link>
