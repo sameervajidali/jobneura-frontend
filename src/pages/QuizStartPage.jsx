@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/axios';
-import useToast from '../hooks/useToast'; // optional toast hook for messages
+//import useToast from '../hooks/useToast'; // optional toast hook for messages
 
 export default function QuizStartPage() {
   const { quizId } = useParams();
