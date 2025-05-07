@@ -91,7 +91,6 @@
 //   );
 // }
 
-
 // src/pages/admin/AdminQuizPanel.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -120,7 +119,7 @@ export default function AdminQuizPanel() {
   }
 
   if (loading) return <p className="p-6 text-center text-gray-500">Loading…</p>;
-  if (error)   return <p className="p-6 text-center text-red-500">{error}</p>;
+  if (error) return <p className="p-6 text-center text-red-500">{error}</p>;
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white shadow-lg rounded-md">
@@ -152,7 +151,10 @@ export default function AdminQuizPanel() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {quizzes.map((q, idx) => (
-              <tr key={q._id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+              <tr
+                key={q._id}
+                className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+              >
                 <td className="px-6 py-4 whitespace-normal text-sm text-gray-700">
                   <Link
                     to={`/admin/quizzes/${q._id}/questions`}
@@ -185,6 +187,38 @@ export default function AdminQuizPanel() {
                     className="text-green-600 hover:text-green-800"
                   >
                     Bulk
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+
+          <tbody className="bg-white divide-y divide-gray-200">
+            {quizzes.map((q, idx) => (
+              <tr
+                key={q._id}
+                className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+              >
+                {/* …other cells… */}
+                <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-4">
+                  <Link
+                    to={`/admin/quizzes/${q._id}/edit`}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    Edit
+                  </Link>
+                  <Link
+                    to={`/admin/quizzes/${q._id}/bulk-upload`}
+                    className="text-green-600 hover:text-green-800"
+                  >
+                    Bulk
+                  </Link>
+                  +{" "}
+                  <Link
+                    to={`/admin/quizzes/${q._id}/assign`}
+                    className="text-indigo-600 hover:text-indigo-800"
+                  >
+                    Assign
                   </Link>
                 </td>
               </tr>

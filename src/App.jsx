@@ -55,6 +55,7 @@ import EditQuizPage from "./pages/admin/Quiz/EditQuizPage.jsx";
 import BulkUploadQuestionsPage from "./pages/admin/Quiz/BulkUploadQuestionsPage.jsx";
 import QuestionListPage from "./pages/admin/Quiz/QuestionListPage.jsx";
 import QuestionForm from "./pages/admin/Quiz/QuestionForm.jsx";
+import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -141,6 +142,9 @@ function LayoutWrapper() {
               <Route path="quizzes/:quizId/questions" element={<QuestionListPage />} />
               <Route path="quizzes/:quizId/questions/new" element={<QuestionForm />} />
               <Route path="quizzes/:quizId/questions/:questionId/edit" element={<QuestionForm />} />
+
+              {/* …inside your <Route path="/admin" …> block… */}
+              <Route path="quizzes/:quizId/assign" element={<AssignQuizPage />} />
 
           </Route>
            </Route>
