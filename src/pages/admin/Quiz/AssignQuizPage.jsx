@@ -1,12 +1,12 @@
 // src/pages/admin/AssignQuizPage.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getAllUsers } from "../../services/userService.js";
+import { getAllUsers } from "../../../services/userService.js";
 import {
   getQuizAssignments,
   assignQuiz,
   unassignQuiz,
-} from "../../services/quizService.js";
+} from "../../../services/quizService.js";
 
 export default function AssignQuizPage() {
   const { quizId } = useParams();
