@@ -1,3 +1,4 @@
+// src/services/userService.js
 import API from './axios.js';
 
 /**
@@ -7,56 +8,58 @@ import API from './axios.js';
 /**
  * Fetch all users (admin only)
  * GET /admin/users
+ * Supports optional pagination wrapper: { total, page, limit, users: [] }
  */
-/** Fetch all users (admin only) */
 export function getAllUsers() {
-    return API.get('/admin/users')
-      .then(res => {
-        const data = res.data;
-        // if paginated, unwrap
-        if (data.users && Array.isArray(data.users)) {
-          return data.users;
-        }
-        return Array.isArray(data) ? data : [];
-      });
-  }
-  
+  return API.get('/admin/users').then(res => {
+    const data = res.data;
+    // If response is { users: [...] }, unwrap it
+    if (data.users && Array.isArray(data.users)) {
+      return data.users;
+    }
+    // If response is already an array
+    if (Array.isArray(data)) {
+      return data;
+    }
+    // Otherwise return empty list
+    return [];
+  });
+}
 
 /**
  * Fetch a single user by ID (admin only)
  * GET /admin/users/:userId
- * @param {string} userId
  */
 export function getUserById(userId) {
-  return API.get(`/admin/users/${userId}`).then(res => res.data);
+  return API.get(`/admin/users/${userId}`)
+    .then(res => res.data);
 }
 
 /**
  * Create a new user (admin only)
  * POST /admin/users
- * @param {Object} payload { name, email, role, password, ... }
  */
 export function createUser(payload) {
-  return API.post('/admin/users', payload).then(res => res.data);
+  return API.post('/admin/users', payload)
+    .then(res => res.data);
 }
 
 /**
  * Update an existing user (admin only)
  * PATCH /admin/users/:userId
- * @param {string} userId
- * @param {Object} payload fields to update
  */
 export function updateUser(userId, payload) {
-  return API.patch(`/admin/users/${userId}`, payload).then(res => res.data);
+  return API.patch(`/admin/users/${userId}`, payload)
+    .then(res => res.data);
 }
 
 /**
  * Delete a user (admin only)
  * DELETE /admin/users/:userId
- * @param {string} userId
  */
 export function deleteUser(userId) {
-  return API.delete(`/admin/users/${userId}`).then(res => res.data);
+  return API.delete(`/admin/users/${userId}`)
+    .then(res => res.data);
 }
 
 // Default export for convenience
