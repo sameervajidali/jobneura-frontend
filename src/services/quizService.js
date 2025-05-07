@@ -161,8 +161,8 @@ export function unassignQuiz(quizId, userId) {
  * Fetch leaderboard entries
  * GET /leaderboard?category=&topic=&level=&timePeriod=
  */
-export function getLeaderboard({ category, topic, level, timePeriod = 'all-time' }) {
-  return API.get('/leaderboard', {
+export function getLeaderboard({ category, topic, level, timePeriod }) {
+  return API.get('/quizzes/leaderboard', {
     params: { category, topic, level, timePeriod }
   }).then(res => res.data);
 }
