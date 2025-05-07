@@ -8,9 +8,19 @@ import API from './axios.js';
  * Fetch all users (admin only)
  * GET /admin/users
  */
+/** Fetch all users (admin only) */
 export function getAllUsers() {
-  return API.get('/admin/users').then(res => res.data);
-}
+    return API.get('/admin/users')
+      .then(res => {
+        const data = res.data;
+        // if paginated, unwrap
+        if (data.users && Array.isArray(data.users)) {
+          return data.users;
+        }
+        return Array.isArray(data) ? data : [];
+      });
+  }
+  
 
 /**
  * Fetch a single user by ID (admin only)

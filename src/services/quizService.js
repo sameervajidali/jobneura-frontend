@@ -138,8 +138,16 @@ export function bulkUploadQuestionsFile(quizId, file) {
 // AFTER (correct)
 export function getQuizAssignments(quizId) {
   return API.get(`/quizzes/admin/quizzes/${quizId}/assignments`)
-            .then(res => res.data);
+    .then(res => {
+      const d = res.data;
+      return Array.isArray(d)
+        ? d
+        : Array.isArray(d.assignments)
+          ? d.assignments
+          : [];
+    });
 }
+
 export function assignQuiz(quizId, userIds) {
   return API.post(`/quizzes/admin/quizzes/${quizId}/assign`, { userIds })
             .then(res => res.data);
