@@ -49,6 +49,10 @@ import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { ADMIN_ROLES } from "./constants/roles.js";
+import AdminQuizPanel from "./pages/admin/AdminQuizPanel.jsx";
+import CreateQuizForm from "./pages/admin/Quiz/CreateQuizForm.jsx";
+import EditQuizPage from "./pages/admin/Quiz/EditQuizPage.jsx";
+import BulkUploadQuestionsPage from "./pages/admin/Quiz/BulkUploadQuestionsPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -126,6 +130,13 @@ function LayoutWrapper() {
               <Route path="users/:id/edit" element={<UserForm />} />
               <Route path="users/new" element={<UserForm />} />
             </Route>
+
+            {/* ─── Quiz Management ──────────────────────────────────────── */}
+              <Route path="quizzes" element={<AdminQuizPanel />} />
+              <Route path="quizzes/create" element={<CreateQuizForm />} />
+              <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
+              <Route path="quizzes/:quizId/bulk-upload" element={<BulkUploadQuestionsPage />} />
+
           </Route>
 
           {/* Fallback */}

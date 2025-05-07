@@ -1,0 +1,141 @@
+// // src/services/quizService.js
+// import API from './axios';       // your preconfigured axios instance
+
+// export const getAllQuizzes = () =>
+//   API.get('/quizzes/admin/quizzes').then(res => res.data);
+
+// export const createQuiz = payload =>
+//   API.post('/quizzes/admin/quizzes', payload).then(res => res.data);
+
+// export const getQuizById = quizId =>
+//   API.get(`/quizzes/admin/quizzes/${quizId}`).then(res => res.data);
+
+// export const updateQuiz = (quizId, payload) =>
+//   API.patch(`/quizzes/admin/quizzes/${quizId}`, payload).then(res => res.data);
+
+// export const bulkUploadQuestions = (quizId, questions) =>
+//   API.post(`/quizzes/admin/quizzes/${quizId}/bulk-upload`, { questions })
+//      .then(res => res.data);
+
+// // (…and similarly for bulkUploadFromFile if you want)
+
+
+// src/services/quizService.js
+import API from './axios';
+
+/**
+ * Quiz Management API
+ */
+
+// ─── Quiz CRUD ──────────────────────────────────────────────────────────────
+/**
+ * Fetch all quizzes (admin only)
+ * GET /quizzes/admin/quizzes
+ */
+export function getAllQuizzes() {
+  return API.get('/quizzes/admin/quizzes').then(res => res.data);
+}
+
+/**
+ * Create a new quiz (admin only)
+ * POST /quizzes/admin/quizzes
+ * @param {Object} payload { title, category, topic, level, duration, totalMarks, isActive }
+ */
+export function createQuiz(payload) {
+  return API.post('/quizzes/admin/quizzes', payload)
+    .then(res => res.data);
+}
+
+/**
+ * Get a quiz by ID (admin only)
+ * GET /quizzes/admin/quizzes/:quizId
+ * @param {string} quizId
+ */
+export function getQuizById(quizId) {
+  return API.get(`/quizzes/admin/quizzes/${quizId}`)
+    .then(res => res.data);
+}
+
+/**
+ * Update a quiz (admin only)
+ * PATCH /quizzes/admin/quizzes/:quizId
+ * @param {string} quizId
+ * @param {Object} payload fields to update
+ */
+export function updateQuiz(quizId, payload) {
+  return API.patch(`/quizzes/admin/quizzes/${quizId}`, payload)
+    .then(res => res.data);
+}
+
+// ─── Quiz Attempt ───────────────────────────────────────────────────────────
+/**
+ * Submit a quiz attempt
+ * POST /quizzes/submit
+ * @param {Object} payload { quizId, timeTaken, answers }
+ */
+export function submitQuizAttempt(payload) {
+  return API.post('/quizzes/submit', payload)
+    .then(res => res.data);
+}
+
+/**
+ * Fetch current user's quiz attempt history
+ * GET /quizzes/my-attempts
+ */
+export function getUserAttempts() {
+  return API.get('/quizzes/my-attempts')
+    .then(res => res.data);
+}
+
+// ─── Leaderboard ────────────────────────────────────────────────────────────
+/**
+ * Fetch leaderboard entries
+ * GET /quizzes/leaderboard?category=&topic=&level=&timePeriod=
+ * @param {Object} params { category, topic?, level?, timePeriod? }
+ */
+export function getLeaderboard(params = {}) {
+  return API.get('/quizzes/leaderboard', { params })
+    .then(res => res.data);
+}
+
+// ─── Bulk Upload Questions ──────────────────────────────────────────────────
+/**
+ * Bulk upload questions via JSON (admin only)
+ * POST /quizzes/admin/quizzes/:quizId/bulk-upload
+ * @param {string} quizId
+ * @param {Array} questions array of question objects
+ */
+export function bulkUploadQuestions(quizId, questions) {
+  return API.post(`/quizzes/admin/quizzes/${quizId}/bulk-upload`, { questions })
+    .then(res => res.data);
+}
+
+/**
+ * Bulk upload questions via CSV file (admin only)
+ * POST /quizzes/admin/quizzes/:quizId/bulk-upload-file
+ * @param {string} quizId
+ * @param {File} file CSV/XLSX file object
+ */
+export function bulkUploadQuestionsFile(quizId, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return API.post(
+    `/quizzes/admin/quizzes/${quizId}/bulk-upload-file`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  ).then(res => res.data);
+}
+
+// ─── Export as default for convenience ──────────────────────────────────────
+export default {
+  getAllQuizzes,
+  createQuiz,
+  getQuizById,
+  updateQuiz,
+  submitQuizAttempt,
+  getUserAttempts,
+  getLeaderboard,
+  bulkUploadQuestions,
+  bulkUploadQuestionsFile
+};
