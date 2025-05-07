@@ -10,12 +10,15 @@ export function createQuestion(quizId, payload) {
             .then(res => res.data);
 }
 
+// src/services/questionService.js
+
 export function updateQuestion(quizId, questionId, payload) {
   return API.patch(
     `/quizzes/admin/quizzes/${quizId}/questions/${questionId}`,
     payload
   ).then(res => res.data);
 }
+
 
 export function deleteQuestion(quizId, questionId) {
   return API.delete(
