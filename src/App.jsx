@@ -59,6 +59,7 @@ import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage.jsx";
 import LeaderboardPage from "./pages/LeaderboardPage.jsx";
 import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage.jsx";
 import QuizExplorerPage from "./pages/QuizExplorerPage.jsx";
+import QuizStartPage from "./pages/QuizStartPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -88,6 +89,87 @@ function AppInitializer({ children }) {
 }
 
 // 🌟 Layout logic based on route + role
+// function LayoutWrapper() {
+//   const { user } = useAuth();
+//   const location = useLocation();
+
+//   const isDashboard = location.pathname.startsWith("/dashboard");
+//   const isAdmin =
+//     location.pathname.startsWith("/admin") &&
+//     user &&
+//     ADMIN_ROLES.includes(user.role?.toUpperCase());
+
+//   return (
+//     <div className="flex flex-col min-h-screen">
+//       {!isAdmin && <Navbar />}
+//       <div className={`flex-grow ${!isDashboard && !isAdmin ? "pt-16" : ""}`}>
+//         <Routes>
+//           {/* Public */}
+//           <Route path="/" element={<HomePage />} />
+//           <Route path="/login" element={<LoginPage />} />
+//           <Route path="/register" element={<RegisterPage />} />
+//           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+//           <Route path="/about" element={<AboutPage />} />
+//           <Route path="/terms" element={<TermsPage />} />
+//           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+//           <Route path="/help" element={<HelpCenterPage />} />
+//           <Route path="/contact" element={<ContactPage />} />
+//           <Route path="/features" element={<FeaturesPage />} />
+//           <Route path="/pricing" element={<PricingPage />} />
+//           {/* //<Route path="/quizzes" element={<QuizLandingPage />} /> */}
+//           <Route path="/quizzes" element={<QuizExplorerPage />} />
+//           <Route path="/activate" element={<AccountActivationPage />} />
+//           <Route path="/account-activation-info" element={<AccountActivationInfo />} />
+//           <Route path="/reset-password" element={<ResetPasswordPage />} />
+//           <Route path="/leaderboard" element={<LeaderboardPage />} />
+//           // in App.jsx or wherever you define <Routes>
+//             <Route path="/quiz/:quizId/start" element={<QuizStartPage />} />
+//             <Route path="/quiz/:quizId/result/:attemptId" element={<QuizResultPage />} />
+
+
+//             {/* User Dashboard */}
+//             <Route path="/dashboard" element={<DashboardLayout />}>
+//               <Route index element={<DashboardHome />} />
+//               <Route path="profile" element={<Profile />} />
+//               <Route path="change-password" element={<ChangePassword />} />
+//             </Route>
+
+//             {/* Admin Dashboard */}
+//             <Route element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}>
+//               <Route path="/admin" element={<AdminDashboardLayout />}>
+//                 <Route index element={<AdminDashboardHome />} />
+//                 <Route path="users" element={<AdminUsersPage />} />
+//                 <Route path="users/:id" element={<UserDetails />} />
+//                 <Route path="users/:id/edit" element={<UserForm />} />
+//                 <Route path="users/new" element={<UserForm />} />
+
+//                 {/* ─── Quiz Management ──────────────────────────────────────── */}
+//                 <Route path="quizzes" element={<AdminQuizPanel />} />
+//                 <Route path="quizzes/create" element={<CreateQuizForm />} />
+//                 <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
+//                 <Route path="quizzes/:quizId/bulk-upload" element={<BulkUploadQuestionsPage />} />
+
+//                 <Route path="quizzes/:quizId/questions" element={<QuestionListPage />} />
+//                 <Route path="quizzes/:quizId/questions/new" element={<QuestionForm />} />
+//                 <Route path="quizzes/:quizId/questions/:questionId/edit" element={<QuestionForm />} />
+
+//                 {/* …inside your <Route path="/admin" …> block… */}
+//                 <Route path="quizzes/:quizId/assign" element={<AssignQuizPage />} />
+
+//                 <Route path="leaderboard" element={<AdminLeaderboardPage />} />
+
+
+//               </Route>
+//             </Route>
+//             {/* Fallback */}
+//             <Route path="*" element={<NotFoundPage />} />
+//           </Routes>
+//       </div>
+//       {!isDashboard && !isAdmin && <Footer />}
+//     </div>
+//   );
+// }
+
 function LayoutWrapper() {
   const { user } = useAuth();
   const location = useLocation();
@@ -115,47 +197,77 @@ function LayoutWrapper() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
-          {/* //<Route path="/quizzes" element={<QuizLandingPage />} /> */}
+
+          {/* Quiz explorer */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />
-          <Route path="/activate" element={<AccountActivationPage />} />
-          <Route path="/account-activation-info" element={<AccountActivationInfo />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
 
-          {/* User Dashboard */}
+          {/* Quiz runner */}
+          <Route path="/quiz/:quizId/start" element={<QuizStartPage />} />
+          <Route
+            path="/quiz/:quizId/result/:attemptId"
+            element={<QuizResultPage />}
+          />
+
+          {/* Account flows */}
+          <Route path="/activate" element={<AccountActivationPage />} />
+          <Route
+            path="/account-activation-info"
+            element={<AccountActivationInfo />}
+          />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+          {/* User dashboard */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="profile" element={<Profile />} />
             <Route path="change-password" element={<ChangePassword />} />
           </Route>
 
-          {/* Admin Dashboard */}
-          <Route element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}>
-            <Route path="/admin" element={<AdminDashboardLayout />}>
+          {/* Admin dashboard */}
+          <Route
+            path="/admin/*"
+            element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}
+          >
+            <Route element={<AdminDashboardLayout />}>
               <Route index element={<AdminDashboardHome />} />
+
+              {/* Users */}
               <Route path="users" element={<AdminUsersPage />} />
+              <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="users/:id/edit" element={<UserForm />} />
-              <Route path="users/new" element={<UserForm />} />           
 
-            {/* ─── Quiz Management ──────────────────────────────────────── */}
+              {/* Quizzes */}
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
-              <Route path="quizzes/:quizId/bulk-upload" element={<BulkUploadQuestionsPage />} />
+              <Route
+                path="quizzes/:quizId/bulk-upload"
+                element={<BulkUploadQuestionsPage />}
+              />
+              <Route
+                path="quizzes/:quizId/questions"
+                element={<QuestionListPage />}
+              />
+              <Route
+                path="quizzes/:quizId/questions/new"
+                element={<QuestionForm />}
+              />
+              <Route
+                path="quizzes/:quizId/questions/:questionId/edit"
+                element={<QuestionForm />}
+              />
+              <Route
+                path="quizzes/:quizId/assign"
+                element={<AssignQuizPage />}
+              />
 
-              <Route path="quizzes/:quizId/questions" element={<QuestionListPage />} />
-              <Route path="quizzes/:quizId/questions/new" element={<QuestionForm />} />
-              <Route path="quizzes/:quizId/questions/:questionId/edit" element={<QuestionForm />} />
-
-              {/* …inside your <Route path="/admin" …> block… */}
-              <Route path="quizzes/:quizId/assign" element={<AssignQuizPage />} />
-
-              <Route path="leaderboard" element={<AdminLeaderboardPage/>} />
-
-
+              {/* Admin leaderboard */}
+              <Route path="leaderboard" element={<AdminLeaderboardPage />} />
+            </Route>
           </Route>
-           </Route>
+
           {/* Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
@@ -164,6 +276,7 @@ function LayoutWrapper() {
     </div>
   );
 }
+
 
 export default function App() {
   return (
