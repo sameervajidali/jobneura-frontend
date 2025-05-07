@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import questionService from '../../services/questionService.js';
+import questionService from '../../../services/questionService.js';
 
 export default function QuestionForm() {
   const { quizId, questionId } = useParams();
