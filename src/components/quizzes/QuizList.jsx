@@ -1,80 +1,68 @@
-// // src/components/quizzes/QuizList.jsx
-// import React from "react";
-// import useQuizList from "../../hooks/useQuizList.jsx";
-// import { Users } from "lucide-react";
-// import { ArrowRightCircle } from "lucide-react";
-
-// export default function QuizList({ filters }) {
-//   const { quizzes, loading, error } = useQuizList(filters);
-
-//   if (loading) return <p>Loading quizzes…</p>;
-//   if (error)   return <p className="text-red-500">{error}</p>;
-//   if (!quizzes.length) return <p>No quizzes found.</p>;
-
-//   return (
-//     <div className="grid grid-cols-1 gap-6">
-//       {quizzes.map((q) => (
-//         <div
-//           key={q._id}
-//           className="bg-white rounded-2xl border hover:shadow-lg p-6 transition flex flex-col justify-between"
-//         >
-//           <div className="flex flex-col gap-1">
-//             <h3 className="text-lg font-bold text-indigo-700">{q.title}</h3>
-//             <p className="text-sm text-gray-600">
-//               {q.questions.length} Questions | {q.duration} min
-//             </p>
-//             <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
-//               <Users className="w-4 h-4" /> {q.attempts || 0} attempts
-//             </div>
-//           </div>
-//           <div className="mt-4">
-//             <button
-//               onClick={() => window.location.href = `/quiz/${q._id}`}
-//               className="text-indigo-600 font-semibold text-sm inline-flex items-center gap-1 hover:underline"
-//             >
-//               Start Quiz <ArrowRightCircle className="w-4 h-4" />
-//             </button>
-//           </div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
-
-
-// src/components/quizzes/QuizList.jsx
+// src/components/QuizList.jsx
 import React from 'react';
-import useQuizList from '../../hooks/useQuizList.jsx';
+import useQuizList from '../hooks/useQuizList';
 
 export default function QuizList({ filters, onPageChange }) {
-  const { quizzes, loading, error, total, page, limit } = useQuizList(filters);
+  const { quizzes, total, page, limit, loading, error } = useQuizList(filters);
 
-  if (loading) return <p>Loading quizzes…</p>;
-  if (error)   return <p className="text-red-500">{error}</p>;
-  if (!quizzes.length) return <p>No quizzes found.</p>;
+  if (loading) return <p className="p-6 text-center">Loading quizzes…</p>;
+  if (error)   return <p className="p-6 text-center text-red-500">{error}</p>;
+  if (!quizzes.length) return <p className="p-6 text-center">No quizzes found.</p>;
 
   return (
-    <>
+    <div className="space-y-6">
+      {/* Quiz grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {quizzes.map(q => (
-          <div key={q._id} className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+          <div
+            key={q._id}
+            className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
+          >
             <h3 className="text-lg font-semibold text-indigo-700">{q.title}</h3>
             <p className="text-sm text-gray-600">
-              {q.questions.length} Questions | {q.duration} min
+              {q.totalMarks} Questions &middot; {q.duration} min
             </p>
-            <p className="text-xs text-gray-500 flex items-center gap-1 mt-2">
-              <svg className="w-4 h-4" /* user icon */></svg>
-              {q.attempts || 0} attempts
-            </p>
-            <button className="mt-4 text-indigo-600 font-medium hover:underline inline-flex items-center gap-1">
-              Start Quiz <svg className="w-4 h-4">{/* arrow icon */}</svg>
+            <div className="mt-4 flex items-center text-sm text-gray-500 gap-2">
+              <svg
+                className="w-4 h-4 inline-block"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m8-3V7a4 4 0 10-8 0v6m8 0H7"
+                />
+              </svg>
+              {q.attempts ?? 0} attempts
+            </div>
+            <button
+              onClick={() => window.location = `/quiz/${q._id}`}
+              className="mt-4 text-indigo-600 font-medium inline-flex items-center gap-1 hover:underline"
+            >
+              Start Quiz
+              <svg
+                className="w-4 h-4 inline-block"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </button>
           </div>
         ))}
       </div>
 
-      {/* Simple pagination */}
-      <div className="mt-6 flex justify-center items-center space-x-4">
+      {/* Pagination */}
+      <div className="flex justify-center items-center space-x-4">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page <= 1}
@@ -82,7 +70,9 @@ export default function QuizList({ filters, onPageChange }) {
         >
           Prev
         </button>
-        <span>Page {page}</span>
+        <span className="text-gray-700">
+          Page <strong>{page}</strong> of <strong>{Math.ceil(total / limit)}</strong>
+        </span>
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page * limit >= total}
@@ -91,6 +81,6 @@ export default function QuizList({ filters, onPageChange }) {
           Next
         </button>
       </div>
-    </>
+    </div>
   );
 }
