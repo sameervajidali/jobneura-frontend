@@ -168,10 +168,26 @@ export function getLeaderboard({ category, topic, level, timePeriod }) {
 }
 
 
+/**
+ * Fetch quizzes with optional filters & pagination
+ * @param {{category?:string, topic?:string, level?:string, page?:number, limit?:number}} params
+ */
+// src/services/quizService.js
+export function getQuizzes(params = {}) {
+  return API.get('/quizzes', { params })
+    .then(res => {
+      const data = res.data;
+      // API returns { items, total, page, limit }
+      return data.items ?? [];
+    });
+}
+
+
 
 // ─── Export as default for convenience ──────────────────────────────────────
 export default {
   getAllQuizzes,
+  getQuizzes,
   getQuizAssignments,
   assignQuiz,
   unassignQuiz,

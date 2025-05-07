@@ -58,6 +58,7 @@ import QuestionForm from "./pages/admin/Quiz/QuestionForm.jsx";
 import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage.jsx";
 import LeaderboardPage from "./pages/LeaderboardPage.jsx";
 import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage.jsx";
+import QuizExplorerPage from "./pages/QuizExplorerPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -114,7 +115,8 @@ function LayoutWrapper() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/quizzes" element={<QuizLandingPage />} />
+          {/* //<Route path="/quizzes" element={<QuizLandingPage />} /> */}
+          <Route path="/quizzes" element={<QuizExplorerPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
           <Route path="/account-activation-info" element={<AccountActivationInfo />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
