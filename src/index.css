@@ -9,3 +9,12 @@ html, body, #root {
     overflow-x: hidden;
   }
   
+  @keyframes fadeOut {
+    0%, 80% { opacity: 1; }
+    100%    { opacity: 0; }
+  }
+  
+  .animate-fadeOut {
+    animation: fadeOut 4s forwards;
+  }
+  

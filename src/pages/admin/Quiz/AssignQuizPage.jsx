@@ -27,7 +27,7 @@ export default function AssignQuizPage() {
 
       .then(([allUsers, assignments]) => {
         setUsers(allUsers);
-        setSuccess("✅ Assignments saved!");
+        
         // Ensure assignments is array
         const list = Array.isArray(assignments) ? assignments : [];
         const ids = list.map((a) => a.user._id);
@@ -55,7 +55,7 @@ export default function AssignQuizPage() {
   const handleSave = async () => {
     setSaving(true);
     setError("");
-
+    setSuccess("");
     try {
       const currentArr = Array.from(assignedIds);
       const toAdd = currentArr.filter((id) => !initialAssigned.includes(id));
@@ -73,7 +73,9 @@ export default function AssignQuizPage() {
         : initialAssigned; // fallback
 
       setAssignedIds(new Set(refreshedIds));
-      setInitial(refreshedIds);
+        setInitial(refreshedIds);
+        // only now show success
+        setSuccess("✅ Assignments saved!");
     } catch (err) {
       console.error("Save assignments error:", err);
       setError(err.response?.data?.message || err.message);
@@ -88,29 +90,30 @@ export default function AssignQuizPage() {
 
   // 5️⃣ Main JSX
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white shadow rounded-md">
+      <div className="p-8 max-w-5xl mx-auto bg-white shadow-xl rounded-2xl">
+          {/* Success toast */}
       {success && (
         <div
-          className="mb-4 px-4 py-2 bg-green-100 text-green-800 rounded transition"
+          className="mb-6 px-5 py-3 bg-green-50 border border-green-200 text-green-800 rounded-lg shadow-sm animate-fadeOut"
           onAnimationEnd={() => setSuccess("")}
           style={{ animation: "fadeOut 3s forwards" }}
         >
           {success}
         </div>
       )}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-6">
         <h2 className="text-2xl font-semibold text-gray-800">
           Assign Quiz to Users
         </h2>
         <Link
           to="/admin/quizzes"
-          className="text-sm text-indigo-600 hover:text-indigo-800"
+          className="inline-block px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-200 rounded-lg"
         >
           &larr; Back to Quizzes
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-inner">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -129,10 +132,10 @@ export default function AssignQuizPage() {
                 />
               </th>
               {/* Columns */}
-              {["Name", "Email", "Role"].map((col) => (
+              {["Name", "Email", "Role"].map(col => (
                 <th
                   key={col}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-4 py-2 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
                 >
                   {col}
                 </th>
@@ -148,7 +151,7 @@ export default function AssignQuizPage() {
                     type="checkbox"
                     checked={assignedIds.has(u._id)}
                     onChange={() => toggleAssign(u._id)}
-                    className="h-4 w-4 text-indigo-600"
+                    className="h-5 w-5 text-indigo-600"
                   />
                 </td>
                 {/* User info */}
@@ -168,11 +171,11 @@ export default function AssignQuizPage() {
       </div>
 
       {/* Save button */}
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-6">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
+          className="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition"
         >
           {saving ? "Saving…" : "Save Assignments"}
         </button>
