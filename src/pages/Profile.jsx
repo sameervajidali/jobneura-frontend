@@ -10,10 +10,13 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import API from "../services/axios";
+import FileUploader from "../components/FileUploader";
 
 export default function Profile() {
   // 1️⃣ pull sessionLoading, user, and login() from context
   const { user, login, loading: sessionLoading } = useAuth();
+
+  const [loading, setLoading] = useState(true);
 
   // 2️⃣ local state for the form
   const [profile, setProfile] = useState({
@@ -32,9 +35,7 @@ export default function Profile() {
     resume: "",
   });
   const [newSkill, setNewSkill] = useState("");
-  const [newLanguage, setNewLanguage] = useState("");
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [resumeFile, setResumeFile] = useState(null);
+  const [newLanguage, setNewLanguage] = useState("");  
   const [completion, setCompletion] = useState(0);
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -80,10 +81,9 @@ export default function Profile() {
   //   setResumeFile(null);
   // }, [user]);
 
-
   useEffect(() => {
     if (!user) return;
-  
+
     const u = {
       name: user.name || "",
       email: user.email || "",
@@ -106,21 +106,15 @@ export default function Profile() {
         to: e.to ? e.to.slice(0, 7) : "",
         current: !!e.current,
       })),
-      avatar: user.avatar || "",  // Ensure avatar is set properly
+      avatar: user.avatar || "", // Ensure avatar is set properly
       resume: user.resume || "",
     };
-  
+
     setProfile(u); // Update profile state
     calculateCompletion(u); // Recalculate profile completion
     setAvatarFile(null);
     setResumeFile(null);
-  }, [user]);  // This hook will be triggered when the user context changes
-  
-  // const languageOptions = [
-  //   { value: "english", label: "English" },
-  //   { value: "hindi", label: "Hindi" },
-  //   { value: "spanish", label: "Spanish" },
-  // ];
+  }, [user]); // This hook will be triggered when the user context changes
 
   // 5️⃣ compute profile completion
   const calculateCompletion = (u) => {
@@ -265,36 +259,62 @@ export default function Profile() {
   //   }
   // };
 
-  const handleSubmit = async (e) => {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setSubmitting(true);
+  //   setMessage(null);
+  //   try {
+  //     const formData = new FormData();
+  //     Object.entries(profile).forEach(([k, v]) =>
+  //       formData.append(k, Array.isArray(v) ? JSON.stringify(v) : v)
+  //     );
+  //     if (avatarFile) formData.append("avatar", avatarFile);
+  //     if (resumeFile) formData.append("resume", resumeFile);
+
+  //     const res = await API.put("/auth/profile", formData);
+
+  //     // After updating, re-fetch the user data to get the latest profile information
+  //     const { data } = await API.get("/auth/me");
+  //     login(data.user); // Ensure the user data is up-to-date
+
+  //     setMessage({ type: "success", text: "Profile updated!" });
+  //   } catch (err) {
+  //     setMessage({
+  //       type: "error",
+  //       text: err.response?.data?.message || "Update failed",
+  //     });
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
+
+  const handleSubmit = async e => {
     e.preventDefault();
     setSubmitting(true);
     setMessage(null);
     try {
-      const formData = new FormData();
-      Object.entries(profile).forEach(([k, v]) =>
-        formData.append(k, Array.isArray(v) ? JSON.stringify(v) : v)
-      );
-      if (avatarFile) formData.append("avatar", avatarFile);
-      if (resumeFile) formData.append("resume", resumeFile);
-  
-      const res = await API.put("/auth/profile", formData);
-  
-      // After updating, re-fetch the user data to get the latest profile information
-      const { data } = await API.get("/auth/me");
-      login(data.user);  // Ensure the user data is up-to-date
-  
-      setMessage({ type: "success", text: "Profile updated!" });
+      // build plain object (no FormData)
+      const payload = {
+        ...profile,
+        // skills, languages, experience, education are already arrays/objects
+      };
+      const res = await API.put('/auth/profile', payload);
+      // refresh context
+      const { data } = await API.get('/auth/me');
+      login(data.user);
+      setMessage({ type:'success', text:'Profile updated!' });
     } catch (err) {
       setMessage({
-        type: "error",
-        text: err.response?.data?.message || "Update failed",
+        type:'error',
+        text: err.response?.data?.message || 'Update failed'
       });
     } finally {
       setSubmitting(false);
     }
   };
   
-  
+
 
   // 🎨 render
   return (
@@ -314,11 +334,18 @@ export default function Profile() {
             />
             <label className="absolute bottom-0 right-0 bg-indigo-600 text-white p-1 rounded-full cursor-pointer hover:bg-indigo-700">
               <FaUpload />
-              <input
+              {/* <input
                 type="file"
                 accept="image/*"
                 className="hidden"
                 onChange={(e) => setAvatarFile(e.target.files[0])}
+              /> */}
+              <FileUploader
+                accept="image/*"
+                onUpload={(fileInfo) => {
+                  // fileInfo = { path, url }
+                  setProfile((p) => ({ ...p, avatar: fileInfo.url }));
+                }}
               />
             </label>
           </div>
@@ -665,10 +692,16 @@ export default function Profile() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Upload Resume
               </label>
-              <input
+              {/* <input
                 type="file"
                 onChange={(e) => setResumeFile(e.target.files[0])}
                 className="border rounded px-3 py-2 w-full"
+              /> */}
+              <FileUploader
+                accept=".pdf,.doc,.docx"
+                onUpload={(fileInfo) => {
+                  setProfile((p) => ({ ...p, resume: fileInfo.url }));
+                }}
               />
               {resumeFile && <p className="mt-1 text-sm">{resumeFile.name}</p>}
               {profile.resume && (

@@ -1,4 +1,5 @@
 
+// AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 import API from "../services/axios";
 
@@ -12,12 +13,12 @@ export function AuthProvider({ children }) {
   const storeAuthData = (userData, accessToken, refreshToken) => {
     setUser(userData);
     localStorage.setItem("hasSession", "true");
-    if (accessToken) {
-      localStorage.setItem("accessToken", accessToken);
-    }
-    if (refreshToken) {
-      localStorage.setItem("refreshToken", refreshToken);
-    }
+    // if (accessToken) {
+    //   localStorage.setItem("accessToken", accessToken);
+    // }
+    // if (refreshToken) {
+    //   localStorage.setItem("refreshToken", refreshToken);
+    // }
   };
 
   // Clear all auth data
