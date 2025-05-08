@@ -14,7 +14,7 @@
     "axios": "^1.9.0",
     "chart.js": "^4.4.9",
     "cookie-parser": "^1.4.7",
-    "framer-motion": "^12.9.2",
+    "framer-motion": "^12.10.1",
     "i18next": "^25.0.2",
     "lucide-react": "^0.503.0",
     "ngrok": "^5.0.0-beta.2",
