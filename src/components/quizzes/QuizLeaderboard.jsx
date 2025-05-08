@@ -1,6 +1,7 @@
 // src/components/quizzes/QuizLeaderboard.jsx
 import React, { useState, useEffect } from "react";
-import API from "../../../services/axios.js";
+import API from "../../services/axios.js";
+import quizService from '../../services/quizService.js';
 
 export default function QuizLeaderboard({ filters }) {
   const [entries, setEntries] = useState([]);
