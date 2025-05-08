@@ -182,6 +182,10 @@ export function getQuizzes(params = {}) {
     });
 }
 
+export function getAttemptById(attemptId) {
+  return API.get(`/quizzes/attempts/${attemptId}`)
+    .then(res => res.data);
+}
 
 
 // ─── Export as default for convenience ──────────────────────────────────────
@@ -192,6 +196,7 @@ export default {
   assignQuiz,
   unassignQuiz,
   createQuiz,
+  getAttemptById,
   getLeaderboard,
   getQuizById,
   updateQuiz,
