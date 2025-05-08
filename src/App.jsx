@@ -68,15 +68,15 @@ function AppInitializer({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (!loading && user && location.pathname === "/login") {
-      const role = user.role?.toUpperCase();
-      const isAdmin = ADMIN_ROLES.includes(role);
-      const redirectTo = isAdmin ? "/admin" : "/dashboard";
-      console.log("🔁 App Init: role =", role, "→ redirect:", redirectTo);
-      navigate(redirectTo, { replace: true });
-    }
-  }, [loading, user, location.pathname, navigate]);
+  // React.useEffect(() => {
+  //   if (!loading && user && location.pathname === "/login") {
+  //     const role = user.role?.toUpperCase();
+  //     const isAdmin = ADMIN_ROLES.includes(role);
+  //     const redirectTo = isAdmin ? "/admin" : "/dashboard";
+  //     console.log("🔁 App Init: role =", role, "→ redirect:", redirectTo);
+  //     navigate(redirectTo, { replace: true });
+  //   }
+  // }, [loading, user, location.pathname, navigate]);
 
   if (loading || (!user && localStorage.getItem("hasSession") === "true")) {
     return (
