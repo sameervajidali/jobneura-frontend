@@ -1,14 +1,8 @@
 // src/firebaseConfig.js
+
 import { initializeApp } from 'firebase/app';
-import { getStorage } from 'firebase/storage';
-
-// In your entry or Profile.jsx
-import { auth } from './firebaseConfig';
-import { signInAnonymously } from 'firebase/auth';
-
-useEffect(() => {
-  signInAnonymously(auth).catch(console.error);
-}, []);
+import { getStorage }    from 'firebase/storage';
+import { getAuth }       from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,11 +13,11 @@ const firebaseConfig = {
   appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-
-// 1️⃣ Initialize Firebase
+// 1️⃣ Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// 2️⃣ Create & export the Storage instance
+// 2️⃣ Create & export Storage and Auth instances
 export const storage = getStorage(app);
+export const auth    = getAuth(app);
 
 export default app;
