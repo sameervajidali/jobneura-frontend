@@ -1,6 +1,6 @@
 // src/components/quizzes/QuizTitleLeaderboard.jsx
 import React, { useState, useEffect } from 'react'
-import quizService      from '../../../services/quizService.js'
+import quizService      from '../../services/quizService.js'
 import { Search, Award } from 'lucide-react'
 
 export default function QuizTitleLeaderboard({ timePeriod = 'week' }) {
