@@ -1,6 +1,6 @@
 // src/components/quizzes/QuizLeaderboard.jsx
-import React, { useState, useEffect } from 'react';
-import API from '../../services/axios.js';
+import React, { useState, useEffect } from "react";
+import API from "../../services/axios.js";
 
 export default function QuizLeaderboard({ filters }) {
   const [entries, setEntries] = useState([]);
@@ -8,11 +8,22 @@ export default function QuizLeaderboard({ filters }) {
 
   useEffect(() => {
     setLoading(true);
-    API.get('/quizzes/leaderboard', { params: filters })
-      .then(res => setEntries(res.data))
-      .catch(err => console.error(err))
+    API.get("/quizzes/leaderboard", { params: filters })
+      .then((res) => setEntries(res.data))
+      .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, [JSON.stringify(filters)]);
+
+  // inside your data-loading useEffect:
+  quizService
+    .getLeaderboard(filters) // filters contains category, topic, level, timePeriod, page, limit
+    .then((data) => {
+      setEntries(data.items);
+      setTotal(data.total);
+      setPage(data.page);
+      setLimit(data.limit);
+    })
+    .catch(console.error);
 
   if (loading) return <p>Loading leaderboard…</p>;
 
