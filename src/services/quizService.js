@@ -188,6 +188,21 @@ export function getAttemptById(attemptId) {
 }
 
 
+/**
+ * Fetch attempt + computed stats (rank, percentile, totalCount)
+ */
+export function getAttemptStats(attemptId) {
+  return API.get(`/quizzes/attempts/${attemptId}/stats`)
+    .then(res => res.data);
+}
+
+
+export function getQuizTopThree(quizId, timePeriod = 'week') {
+  return API.get(`/quizzes/${quizId}/top-three`, { params: { timePeriod } })
+    .then(res => res.data);
+}
+
+
 // ─── Export as default for convenience ──────────────────────────────────────
 export default {
   getAllQuizzes,
@@ -201,6 +216,8 @@ export default {
   getQuizById,
   updateQuiz,
   submitQuizAttempt,
+  getAttemptStats,
+  getQuizTopThree,
   getUserAttempts, 
   bulkUploadQuestions,
   bulkUploadQuestionsFile
