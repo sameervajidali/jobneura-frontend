@@ -19,7 +19,8 @@ API.interceptors.response.use(
     const { config, response } = error
     if (!response || response.status !== 401) return Promise.reject(error)
 
-    const noRetryPaths = ['/auth/me', '/auth/refresh-token']
+      const noRetryPaths = ['/auth/me', '/auth/refresh-token', '/auth/login']
+
     if (noRetryPaths.some(path => config.url.includes(path))) {
       return Promise.reject(error)
     }
