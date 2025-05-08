@@ -781,7 +781,7 @@ export default function Profile() {
     <div className="max-w-5xl mx-auto p-6 space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* — Sidebar */}
-        <aside className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
+        {/* <aside className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
           <div className="relative mb-4">
             <img
               src={profile.avatar || '/default-avatar.png'}
@@ -829,7 +829,32 @@ export default function Profile() {
               />
             </div>
           </div>
-        </aside>
+        </aside> */}
+        <aside className="bg-white rounded-2xl shadow p-6 flex flex-col items-center text-center">
+  <div className="relative flex flex-col items-center">
+    <img
+      src={profile.avatar || "/default-avatar.png"}
+      alt="Avatar"
+      className="w-32 h-32 rounded-full object-cover"
+    />
+    <label className="mt-2 absolute bottom-0 right-0 bg-indigo-600 text-white p-1 rounded-full hover:bg-indigo-700">
+      <FaUpload />
+      <FileUploader
+        accept="image/*"
+        onUpload={({ url }) => {
+          setProfile(p => ({ ...p, avatar: url }));
+          calculateCompletion({ ...profile, avatar: url });
+        }}
+      />
+    </label>
+  </div>
+
+  <h2 className="mt-4 text-xl font-semibold text-gray-800">
+    {profile.name || "Your Name"}
+  </h2>
+  {/* …rest of sidebar… */}
+</aside>
+
 
         {/* — Main Form */}
         <div className="lg:col-span-3 bg-white rounded-2xl shadow p-6 space-y-6">
