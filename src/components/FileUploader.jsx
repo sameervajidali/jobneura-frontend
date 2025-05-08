@@ -1,7 +1,7 @@
 // src/components/FileUploader.jsx
 import React, { useState } from 'react';
-import { storage, storageRef, uploadBytes, getDownloadURL } from '../firebase';
-
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase/config";
 export default function FileUploader({ onUpload }) {
   const [file, setFile]     = useState(null);
   const [uploading, setUploading] = useState(false);
