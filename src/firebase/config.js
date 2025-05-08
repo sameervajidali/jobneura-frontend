@@ -12,6 +12,8 @@ const firebaseConfig = {
   appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+
+console.log('🔥 [dev] firebaseConfig:', firebaseConfig);
 // 1️⃣ Initialize the Firebase App
 const app = initializeApp(firebaseConfig);
 

@@ -655,8 +655,8 @@ export default function Profile() {
   useEffect(() => {
     // ensure Firebase Auth is initialized before any Storage calls
     signInAnonymously(auth)
-      .then(() => console.log('✅ signed in anonymously'))
-      .catch(err => console.error('Auth failed', err));
+    .then(()  => console.log('✅ signed in anonymously'))
+    .catch(err => console.error('Auth failed:', err));
   }, []);
 
 
