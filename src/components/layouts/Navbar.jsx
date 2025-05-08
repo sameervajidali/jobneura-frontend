@@ -7,8 +7,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
-import { getAvatarUrl } from "../utils/getAvatarUrl";
-
+import { getAvatarUrl } from "../../utils/getAvatarUrl";
 export default function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
