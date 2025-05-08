@@ -39,7 +39,7 @@ export default function QuizList({ filters, onPageChange }) {
               {q.attempts ?? 0} attempts
             </div>
             <button
-              onClick={() => window.location = `/quiz/${q._id}`}
+              onClick={() => window.location = `/quiz/${q._id}//start`}
               className="mt-4 text-indigo-600 font-medium inline-flex items-center gap-1 hover:underline"
             >
               Start Quiz
