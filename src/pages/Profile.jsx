@@ -660,6 +660,11 @@ export default function Profile() {
     return <div className="p-8 text-center text-gray-500">Loading session…</div>;
   }
 
+  useEffect(() => {
+    const auth = getAuth(app);
+    signInAnonymously(auth).catch(console.error);
+  }, []);
+
   // 2️⃣ Populate local form state when user loads
   useEffect(() => {
     if (!user) return;
