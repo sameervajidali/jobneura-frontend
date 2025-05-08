@@ -838,8 +838,7 @@ export default function Profile() {
       className="w-32 h-32 rounded-full object-cover"
     />
     <label className="mt-2 absolute bottom-0 right-0 bg-indigo-600 text-white p-1 rounded-full hover:bg-indigo-700">
-      <FaUpload />
-      <FileUploader
+      <FaUpload
         accept="image/*"
         onUpload={({ url }) => {
           setProfile(p => ({ ...p, avatar: url }));
