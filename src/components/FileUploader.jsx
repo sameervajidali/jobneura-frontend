@@ -5,7 +5,9 @@ import { storage } from "../firebase/config.js"; // Adjust the import path as ne
 export default function FileUploader({ onUpload }) {
   const [file, setFile]     = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [error, setError]   = useState('');
+  const [error, setError] = useState('');
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const handleChange = e => {
     setFile(e.target.files[0]);

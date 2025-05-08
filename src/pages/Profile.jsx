@@ -39,7 +39,8 @@ export default function Profile() {
   const [completion, setCompletion] = useState(0);
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
   // 3️⃣ show a loading screen while restoring session
   if (sessionLoading && !user) {
     return (
