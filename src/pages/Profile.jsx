@@ -640,7 +640,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import {
   FaLinkedin,
-  FaGlobe,
+  FaUpload,
   FaDownload,
   FaPlus,
   FaTimes,
