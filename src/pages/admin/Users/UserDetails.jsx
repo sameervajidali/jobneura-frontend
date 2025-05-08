@@ -67,35 +67,45 @@
 // src/pages/admin/UserDetails.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate }      from 'react-router-dom';
-import { FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import {
+  FaArrowLeft,
+  FaUser,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt
+} from 'react-icons/fa';
 import API from '../../../services/axios';
 
 export default function UserDetails() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }     = useParams();      // grabs :id from /admin/users/:id
+  const navigate   = useNavigate();
 
   const [user,    setUser]    = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const [error,   setError]   = useState('');
 
   useEffect(() => {
+    setLoading(true);
     API.get(`/admin/users/${id}`)
       .then(res => {
-        // adjust if your backend nests it under `res.data.user`
-        setUser(res.data.user || res.data);
+        // if your backend nests under data.user
+        const u = res.data.user ?? res.data;
+        setUser(u);
       })
       .catch(err => {
         console.error(err);
-        setError(err.response?.data?.message || 'Failed to load user.');
+        setError(err.response?.data?.message || err.message);
       })
       .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <p className="text-gray-600">Loading user…</p>;
   if (error)   return <p className="text-red-600">{error}</p>;
+  if (!user)   return <p className="text-gray-600">No user found.</p>;
 
   return (
     <div className="p-6 space-y-6">
+      {/* back button */}
       <button
         onClick={() => navigate(-1)}
         className="flex items-center text-indigo-600 hover:underline"
@@ -138,11 +148,10 @@ export default function UserDetails() {
           </div>
         </div>
 
-        {/* Additional fields */}
         {user.bio && (
           <div>
             <h3 className="font-semibold text-gray-700 mb-1">Bio</h3>
-            <p className="text-gray-600">{user.bio}</p>
+            <p className="text-gray-600 whitespace-pre-wrap">{user.bio}</p>
           </div>
         )}
 
@@ -155,7 +164,7 @@ export default function UserDetails() {
           </div>
         )}
 
-        {/* And so on for skills, languages, experience, etc. */}
+        {/* add extra fields (skills, languages, etc.) here as needed */}
       </div>
     </div>
   );
