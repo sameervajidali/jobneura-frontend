@@ -648,7 +648,6 @@ import {
 import API from '../services/axios';
 import FileUploader from '../components/FileUploader';
 import { signInAnonymously } from 'firebase/auth';
-import app from '../firebase/config.js';
 import { auth } from '../firebase/config.js';
 
 export default function Profile() {
