@@ -55,7 +55,7 @@ import {
   uploadBytes,
   getDownloadURL
 } from 'firebase/storage';
-import { storage } from '../firebaseConfig';
+import { storage } from '../firebase/config';
 
 export default function FileUploader({ accept, onUpload }) {
   const [isUploading, setIsUploading] = useState(false);
