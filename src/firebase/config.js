@@ -1,4 +1,6 @@
-import { getStorage, ref as storageRef } from 'firebase/storage';
+// src/firebaseConfig.js
+import { initializeApp } from 'firebase/app';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -9,10 +11,10 @@ const firebaseConfig = {
   appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-const ref = storageRef(storage, `uploads/${file.name}`);
-await uploadBytes(ref, file);
-const url = await getDownloadURL(ref);
+// 1️⃣ Initialize Firebase
+const app = initializeApp(firebaseConfig);
 
-const app     = initializeApp(firebaseConfig);
+// 2️⃣ Create & export the Storage instance
 export const storage = getStorage(app);
+
 export default app;
