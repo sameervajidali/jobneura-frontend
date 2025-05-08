@@ -1,5 +1,135 @@
+// import React, { useEffect, useState } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import { useAuth } from "../../contexts/AuthContext";
+// import { ADMIN_ROLES } from "../../constants/roles";
+// import API from "../../services/axios";
+
+// export default function LoginForm() {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [showPwd, setShowPwd] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const { login } = useAuth();
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     // Load Google SDK dynamically
+//     const script = document.createElement("script");
+//     script.src = "https://accounts.google.com/gsi/client";
+//     script.async = true;
+//     script.onload = initializeGoogle;
+//     document.body.appendChild(script);
+//   }, []);
+
+//   const initializeGoogle = () => {
+//     window.google.accounts.id.initialize({
+//       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+//       callback: handleGoogleCallback,
+//     });
+
+//     window.google.accounts.id.renderButton(
+//       document.getElementById("google-login-btn"),
+//       { theme: "outline", size: "large", width: "100%" }
+//     );
+//   };
+
+//   const handleGoogleCallback = async (response) => {
+//     try {
+//       const { data } = await API.post("/auth/google", {
+//         idToken: response.credential,
+//       });
+//       login(data.user);
+//       navigate(ADMIN_ROLES.includes(data.user.role) ? "/admin" : "/dashboard", {
+//         replace: true,
+//       });
+//     } catch (err) {
+//       console.error("Google login failed", err);
+//       alert("Google login failed. Please try again.");
+//     }
+//   };
+
+//   const handleGitHubLogin = () => {
+//     const API_BASE =
+//       import.meta.env.VITE_API_BASE_URL || window.location.origin;
+
+//     const authWindow = window.open(
+//       `${API_BASE}/auth/github`,
+//       "_blank",
+//       "width=600,height=700"
+//     );
+
+//     if (!authWindow) {
+//       alert("Please allow pop-ups for this site to enable GitHub sign-in.");
+//       return;
+//     }
+
+//     // Securely listen for postMessage from popup
+//     const handleMessage = async (event) => {
+//       try {
+//         const expectedOrigin = new URL(API_BASE).origin;
+//         if (event.origin !== expectedOrigin) return;
+
+//         const { success, error } = event.data;
+
+//         if (success) {
+//           const { data } = await API.get("/auth/me");
+//           const authedUser = data?.user || data;
+
+//           if (authedUser && authedUser.role) {
+//             login(authedUser);
+
+//             const dest = ADMIN_ROLES.includes(authedUser.role)
+//               ? "/admin"
+//               : "/dashboard";
+
+//             navigate(dest, { replace: true });
+//           }
+//         } else if (error) {
+//           alert("GitHub login failed: " + error);
+//         }
+//       } catch (err) {
+//         console.error("Error in postMessage handler:", err);
+//         alert("Failed to fetch authenticated user");
+//       } finally {
+//         window.removeEventListener("message", handleMessage);
+//       }
+//     };
+
+//     window.addEventListener("message", handleMessage);
+//   };
+
+ 
+//   const handleLogin = async (e) => {
+//     e.preventDefault();
+//     setLoading(true); // Show loading indicator
+  
+//     try {
+//       const res = await API.post("/auth/login", { email, password });
+  
+//       // Successful login
+//       login(res.data.user);
+//       navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
+//     } catch (err) {
+//       setLoading(false); // Stop loading
+//       console.error("Login failed:", err);
+  
+//       if (err.response) {
+//         const errorMessage = err.response.data.message || "Login failed";
+//         alert(errorMessage); // Show the specific backend error message
+//       } else {
+//         alert("An error occurred. Please try again.");
+//       }
+  
+//       // Optional: Reset form fields or take other actions
+//       setEmail("");
+//       setPassword("");
+//     }
+//   };
+  
+  
+  
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom"; // ✅ added useLocation
 import { useAuth } from "../../contexts/AuthContext";
 import { ADMIN_ROLES } from "../../constants/roles";
 import API from "../../services/axios";
@@ -11,123 +141,43 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ get location
+  const from = location.state?.from?.pathname || "/dashboard"; // ✅ fallback for user
 
-  useEffect(() => {
-    // Load Google SDK dynamically
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.onload = initializeGoogle;
-    document.body.appendChild(script);
-  }, []);
-
-  const initializeGoogle = () => {
-    window.google.accounts.id.initialize({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      callback: handleGoogleCallback,
-    });
-
-    window.google.accounts.id.renderButton(
-      document.getElementById("google-login-btn"),
-      { theme: "outline", size: "large", width: "100%" }
-    );
-  };
-
-  const handleGoogleCallback = async (response) => {
-    try {
-      const { data } = await API.post("/auth/google", {
-        idToken: response.credential,
-      });
-      login(data.user);
-      navigate(ADMIN_ROLES.includes(data.user.role) ? "/admin" : "/dashboard", {
-        replace: true,
-      });
-    } catch (err) {
-      console.error("Google login failed", err);
-      alert("Google login failed. Please try again.");
-    }
-  };
-
-  const handleGitHubLogin = () => {
-    const API_BASE =
-      import.meta.env.VITE_API_BASE_URL || window.location.origin;
-
-    const authWindow = window.open(
-      `${API_BASE}/auth/github`,
-      "_blank",
-      "width=600,height=700"
-    );
-
-    if (!authWindow) {
-      alert("Please allow pop-ups for this site to enable GitHub sign-in.");
-      return;
-    }
-
-    // Securely listen for postMessage from popup
-    const handleMessage = async (event) => {
-      try {
-        const expectedOrigin = new URL(API_BASE).origin;
-        if (event.origin !== expectedOrigin) return;
-
-        const { success, error } = event.data;
-
-        if (success) {
-          const { data } = await API.get("/auth/me");
-          const authedUser = data?.user || data;
-
-          if (authedUser && authedUser.role) {
-            login(authedUser);
-
-            const dest = ADMIN_ROLES.includes(authedUser.role)
-              ? "/admin"
-              : "/dashboard";
-
-            navigate(dest, { replace: true });
-          }
-        } else if (error) {
-          alert("GitHub login failed: " + error);
-        }
-      } catch (err) {
-        console.error("Error in postMessage handler:", err);
-        alert("Failed to fetch authenticated user");
-      } finally {
-        window.removeEventListener("message", handleMessage);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-  };
-
- 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Show loading indicator
-  
+    setLoading(true);
     try {
       const res = await API.post("/auth/login", { email, password });
-  
-      // Successful login
-      login(res.data.user);
-      navigate(ADMIN_ROLES.includes(res.data.user.role) ? "/admin" : "/dashboard", { replace: true });
+      const user = res.data.user;
+      login(user);
+
+      // ✅ Role-based redirect
+      if (ADMIN_ROLES.includes(user.role)) {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate(from, { replace: true }); // user goes to previous intent
+      }
     } catch (err) {
-      setLoading(false); // Stop loading
+      setLoading(false);
       console.error("Login failed:", err);
-  
+
       if (err.response) {
         const errorMessage = err.response.data.message || "Login failed";
-        alert(errorMessage); // Show the specific backend error message
+        alert(errorMessage);
       } else {
         alert("An error occurred. Please try again.");
       }
-  
-      // Optional: Reset form fields or take other actions
+
       setEmail("");
       setPassword("");
     }
   };
-  
-  
-  
+
+  // ... rest of the component remains unchanged
+
+
+
 
 
   return (
