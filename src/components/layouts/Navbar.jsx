@@ -76,7 +76,7 @@ export default function Navbar() {
               <FaBell className="text-xl cursor-pointer hover:text-indigo-600" />
               <button onClick={() => setDropdownOpen(o => !o)}>
                 <img
-                  src={encodeURI(avatarUrl)}
+                  src={avatarUrl}
                   alt="avatar"
                   className="w-8 h-8 rounded-full object-cover border-2 border-indigo-500"
                 />
