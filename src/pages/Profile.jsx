@@ -649,6 +649,7 @@ import API from '../services/axios';
 import FileUploader from '../components/FileUploader';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import app from '../firebase/config.js';
+import { auth } from '../firebase/config';
 
 export default function Profile() {
   const { user, login, loading: sessionLoading } = useAuth();
