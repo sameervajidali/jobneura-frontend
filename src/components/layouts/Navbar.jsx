@@ -7,6 +7,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
+import { getAvatarUrl } from "../utils/getAvatarUrl";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -14,13 +15,14 @@ export default function Navbar() {
   const { isDark, setIsDark } = useTheme();
 
   // build the avatar URL
-  let avatarUrl = user?.avatar || user?.picture || "";
-  if (avatarUrl.startsWith("/uploads")) {
-    // strip trailing /api if needed:
-    const origin = import.meta.env.VITE_API_BASE_URL.replace(/\/api$/, "");
-    avatarUrl = origin + avatarUrl;
-  }
-  avatarUrl = avatarUrl || "/default-avatar.png";
+  const avatarUrl = getAvatarUrl(user?.avatar || user?.picture);
+  // let avatarUrl = user?.avatar || user?.picture || "";
+  // if (avatarUrl.startsWith("/uploads")) {
+  //   // strip trailing /api if needed:
+  //   const origin = import.meta.env.VITE_API_BASE_URL.replace(/\/api$/, "");
+  //   avatarUrl = origin + avatarUrl;
+  // }
+  // avatarUrl = avatarUrl || "/default-avatar.png";
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
