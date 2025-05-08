@@ -2,6 +2,14 @@
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 
+// In your entry or Profile.jsx
+import { auth } from './firebaseConfig';
+import { signInAnonymously } from 'firebase/auth';
+
+useEffect(() => {
+  signInAnonymously(auth).catch(console.error);
+}, []);
+
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -10,6 +18,7 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
 
 // 1️⃣ Initialize Firebase
 const app = initializeApp(firebaseConfig);
