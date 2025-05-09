@@ -1,89 +1,111 @@
+// src/pages/admin/Users/UserForm.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import API from "../../../services/axios";
-import { VALID_ROLES } from "../../../constants/roles";
+import { useNavigate, useParams }     from "react-router-dom";
+import API                             from "../../../services/axios";
+import { VALID_ROLES }                 from "../../../constants/roles";
 
-export default function UserForm({ mode }) {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const isEdit = mode === "edit";
+export default function UserForm() {
+  const { id }       = useParams();       // defined on /admin/users/:id/edit
+  const navigate     = useNavigate();
+  const isEdit       = Boolean(id);
 
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    role: "USER", // backend expects uppercase
+    name:     "",
+    email:    "",
+    role:     VALID_ROLES[0].toUpperCase(),
     password: "",
-    status: true,
+    status:   true,
   });
-
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState("");  // success or error
 
+  // Fetch user on edit, or reset on create
   useEffect(() => {
-    if (isEdit && id) {
-      const fetchUser = async () => {
-        try {
-          const { data } = await API.get(`/admin/users/${id}`);
+    if (isEdit) {
+      setLoading(true);
+      API.get(`/admin/users/${id}`)
+        .then(res => {
+          const data = res.data.user ?? res.data;
           setForm({
-            name: data.name,
-            email: data.email,
-            role: data.role.toUpperCase(), // normalize to uppercase
+            name:     data.name,
+            email:    data.email,
+            role:     data.role.toUpperCase(),
             password: "",
-            status: data.status,
+            status:   data.status,
           });
-        } catch (err) {
-          setMessage("Failed to load user");
-        }
-      };
-      fetchUser();
+          setMessage("");
+        })
+        .catch(() => {
+          setMessage("Failed to load user data.");
+        })
+        .finally(() => setLoading(false));
+    } else {
+      // reset form for “create” mode
+      setForm({
+        name:     "",
+        email:    "",
+        role:     VALID_ROLES[0].toUpperCase(),
+        password: "",
+        status:   true,
+      });
+      setMessage("");
     }
   }, [id, isEdit]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+    setForm(prev => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
+    setMessage("");
+
+    const payload = {
+      ...form,
+      role: form.role.toUpperCase(),
+    };
 
     try {
-      const payload = {
-        ...form,
-        role: form.role.toUpperCase(), // always send uppercase
-      };
-
       if (isEdit) {
         await API.put(`/admin/users/${id}`, payload);
         setMessage("User updated successfully.");
       } else {
-        await API.post(`/admin/users`, payload);
+        await API.post("/admin/users", payload);
         setMessage("User created successfully.");
       }
 
-      setTimeout(() => navigate("/admin/users"), 1200);
+      // redirect back to user list after a short pause
+      setTimeout(() => navigate("/admin/users"), 1000);
     } catch (err) {
-      setMessage(err.response?.data?.message || "Failed to submit user");
+      setMessage(err.response?.data?.message || "Failed to submit user.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded shadow">
-      <h2 className="text-xl font-bold mb-4">
+    <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded-lg shadow">
+      <h2 className="text-2xl font-bold mb-4">
         {isEdit ? "Edit User" : "Create New User"}
       </h2>
 
       {message && (
-        <div className="mb-4 text-sm p-2 rounded bg-red-100 text-red-700">
+        <div
+          className={`mb-4 p-3 rounded ${
+            message.includes("success") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          }`}
+        >
           {message}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Name */}
         <div>
           <label className="block text-sm font-medium mb-1">Full Name</label>
           <input
@@ -92,10 +114,12 @@ export default function UserForm({ mode }) {
             value={form.name}
             onChange={handleChange}
             required
+            disabled={loading}
             className="w-full px-3 py-2 border rounded"
           />
         </div>
 
+        {/* Email */}
         <div>
           <label className="block text-sm font-medium mb-1">Email</label>
           <input
@@ -104,10 +128,14 @@ export default function UserForm({ mode }) {
             value={form.email}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border rounded"
+            disabled={loading || isEdit}  // prevent changing email on edit
+            className={`w-full px-3 py-2 border rounded ${
+              isEdit ? "bg-gray-100 cursor-not-allowed" : ""
+            }`}
           />
         </div>
 
+        {/* Password (only on create) */}
         {!isEdit && (
           <div>
             <label className="block text-sm font-medium mb-1">Password</label>
@@ -117,64 +145,59 @@ export default function UserForm({ mode }) {
               value={form.password}
               onChange={handleChange}
               required
+              disabled={loading}
               className="w-full px-3 py-2 border rounded"
             />
           </div>
         )}
 
+        {/* Role */}
         <div>
           <label className="block text-sm font-medium mb-1">Role</label>
-          {/* <select
+          <select
             name="role"
             value={form.role}
             onChange={handleChange}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-500 focus:border-indigo-500"
+            disabled={loading}
+            className="w-full px-3 py-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
           >
-            {VALID_ROLES.map((role) => {
-              const value = role.toUpperCase();
-              const label = role.charAt(0).toLowerCase().slice(1);
+            {VALID_ROLES.map(r => {
+              const val = r.toUpperCase();
               return (
-                <option key={value} value={value}>
-                  {label}
+                <option key={val} value={val}>
+                  {val}
                 </option>
               );
             })}
-          </select> */}
-
-<select
-  name="role"
-  value={form.role}
-  onChange={handleChange}
-  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-500 focus:border-indigo-500"
->
-  {VALID_ROLES.map((role) => {
-    const value = role.toUpperCase();
-    return (
-      <option key={value} value={value}>
-        {value}
-      </option>
-    );
-  })}
-</select>
-
+          </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Status */}
+        <div className="flex items-center">
           <input
             type="checkbox"
             name="status"
             checked={form.status}
             onChange={handleChange}
+            disabled={loading}
+            className="h-4 w-4 text-indigo-600"
           />
-          <label className="text-sm">Active</label>
+          <label className="ml-2 text-sm">Active</label>
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded disabled:opacity-50"
         >
-          {loading ? "Saving..." : isEdit ? "Update User" : "Create User"}
+          {loading
+            ? isEdit
+              ? "Updating…"
+              : "Creating…"
+            : isEdit
+            ? "Update User"
+            : "Create User"}
         </button>
       </form>
     </div>
