@@ -62,6 +62,8 @@ import QuizExplorerPage from "./pages/QuizExplorerPage.jsx";
 import QuizStartPage from "./pages/QuizStartPage.jsx";
 import QuizResultPage from "./pages/QuizResultPage.jsx";
 import UserHistoryPage from "./pages/admin/Users/UserHistoryPage.jsx";
+import ProfilePage from "./pages/admin/ProfilePage.jsx";
+import ChangePasswordPage from "./pages/admin/ChangePasswordPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -144,6 +146,10 @@ function LayoutWrapper() {
               <Route index element={<AdminDashboardHome />} />
 
               {/* Users */}
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="change-password" element={<ChangePasswordPage />} />
+
+
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
