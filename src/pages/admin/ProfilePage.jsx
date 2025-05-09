@@ -1,6 +1,6 @@
 // src/pages/admin/ProfilePage.jsx
 import React from 'react';
-import AdminDashboardLayout from '../../layouts/AdminDashboardLayout';
+import AdminDashboardLayout from '../../layouts/AdminDashboard';
 import { useAuth } from '../../contexts/AuthContext';
 import API from '../../services/axios';
 import ProfileForm from '../../components/profile/ProfileForm';
