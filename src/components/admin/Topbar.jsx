@@ -145,12 +145,9 @@ export default function Topbar() {
   const isAdmin = pathname.startsWith("/admin");
 
   // Build the correct paths
-  const profilePath =
-    isAdmin ? "/admin/profile" : "/dashboard/profile";
-  const changePasswordPath =
-    isAdmin
-      ? "/admin/change-password"
-      : "/dashboard/change-password";
+ const profilePath        = isAdmin ? '/admin/profile'         : '/dashboard/profile';
+const changePasswordPath = isAdmin ? '/admin/change-password' : '/dashboard/change-password';
+
 
   // close dropdown if you click outside
   useEffect(() => {
