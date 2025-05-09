@@ -199,7 +199,9 @@ export default function AdminDashboardHome() {
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{c.label}</p>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{c.value.toLocaleString()}</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{att?.createdAt
+    ? new Date(att.createdAt).toLocaleString()
+    : '–'}</h3>
               </div>
             </div>
           );
