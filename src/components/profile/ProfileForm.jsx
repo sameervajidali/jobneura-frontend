@@ -1,138 +1,181 @@
-// src/components/profile/ProfileForm.jsx
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import API from '../../services/axios'
+import FileUploader from '../FileUploader'
 
-export default function ProfileForm({ user, onRefresh }) {
-  const [form, setForm] = useState({
-    name:     '',
-    phone:    '',
+export default function ProfileForm({ initialData, onRefresh }) {
+  const [profile, setProfile] = useState({
+    name: '',
+    phone: '',
     location: '',
-    bio:      '',
+    bio: '',
+    website: '',
+    linkedin: '',
+    // … any other fields …
+    avatar: ''
   })
-  const [avatarUrl, setAvatarUrl] = useState('')
-  const [uploading, setUploading] = useState(false)
-  const fileInputRef = useRef()
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState(null)
 
+  // populate form when initialData arrives
   useEffect(() => {
-    if (user) {
-      setForm({
-        name:     user.name     || '',
-        phone:    user.phone    || '',
-        location: user.location || '',
-        bio:      user.bio      || '',
+    if (initialData) {
+      setProfile({
+        name:     initialData.name     || '',
+        phone:    initialData.phone    || '',
+        location: initialData.location || '',
+        bio:      initialData.bio      || '',
+        website:  initialData.website  || '',
+        linkedin: initialData.linkedin || '',
+        avatar:   initialData.avatar   || ''
       })
-      setAvatarUrl(user.avatar || '/default-avatar.png')
     }
-  }, [user])
+  }, [initialData])
 
-  const handleFieldChange = e => {
+  // Generic change handler
+  const handleChange = e => {
     const { name, value } = e.target
-    setForm(f => ({ ...f, [name]: value }))
+    setProfile(p => ({ ...p, [name]: value }))
+  }
+
+  // When FileUploader gives us a URL, stick it into `profile.avatar`
+  const handleUpload = ({ url }) => {
+    setProfile(p => ({ ...p, avatar: url }))
   }
 
   const handleSubmit = async e => {
     e.preventDefault()
-    try {
-      await API.put('/auth/profile', form)
-      onRefresh()
-      alert('Profile updated!')
-    } catch (err) {
-      alert(err.response?.data?.message || err.message)
-    }
-  }
+    setLoading(true)
+    setMessage(null)
 
-  const handleAvatarChange = async e => {
-    const file = e.target.files[0]
-    if (!file) return
-    setUploading(true)
     try {
-      const data = new FormData()
-      data.append('avatar', file)
-      const res = await API.put('/auth/profile', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      const newUrl = res.data.user.avatar
-      setAvatarUrl(newUrl)
-      onRefresh()
+      // include avatar in the payload
+      const payload = { ...profile }
+      await API.put('/auth/profile', payload)
+
+      // re-fetch the fresh user and update context
+      await onRefresh()
+      setMessage({ type: 'success', text: 'Profile updated!' })
     } catch (err) {
-      alert('Upload failed: ' + (err.message || err))
+      setMessage({
+        type: 'error',
+        text: err.response?.data?.message || 'Update failed'
+      })
     } finally {
-      setUploading(false)
+      setLoading(false)
     }
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-6 max-w-2xl mx-auto">
-      <div className="flex items-center gap-4">
-        <div className="w-24 h-24 rounded-full overflow-hidden border">
-          <img
-            src={avatarUrl}
-            alt="Avatar"
-            className="object-cover w-full h-full"
-          />
-        </div>
-        <label className="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded">
-          {uploading ? 'Uploading…' : 'Change Photo'}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleAvatarChange}
-          />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Avatar uploader */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Avatar
         </label>
+        <FileUploader
+          accept="image/*"
+          onUpload={handleUpload}
+        />
+        {profile.avatar && (
+          <img
+            src={profile.avatar}
+            alt="Preview"
+            className="mt-2 w-24 h-24 rounded-full object-cover"
+          />
+        )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleFieldChange}
-              required
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Phone</label>
-            <input
-              name="phone"
-              value={form.phone}
-              onChange={handleFieldChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Location</label>
-            <input
-              name="location"
-              value={form.location}
-              onChange={handleFieldChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-        </div>
+      {/* Name */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Name</label>
+        <input
+          name="name"
+          value={profile.name}
+          onChange={handleChange}
+          className="mt-1 block w-full border rounded px-3 py-2"
+        />
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Bio</label>
-          <textarea
-            name="bio"
-            value={form.bio}
-            onChange={handleFieldChange}
-            rows={3}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+      {/* Phone */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Phone</label>
+        <input
+          name="phone"
+          value={profile.phone}
+          onChange={handleChange}
+          className="mt-1 block w-full border rounded px-3 py-2"
+        />
+      </div>
 
-        <button
-          type="submit"
-          className="bg-indigo-600 hover:bg-indigo-700 text-white w-full py-2 rounded"
+      {/* Location */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Location</label>
+        <input
+          name="location"
+          value={profile.location}
+          onChange={handleChange}
+          className="mt-1 block w-full border rounded px-3 py-2"
+        />
+      </div>
+
+      {/* Bio */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Bio</label>
+        <textarea
+          name="bio"
+          value={profile.bio}
+          onChange={handleChange}
+          rows={3}
+          className="mt-1 block w-full border rounded px-3 py-2"
+        />
+      </div>
+
+      {/* Website */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Website</label>
+        <input
+          name="website"
+          value={profile.website}
+          onChange={handleChange}
+          className="mt-1 block w-full border rounded px-3 py-2"
+        />
+      </div>
+
+      {/* LinkedIn */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">LinkedIn</label>
+        <input
+          name="linkedin"
+          value={profile.linkedin}
+          onChange={handleChange}
+          className="mt-1 block w-full border rounded px-3 py-2"
+        />
+      </div>
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
+      >
+        {loading ? 'Saving…' : 'Save Changes'}
+      </button>
+
+      {message && (
+        <p
+          className={`text-center mt-2 ${
+            message.type === 'success' ? 'text-green-600' : 'text-red-600'
+          }`}
         >
-          Save Profile
-        </button>
-      </form>
-    </div>
+          {message.text}
+        </p>
+      )}
+    </form>
   )
+}
+
+ProfileForm.propTypes = {
+  initialData: PropTypes.object.isRequired,
+  onRefresh:   PropTypes.func.isRequired
 }

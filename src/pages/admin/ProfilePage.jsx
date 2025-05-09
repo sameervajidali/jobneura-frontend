@@ -26,7 +26,8 @@ export default function ProfilePage() {
       </div>
 
       {/* The actual form */}
-      <ProfileForm user={user} onRefresh={handleRefresh} />
+      <ProfileForm initialData={user} onRefresh={handleRefresh} />
+
     </div>
   )
 }
