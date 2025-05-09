@@ -24,6 +24,15 @@ export default function Topbar() {
 
   const avatarUrl = getAvatarUrl(user?.avatar);
 
+  const { pathname } = useLocation();
+  // Are we in /admin/... ?
+  const isAdmin = pathname.startsWith('/admin');
+
+  // Build the correct sub-paths
+  const profilePath        = isAdmin ? '/admin/profile'         : '/dashboard/profile';
+  const changePasswordPath = isAdmin ? '/admin/change-password' : '/dashboard/change-password';
+  
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -65,14 +74,14 @@ export default function Topbar() {
               <hr className="my-1 border-gray-200 dark:border-gray-700" />
 
               <Link
-                to="/profile"
+                 to={profilePath}
                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <FaUserCircle className="mr-2" /> Profile
               </Link>
 
               <Link
-                to="/change-password"
+                 to={changePasswordPath}
                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <FaKey className="mr-2" /> Change Password
