@@ -1,6 +1,8 @@
 
 // src/components/admin/Topbar.jsx
 import React, { useRef, useState, useEffect } from "react";
+import { Link, useLocation } from 'react-router-dom';
+import { FaUserCircle, FaKey } from 'react-icons/fa';
 import {
   FaBell,
   FaSun,
@@ -31,7 +33,7 @@ export default function Topbar() {
   // Build the correct sub-paths
   const profilePath        = isAdmin ? '/admin/profile'         : '/dashboard/profile';
   const changePasswordPath = isAdmin ? '/admin/change-password' : '/dashboard/change-password';
-  
+
 
   useEffect(() => {
     const handleClickOutside = (e) => {
