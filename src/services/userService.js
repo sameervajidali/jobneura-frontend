@@ -63,11 +63,13 @@ export function deleteUser(userId) {
 }
 
 export function getUserHistory(userId) {
-  return API
-    .get(`/admin/users/${userId}/history`)
-    .then(res => res.data);
+  return API.get(`/admin/users/${userId}/history`)
+    .then(res => ({
+      user: res.data.user,
+      attempts: res.data.attempts || [],
+      loginHistory: res.data.loginHistory || [],
+    }));
 }
-
 
 // Default export for convenience
 export default {

@@ -148,12 +148,13 @@ function LayoutWrapper() {
               <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="users/:id/edit" element={<UserForm />} />
+              <Route path="users/:id/history" element={<UserHistoryPage />} />
 
               {/* Quizzes */}
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
-              <Route path="users/:id/history" element={<UserHistoryPage />} />
+              
               <Route
                 path="quizzes/:quizId/bulk-upload"
                 element={<BulkUploadQuestionsPage />}

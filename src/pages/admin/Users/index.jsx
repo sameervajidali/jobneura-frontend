@@ -118,12 +118,14 @@ export default function AdminUsersPage() {
                 {pageItems.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50 transition">
                     <td className="p-3">
-                      <Link
-                        to={`users/${user._id}/history`}
-                        className="text-indigo-600 hover:underline"
-                      >
-                        {user.name}
-                      </Link>
+                      <td>
+                        <button
+                          onClick={() => navigate(`users/${u._id}/history`)}
+                          className="text-indigo-600 hover:underline"
+                        >
+                          {u.name}
+                        </button>
+                      </td>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {user.email}
