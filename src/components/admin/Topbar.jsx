@@ -141,14 +141,14 @@ export default function Topbar() {
               <hr className="my-1 border-gray-200 dark:border-gray-700" />
 
               <Link
-                to="/dashboard/profile"
+                to="/admin/profile"
                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <FaUserCircle className="mr-2" /> Profile
               </Link>
 
               <Link
-                to="/dashboard/change-password"
+                to="/admin/change-password"
                 className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 <FaKey className="mr-2" /> Change Password
