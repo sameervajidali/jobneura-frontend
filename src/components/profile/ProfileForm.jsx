@@ -43,28 +43,24 @@ export default function ProfileForm({ initialData, onRefresh }) {
     setProfile(p => ({ ...p, avatar: url }))
   }
 
-  const handleSubmit = async e => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage(null)
+ const handleSubmit = async e => {
+  e.preventDefault()
+  setLoading(true)
+  setMessage(null)
 
-    try {
-      // include avatar in the payload
-      const payload = { ...profile }
-      await API.put('/auth/profile', payload)
+  // ① Log the entire profile object
+  console.log("About to send payload:", profile)
 
-      // re-fetch the fresh user and update context
-      await onRefresh()
-      setMessage({ type: 'success', text: 'Profile updated!' })
-    } catch (err) {
-      setMessage({
-        type: 'error',
-        text: err.response?.data?.message || 'Update failed'
-      })
-    } finally {
-      setLoading(false)
-    }
+  try {
+    await API.put('/auth/profile', profile)
+    await onRefresh()
+    setMessage({ type: 'success', text: 'Profile updated!' })
+  } catch (err) {
+    setMessage({ type: 'error', text: err.response?.data?.message || 'Update failed' })
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
