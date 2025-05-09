@@ -18,3 +18,10 @@ html, body, #root {
     animation: fadeOut 4s forwards;
   }
   
+  .loader {
+  border-top-color: #6366f1; /* indigo-500 */
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

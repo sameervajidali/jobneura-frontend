@@ -109,9 +109,27 @@ export function getQuizTopThree(quizId, timePeriod = 'week') {
     .then(res => res.data);
 }
 
+/**
+ * Bulk upload quizzes via CSV/XLSX file (admin only)
+ * POST /quizzes/admin/quizzes/bulk-upload-file
+ * @param {File} file CSV/XLSX
+ */
+export function bulkUploadQuizzesFile(file) {
+  const form = new FormData();
+  form.append('file', file);
+  return API.post(
+    '/quizzes/admin/quizzes/bulk-upload-file',
+    form,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  ).then(res => res.data);
+}
+
+
+
 // ─── Default Export (convenience) ───────────────────────────────────────────
 const quizService = {
   getAllQuizzes,
+  bulkUploadQuizzesFile,
   createQuiz,
   getQuizById,
   updateQuiz,

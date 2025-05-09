@@ -64,6 +64,7 @@ import QuizResultPage from "./pages/QuizResultPage.jsx";
 import UserHistoryPage from "./pages/admin/Users/UserHistoryPage.jsx";
 import ProfilePage from "./pages/admin/ProfilePage.jsx";
 import ChangePasswordPage from "./pages/admin/ChangePasswordPage.jsx";
+import BulkUploadQuizzesPage from "./pages/admin/Quiz/BulkUploadQuizzesPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -166,6 +167,7 @@ function LayoutWrapper() {
                 path="quizzes/:quizId/bulk-upload"
                 element={<BulkUploadQuestionsPage />}
               />
+              <Route path="quizzes/bulk-upload" element={<BulkUploadQuizzesPage />} />
               <Route
                 path="quizzes/:quizId/questions"
                 element={<QuestionListPage />}
