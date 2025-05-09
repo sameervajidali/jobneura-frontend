@@ -141,7 +141,7 @@
 // src/pages/admin/Quiz/CreateQuizForm.jsx
 import React, { useState } from 'react';
 import { Tab } from '@headlessui/react';  // you can use any tabs lib or roll your own
-import QuizDetailsForm from './QuizDetailsForm';        // your existing quiz meta form
+import QuizDetailsForm from './QuizDetailsForm';       // your existing quiz meta form
 import QuestionForm from './QuestionForm';              // your existing question‐by‐question form
 import BulkUploadQuestions from './BulkUploadQuestionsPage'; // reuse your bulk‐upload page
 
