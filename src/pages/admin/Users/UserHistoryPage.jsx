@@ -17,7 +17,7 @@ export default function UserHistoryPage() {
   });
 
   useEffect(() => {
-    async function fetch() {
+    async function fetchHistory() {
       setLoading(true);
       try {
         const data = await getUserHistory(id);
@@ -32,12 +32,18 @@ export default function UserHistoryPage() {
         setLoading(false);
       }
     }
-    fetch();
+    fetchHistory();
   }, [id]);
 
-  if (loading) return <p className="p-6 text-center text-gray-600">Loading user history…</p>;
-  if (error)   return <p className="p-6 text-center text-red-600">{error}</p>;
-  if (!history.user) return <p className="p-6 text-center text-gray-600">User not found.</p>;
+  if (loading) return (
+    <div className="p-6 text-center text-gray-600">Loading user history…</div>
+  );
+  if (error) return (
+    <div className="p-6 text-center text-red-600">{error}</div>
+  );
+  if (!history.user) return (
+    <div className="p-6 text-center text-gray-600">User not found.</div>
+  );
 
   const { user, quizAttempts, loginHistory } = history;
 
@@ -56,28 +62,28 @@ export default function UserHistoryPage() {
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <dt className="font-medium text-gray-700">Name</dt>
-            <dd>{user.name}</dd>
+            <dd className="mt-1">{user.name}</dd>
           </div>
           <div>
             <dt className="font-medium text-gray-700">Email</dt>
-            <dd>{user.email}</dd>
+            <dd className="mt-1">{user.email}</dd>
           </div>
           {user.phone && (
             <div>
               <dt className="font-medium text-gray-700">Phone</dt>
-              <dd>{user.phone}</dd>
+              <dd className="mt-1">{user.phone}</dd>
             </div>
           )}
           {user.location && (
             <div>
               <dt className="font-medium text-gray-700">Location</dt>
-              <dd>{user.location}</dd>
+              <dd className="mt-1">{user.location}</dd>
             </div>
           )}
           {user.bio && (
             <div className="md:col-span-2">
               <dt className="font-medium text-gray-700">Bio</dt>
-              <dd className="whitespace-pre-wrap">{user.bio}</dd>
+              <dd className="mt-1 whitespace-pre-wrap">{user.bio}</dd>
             </div>
           )}
         </dl>
@@ -90,7 +96,7 @@ export default function UserHistoryPage() {
           <p className="text-gray-600">No quiz attempts found.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full table-auto">
+            <table className="w-full table-auto border-collapse">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Quiz</th>
@@ -100,8 +106,10 @@ export default function UserHistoryPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {quizAttempts.map((att, i) => (
-                  <tr key={att._id ?? i} className={i % 2 ? 'bg-gray-50' : ''}>
-                    <td className="px-4 py-2 text-sm text-gray-700">{att.quiz?.title || '-'}</td>
+                  <tr key={att._id ?? i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
+                    <td className="px-4 py-2 text-sm text-gray-700">
+                      {att.quiz?.title || '-'}
+                    </td>
                     <td className="px-4 py-2 text-sm text-gray-700">
                       {att.score}/{att.totalQuestions}
                     </td>
@@ -123,7 +131,7 @@ export default function UserHistoryPage() {
           <p className="text-gray-600">No login history found.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full table-auto">
+            <table className="w-full table-auto border-collapse">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Date</th>
@@ -134,7 +142,7 @@ export default function UserHistoryPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {loginHistory.map((lh, i) => (
-                  <tr key={lh.at ?? i} className={i % 2 ? 'bg-gray-50' : ''}>
+                  <tr key={lh.at ?? i} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
                     <td className="px-4 py-2 text-sm text-gray-700">
                       {new Date(lh.at).toLocaleString()}
                     </td>
