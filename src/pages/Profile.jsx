@@ -161,7 +161,7 @@ export default function Profile() {
               alt="Avatar"
               className="w-36 h-36 rounded-full object-cover border-4 border-indigo-100 shadow-md"
             />
-            <label className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition">
+            {/* <label className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition">
               <FaUpload className="w-4 h-4"              
                 accept="image/*"
                 onUpload={({ url }) => {
@@ -169,7 +169,21 @@ export default function Profile() {
                   calculateCompletion({ ...profile, avatar: url });
                 }}
               />
-            </label>
+            </label> */}
+            <label
+      htmlFor="avatarUpload"
+      className="absolute bottom-0 right-0 bg-indigo-600 text-white p-2 rounded-full hover:bg-indigo-700 transition cursor-pointer"
+    >
+      <FaUpload className="w-4 h-4" />
+      <input
+        type="file"
+        accept="image/*"
+        id="avatarUpload"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+    </label>
           </div>
 
           {/* Name & Contact */}
