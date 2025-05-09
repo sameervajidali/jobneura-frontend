@@ -62,9 +62,17 @@ export function deleteUser(userId) {
     .then(res => res.data);
 }
 
+export function getUserHistory(userId) {
+  return API
+    .get(`/admin/users/${userId}/history`)
+    .then(res => res.data);
+}
+
+
 // Default export for convenience
 export default {
   getAllUsers,
+  getUserHistory,
   getUserById,
   createUser,
   updateUser,

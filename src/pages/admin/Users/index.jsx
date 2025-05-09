@@ -1,41 +1,37 @@
-
 // src/pages/AdminUsersPage.jsx
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  FaPlus,
-  FaSearch,
-  FaEye,
-  FaEdit,
-  FaTrash
-} from 'react-icons/fa';
-import API from '../../../services/axios';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaPlus, FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import API from "../../../services/axios";
 
 export default function AdminUsersPage() {
-  const [users, setUsers]               = useState([]);
-  const [filtered, setFiltered]         = useState([]);
-  const [query, setQuery]               = useState('');
-  const [page, setPage]                 = useState(1);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState(null);
-  const navigate                        = useNavigate();
-  const { pathname }                    = useLocation();
-  const usersPerPage                    = 10;
-  const totalPages                      = Math.ceil(filtered.length / usersPerPage);
-  const pageItems                       = filtered.slice((page - 1) * usersPerPage, page * usersPerPage);
+  const [users, setUsers] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const usersPerPage = 10;
+  const totalPages = Math.ceil(filtered.length / usersPerPage);
+  const pageItems = filtered.slice(
+    (page - 1) * usersPerPage,
+    page * usersPerPage
+  );
 
   useEffect(fetchUsers, [pathname]);
 
   async function fetchUsers() {
     setLoading(true);
     try {
-      const { data } = await API.get('/admin/users');
-      const list      = Array.isArray(data) ? data : data.users || [];
+      const { data } = await API.get("/admin/users");
+      const list = Array.isArray(data) ? data : data.users || [];
       setUsers(list);
       setFiltered(list);
     } catch (err) {
       console.error(err);
-      setError('Could not load users.');
+      setError("Could not load users.");
     } finally {
       setLoading(false);
     }
@@ -46,23 +42,24 @@ export default function AdminUsersPage() {
     setQuery(q);
     setPage(1);
     setFiltered(
-      users.filter(u =>
-        u.name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        u.role.toLowerCase().includes(q)
+      users.filter(
+        (u) =>
+          u.name.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          u.role.toLowerCase().includes(q)
       )
     );
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this user?')) return;
+    if (!confirm("Delete this user?")) return;
     try {
       await API.delete(`/admin/users/${id}`);
-      const updated = users.filter(u => u._id !== id);
+      const updated = users.filter((u) => u._id !== id);
       setUsers(updated);
       setFiltered(updated);
     } catch {
-      alert('Delete failed');
+      alert("Delete failed");
     }
   }
 
@@ -83,7 +80,7 @@ export default function AdminUsersPage() {
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
           <button
-            onClick={() => navigate('/admin/users/new')}
+            onClick={() => navigate("/admin/users/new")}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
           >
             <FaPlus /> New User
@@ -102,26 +99,30 @@ export default function AdminUsersPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Name','Email','Role','Status','Actions'].map((h, i) => (
-                    <th
-                      key={i}
-                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                        h === 'Actions' ? 'text-right' : ''
-                      }`}
-                    >
-                      {h}
-                    </th>
-                  ))}
+                  {["Name", "Email", "Role", "Status", "Actions"].map(
+                    (h, i) => (
+                      <th
+                        key={i}
+                        className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                          h === "Actions" ? "text-right" : ""
+                        }`}
+                      >
+                        {h}
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {pageItems.map(user => (
-                  <tr
-                    key={user._id}
-                    className="hover:bg-gray-50 transition"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-                      {user.name}
+                {pageItems.map((user) => (
+                  <tr key={user._id} className="hover:bg-gray-50 transition">
+                    <td className="p-3">
+                      <Link
+                        to={`users/${user._id}/history`}
+                        className="text-indigo-600 hover:underline"
+                      >
+                        {user.name}
+                      </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {user.email}
@@ -149,7 +150,9 @@ export default function AdminUsersPage() {
                         <FaEye />
                       </button>
                       <button
-                        onClick={() => navigate(`/admin/users/${user._id}/edit`)}
+                        onClick={() =>
+                          navigate(`/admin/users/${user._id}/edit`)
+                        }
                         className="p-1 hover:text-yellow-600 transition"
                         title="Edit"
                       >
@@ -172,26 +175,20 @@ export default function AdminUsersPage() {
           {/* Pagination */}
           <div className="flex justify-between items-center text-sm text-gray-600">
             <div>
-              Showing{' '}
-              <strong>
-                {(page - 1) * usersPerPage + 1}
-              </strong>{' '}
-              to{' '}
-              <strong>
-                {Math.min(page * usersPerPage, filtered.length)}
-              </strong>{' '}
+              Showing <strong>{(page - 1) * usersPerPage + 1}</strong> to{" "}
+              <strong>{Math.min(page * usersPerPage, filtered.length)}</strong>{" "}
               of <strong>{filtered.length}</strong> users
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setPage(p => Math.max(p - 1, 1))}
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
                 disabled={page === 1}
                 className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
               >
                 Prev
               </button>
               <button
-                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
                 className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50"
               >

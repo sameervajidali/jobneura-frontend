@@ -61,6 +61,7 @@ import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage.jsx";
 import QuizExplorerPage from "./pages/QuizExplorerPage.jsx";
 import QuizStartPage from "./pages/QuizStartPage.jsx";
 import QuizResultPage from "./pages/QuizResultPage.jsx";
+import UserHistoryPage from "./pages/admin/Users/UserHistoryPage.jsx";
 
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
@@ -152,6 +153,7 @@ function LayoutWrapper() {
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
+              <Route path="users/:id/history" element={<UserHistoryPage />} />
               <Route
                 path="quizzes/:quizId/bulk-upload"
                 element={<BulkUploadQuestionsPage />}
