@@ -75,7 +75,7 @@ export default function WelcomePanel() {
   }, [user]);
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+    <div className="w-full bg-white dark:bg-gray-800 shadow-md rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
       <div className="flex-1">
         <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
           Welcome back, {firstName} 👋
