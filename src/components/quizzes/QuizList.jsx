@@ -98,7 +98,7 @@
 
 // src/hooks/useQuizList.js
 import { useState, useEffect } from 'react';
-import quizService from '../services/quizService'; // adjust path as needed
+import quizService from '../services/quizService';
 
 export default function useQuizList(filters = {}) {
   const [state, setState] = useState({
