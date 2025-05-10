@@ -23,7 +23,6 @@
 //     script.async = true;
 //     script.onload = initializeGoogle;
 //     document.body.appendChild(script);
-
 //     return () => {
 //       document.body.removeChild(script);
 //       if (window.google?.accounts?.id) {
@@ -47,13 +46,11 @@
 //   const handleGoogleCallback = async (response) => {
 //     setLoading(true);
 //     try {
-//       const { data } = await API.post('/auth/google', {
-//         idToken: response.credential,
-//       });
+//       const { data } = await API.post('/auth/google', { idToken: response.credential });
 //       login(data.user);
 //       redirectUser(data.user);
 //     } catch (err) {
-//       console.error('❌ Google login error:', err);
+//       console.error('Google login failed:', err);
 //       alert('Google login failed. Please try again.');
 //     } finally {
 //       setLoading(false);
@@ -62,20 +59,11 @@
 
 //   const handleGitHubLogin = () => {
 //     const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-//     const authWindow = window.open(
-//       `${API_BASE}/auth/github`,
-//       '_blank',
-//       'width=600,height=700'
-//     );
-//     if (!authWindow) {
-//       alert('Please allow pop-ups for GitHub login.');
-//       return;
-//     }
+//     const authWindow = window.open(`${API_BASE}/auth/github`, '_blank', 'width=600,height=700');
+//     if (!authWindow) return alert('Enable pop-ups to login via GitHub');
 
 //     const handleMessage = async (event) => {
-//       const expectedOrigin = new URL(API_BASE).origin;
-//       if (event.origin !== expectedOrigin) return;
-
+//       if (event.origin !== new URL(API_BASE).origin) return;
 //       const { success, error } = event.data;
 //       if (success) {
 //         try {
@@ -84,13 +72,11 @@
 //           login(authedUser);
 //           redirectUser(authedUser);
 //         } catch (err) {
-//           console.error('GitHub session fetch error:', err);
-//           alert('Failed to load user after GitHub login.');
+//           alert('GitHub login failed');
 //         }
 //       } else if (error) {
 //         alert('GitHub login failed: ' + error);
 //       }
-
 //       window.removeEventListener('message', handleMessage);
 //     };
 
@@ -106,7 +92,6 @@
 //       login(user);
 //       redirectUser(user);
 //     } catch (err) {
-//       console.error('Login failed:', err);
 //       alert(err.response?.data?.message || 'Login failed');
 //       setEmail('');
 //       setPassword('');
@@ -116,35 +101,24 @@
 //   };
 
 //   const redirectUser = (user) => {
-//     if (!user || !user.role) return navigate('/dashboard', { replace: true });
-
-//     const dest = ADMIN_ROLES.includes(user.role.toUpperCase())
-//       ? '/admin'
-//       : from;
-
+//     const role = user?.role?.toUpperCase();
+//     const isAdmin = ADMIN_ROLES.includes(role);
+//     const dest = isAdmin ? '/admin' : from;
 //     navigate(dest, { replace: true });
 //   };
 
 //   return (
 //     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
 //       <h2 className="text-4xl font-extrabold text-center mb-6">Welcome Back</h2>
-
 //       <div className="flex flex-col gap-4 mb-6">
 //         <div id="google-login-btn"></div>
-
 //         <button
 //           onClick={handleGitHubLogin}
 //           className="relative w-full flex items-center justify-center border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50 transition disabled:opacity-60"
 //           disabled={loading}
 //         >
-//           <img
-//             src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
-//             alt="GitHub"
-//             className="w-5 h-5 absolute left-4"
-//           />
-//           <span className="text-sm font-medium text-gray-700">
-//             Sign in with GitHub
-//           </span>
+//           <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" className="w-5 h-5 absolute left-4" />
+//           <span className="text-sm font-medium text-gray-700">Sign in with GitHub</span>
 //         </button>
 //       </div>
 
@@ -190,9 +164,7 @@
 //             <input type="checkbox" className="accent-indigo-600" />
 //             Remember me
 //           </label>
-//           <Link to="/forgot-password" className="text-indigo-600">
-//             Forgot password?
-//           </Link>
+//           <Link to="/forgot-password" className="text-indigo-600">Forgot password?</Link>
 //         </div>
 
 //         <button
@@ -204,10 +176,7 @@
 //         </button>
 
 //         <p className="text-center text-sm">
-//           New here?{' '}
-//           <Link to="/register" className="text-indigo-600 font-semibold">
-//             Create account
-//           </Link>
+//           New here? <Link to="/register" className="text-indigo-600 font-semibold">Create account</Link>
 //         </p>
 //       </form>
 //     </div>
@@ -215,7 +184,6 @@
 // }
 
 
-// src/components/LoginForm.jsx
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -231,14 +199,16 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || '/';
-
+  // ===========================
+  // Google Login Setup
+  // ===========================
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.onload = initializeGoogle;
     document.body.appendChild(script);
+
     return () => {
       document.body.removeChild(script);
       if (window.google?.accounts?.id) {
@@ -262,24 +232,38 @@ export default function LoginForm() {
   const handleGoogleCallback = async (response) => {
     setLoading(true);
     try {
-      const { data } = await API.post('/auth/google', { idToken: response.credential });
+      const { data } = await API.post('/auth/google', {
+        idToken: response.credential,
+      });
       login(data.user);
       redirectUser(data.user);
     } catch (err) {
-      console.error('Google login failed:', err);
+      console.error('❌ Google login error:', err);
       alert('Google login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // ===========================
+  // GitHub Login
+  // ===========================
   const handleGitHubLogin = () => {
     const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-    const authWindow = window.open(`${API_BASE}/auth/github`, '_blank', 'width=600,height=700');
-    if (!authWindow) return alert('Enable pop-ups to login via GitHub');
+    const authWindow = window.open(
+      `${API_BASE}/auth/github`,
+      '_blank',
+      'width=600,height=700'
+    );
+    if (!authWindow) {
+      alert('Please allow pop-ups for GitHub login.');
+      return;
+    }
 
     const handleMessage = async (event) => {
-      if (event.origin !== new URL(API_BASE).origin) return;
+      const expectedOrigin = new URL(API_BASE).origin;
+      if (event.origin !== expectedOrigin) return;
+
       const { success, error } = event.data;
       if (success) {
         try {
@@ -288,17 +272,22 @@ export default function LoginForm() {
           login(authedUser);
           redirectUser(authedUser);
         } catch (err) {
-          alert('GitHub login failed');
+          console.error('GitHub session fetch error:', err);
+          alert('Failed to load user after GitHub login.');
         }
       } else if (error) {
         alert('GitHub login failed: ' + error);
       }
+
       window.removeEventListener('message', handleMessage);
     };
 
     window.addEventListener('message', handleMessage);
   };
 
+  // ===========================
+  // Email/Password Login
+  // ===========================
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -308,6 +297,7 @@ export default function LoginForm() {
       login(user);
       redirectUser(user);
     } catch (err) {
+      console.error('Login failed:', err);
       alert(err.response?.data?.message || 'Login failed');
       setEmail('');
       setPassword('');
@@ -316,24 +306,30 @@ export default function LoginForm() {
     }
   };
 
- const redirectUser = (user) => {
-  const role = user?.role?.toUpperCase();
-  const isAdmin = ADMIN_ROLES.includes(role);
-  const fallback = isAdmin ? '/admin' : '/dashboard';
-  const returnTo = location.state?.from?.pathname;
+  // ===========================
+  // Role-based Redirect
+  // ===========================
+  const redirectUser = (user) => {
+    const role = user?.role?.toUpperCase();
+    const isAdmin = ADMIN_ROLES.includes(role);
+    const from = location.state?.from?.pathname;
 
-  // If user navigated from a protected route → go back
-  if (returnTo && returnTo !== '/login') {
-    navigate(returnTo, { replace: true });
-  } else {
-    navigate(fallback, { replace: true });
-  }
-};
+    if (isAdmin) {
+      navigate('/admin', { replace: true });
+    } else if (from && from !== '/login') {
+      navigate(from, { replace: true });
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
+  };
 
-
+  // ===========================
+  // Render
+  // ===========================
   return (
     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
       <h2 className="text-4xl font-extrabold text-center mb-6">Welcome Back</h2>
+
       <div className="flex flex-col gap-4 mb-6">
         <div id="google-login-btn"></div>
         <button
@@ -341,8 +337,14 @@ export default function LoginForm() {
           className="relative w-full flex items-center justify-center border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-50 transition disabled:opacity-60"
           disabled={loading}
         >
-          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" className="w-5 h-5 absolute left-4" />
-          <span className="text-sm font-medium text-gray-700">Sign in with GitHub</span>
+          <img
+            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+            alt="GitHub"
+            className="w-5 h-5 absolute left-4"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            Sign in with GitHub
+          </span>
         </button>
       </div>
 
@@ -388,7 +390,9 @@ export default function LoginForm() {
             <input type="checkbox" className="accent-indigo-600" />
             Remember me
           </label>
-          <Link to="/forgot-password" className="text-indigo-600">Forgot password?</Link>
+          <Link to="/forgot-password" className="text-indigo-600">
+            Forgot password?
+          </Link>
         </div>
 
         <button
@@ -400,7 +404,10 @@ export default function LoginForm() {
         </button>
 
         <p className="text-center text-sm">
-          New here? <Link to="/register" className="text-indigo-600 font-semibold">Create account</Link>
+          New here?{' '}
+          <Link to="/register" className="text-indigo-600 font-semibold">
+            Create account
+          </Link>
         </p>
       </form>
     </div>
