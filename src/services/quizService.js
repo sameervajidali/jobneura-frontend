@@ -132,7 +132,7 @@ export function bulkUploadQuizzes(file) {
   formData.append('file', file)
 
   return API.post(
-    '/quizzes/admin/bulk-upload-file',
+    '/quizzes/admin/quizzes/bulk-upload-file',
     formData,
     { headers: { 'Content-Type': 'multipart/form-data' } }
   ).then(res => res.data)
