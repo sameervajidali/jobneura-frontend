@@ -199,7 +199,8 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = location.state?.from?.pathname || localStorage.getItem('loginRedirectFrom');
+  const from = localStorage.getItem("loginRedirectFrom") || '/';
+
 
 
   // ===========================
@@ -317,16 +318,14 @@ const redirectUser = (user) => {
   const isAdmin = ADMIN_ROLES.includes(role);
 
   if (isAdmin) {
-    navigate('/admin', { replace: true });
-  } else if (from && from !== '/login') {
-    navigate(from, { replace: true });
+    navigate("/admin", { replace: true });
   } else {
-    navigate('/', { replace: true }); // default fallback
+    navigate(from, { replace: true });
   }
 
-  // Clean up redirect storage
-  localStorage.removeItem('loginRedirectFrom');
+  localStorage.removeItem("loginRedirectFrom");
 };
+
 
 
   // ===========================

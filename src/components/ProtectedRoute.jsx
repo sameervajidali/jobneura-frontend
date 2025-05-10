@@ -11,20 +11,22 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    // Save to storage (global & persistent)
+    localStorage.setItem("loginRedirectFrom", location.pathname);
+    return <Navigate to="/login" replace />;
   }
 
   const userRole = user.role?.toUpperCase();
-  const allowed = allowedRoles.map(r => r.toUpperCase());
+  const allowed = allowedRoles.map((r) => r.toUpperCase());
 
   if (!allowed.includes(userRole)) {
-  const fallback = userRole === "SUPERADMIN" || userRole === "ADMIN"
-    ? "/admin"
-    : "/dashboard";
+    const fallback =
+      userRole === "SUPERADMIN" || userRole === "ADMIN"
+        ? "/admin"
+        : "/dashboard";
 
-  return <Navigate to={fallback} replace />;
-}
-
+    return <Navigate to={fallback} replace />;
+  }
 
   return <Outlet />;
 }
