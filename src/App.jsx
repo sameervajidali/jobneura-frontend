@@ -9,22 +9,22 @@ import {
 } from "react-router-dom";
 
 // Public Pages
-import HomePage from "./pages/HomePage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
-import RegisterPage from "./pages/RegisterPage.jsx";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
-import AboutPage from "./pages/AboutPage.jsx";
-import TermsPage from "./pages/TermsPage.jsx";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.jsx";
-import HelpCenterPage from "./pages/HelpCenterPage.jsx";
-import ContactPage from "./pages/ContactPage.jsx";
-import FeaturesPage from "./pages/FeaturesPage.jsx";
-import PricingPage from "./pages/PricingPage.jsx";
-import QuizLandingPage from "./pages/QuizLandingPage.jsx";
-import AccountActivationPage from "./pages/AccountActivation.jsx";
-import AccountActivationInfo from "./pages/AccountActivationInfo.jsx";
-import NotFoundPage from "./pages/NotFoundPage.jsx";
-import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import AboutPage from "./pages/AboutPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import HelpCenterPage from "./pages/HelpCenterPage";
+import ContactPage from "./pages/ContactPage";
+import FeaturesPage from "./pages/FeaturesPage";
+import PricingPage from "./pages/PricingPage";
+import QuizLandingPage from "./pages/QuizLandingPage";
+import AccountActivationPage from "./pages/AccountActivation";
+import AccountActivationInfo from "./pages/AccountActivationInfo";
+import NotFoundPage from "./pages/NotFoundPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 // Dashboard Pages
 import DashboardHome from "./pages/DashboardHome";
@@ -32,41 +32,45 @@ import Profile from "./pages/Profile";
 import ChangePassword from "./components/profile/ChangePassword";
 
 // Admin Pages
-import AdminDashboardLayout from "./layouts/AdminDashboardLayout.jsx";
-import AdminDashboardHome from "./pages/admin/AdminDashboardHome.jsx";
-import AdminUsersPage from "./pages/admin/Users/index.jsx";
-import UserDetails from "./pages/admin/Users/UserDetails.jsx";
-import UserForm from "./pages/admin/Users/UserForm.jsx";
+import AdminDashboardLayout from "./layouts/AdminDashboardLayout";
+import AdminDashboardHome from "./pages/admin/AdminDashboardHome";
+import AdminUsersPage from "./pages/admin/Users";
+import UserDetails from "./pages/admin/Users/UserDetails";
+import UserForm from "./pages/admin/Users/UserForm";
 
 // Layouts
-import DashboardLayout from "./layouts/DashboardLayout.jsx";
-import Navbar from "./components/layouts/Navbar.jsx";
-import Footer from "./components/layouts/Footer.jsx";
+import DashboardLayout from "./layouts/DashboardLayout";
+import Navbar from "./components/layouts/Navbar";
+import Footer from "./components/layouts/Footer";
 
 // Context and Guards
-import { AuthProvider, useAuth } from "./contexts/AuthContext.jsx";
-import { ThemeProvider } from "./contexts/ThemeContext.jsx";
-import PrivateRoute from "./components/PrivateRoute.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import { ADMIN_ROLES } from "./constants/roles.js";
-import AdminQuizPanel from "./pages/admin/AdminQuizPanel.jsx";
-import CreateQuizForm from "./pages/admin/Quiz/CreateQuizForm.jsx";
-import EditQuizPage from "./pages/admin/Quiz/EditQuizPage.jsx";
-import BulkUploadQuestionsPage from "./pages/admin/Quiz/BulkUploadQuestionsPage.jsx";
-import QuestionListPage from "./pages/admin/Quiz/QuestionListPage.jsx";
-import QuestionForm from "./pages/admin/Quiz/QuestionForm.jsx";
-import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage.jsx";
-import LeaderboardPage from "./pages/LeaderboardPage.jsx";
-import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage.jsx";
-import QuizExplorerPage from "./pages/QuizExplorerPage.jsx";
-import QuizStartPage from "./pages/QuizStartPage.jsx";
-import QuizResultPage from "./pages/QuizResultPage.jsx";
-import UserHistoryPage from "./pages/admin/Users/UserHistoryPage.jsx";
-import ProfilePage from "./pages/admin/ProfilePage.jsx";
-import ChangePasswordPage from "./pages/admin/ChangePasswordPage.jsx";
-import BulkUploadQuizzesPage from "./pages/admin/Quiz/BulkUploadQuizzesPage.jsx";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import PrivateRoute from "./components/PrivateRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ADMIN_ROLES } from "./constants/roles";
 
-// 🌟 AppInit: handles redirects post-login (or session restoration)
+// Admin Features
+import AdminQuizPanel from "./pages/admin/AdminQuizPanel";
+import CreateQuizForm from "./pages/admin/Quiz/CreateQuizForm";
+import EditQuizPage from "./pages/admin/Quiz/EditQuizPage";
+import BulkUploadQuestionsPage from "./pages/admin/Quiz/BulkUploadQuestionsPage";
+import QuestionListPage from "./pages/admin/Quiz/QuestionListPage";
+import QuestionForm from "./pages/admin/Quiz/QuestionForm";
+import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage";
+import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage";
+import UserHistoryPage from "./pages/admin/Users/UserHistoryPage";
+import ProfilePage from "./pages/admin/ProfilePage";
+import ChangePasswordPage from "./pages/admin/ChangePasswordPage";
+import BulkUploadQuizzesPage from "./pages/admin/Quiz/BulkUploadQuizzesPage";
+
+// Quiz
+import QuizExplorerPage from "./pages/QuizExplorerPage";
+import QuizStartPage from "./pages/QuizStartPage";
+import QuizResultPage from "./pages/QuizResultPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+
+// 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
   const { user, loading } = useAuth();
 
@@ -81,23 +85,22 @@ function AppInitializer({ children }) {
   return <>{children}</>;
 }
 
-
+// 🌐 Layout wrapper for navbar/footer logic
 function LayoutWrapper() {
   const { user } = useAuth();
   const location = useLocation();
 
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isAdmin =
-    location.pathname.startsWith("/admin") &&
-    user &&
-    ADMIN_ROLES.includes(user.role?.toUpperCase());
+    user?.role && ADMIN_ROLES.includes(user.role.toUpperCase()) &&
+    location.pathname.startsWith("/admin");
 
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdmin && <Navbar />}
       <div className={`flex-grow ${!isDashboard && !isAdmin ? "pt-16" : ""}`}>
         <Routes>
-          {/* Public */}
+          {/* Public Pages */}
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -110,43 +113,31 @@ function LayoutWrapper() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
 
-          {/* Quiz explorer */}
+          {/* Quizzes & Leaderboard */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
-
-          {/* Quiz runner */}
           <Route path="/quiz/:quizId/start" element={<QuizStartPage />} />
-          <Route
-            path="/quiz/:quizId/result/:attemptId"
-            element={<QuizResultPage />}
-          />
+          <Route path="/quiz/:quizId/result/:attemptId" element={<QuizResultPage />} />
 
-          {/* Account flows */}
+          {/* Account & Recovery */}
           <Route path="/activate" element={<AccountActivationPage />} />
-          <Route
-            path="/account-activation-info"
-            element={<AccountActivationInfo />}
-          />
+          <Route path="/account-activation-info" element={<AccountActivationInfo />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          {/* User dashboard */}
+          {/* User Dashboard */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="profile" element={<Profile />} />
             <Route path="change-password" element={<ChangePassword />} />
           </Route>
 
-          {/* Admin dashboard */}
+          {/* Admin Protected Routes */}
           <Route
             path="/admin/*"
             element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}
           >
-           <Route path="" element={<AdminDashboardLayout />}>
-             
+            <Route path="" element={<AdminDashboardLayout />}>
               <Route index element={<AdminDashboardHome />} />
-
-              {/* Users */}
-              
               <Route path="profile" element={<ProfilePage />} />
               <Route path="change-password" element={<ChangePasswordPage />} />
 
@@ -156,39 +147,21 @@ function LayoutWrapper() {
               <Route path="users/:id/edit" element={<UserForm />} />
               <Route path="users/:id/history" element={<UserHistoryPage />} />
 
-              {/* Quizzes */}
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
-              
-              <Route
-                path="quizzes/:quizId/bulk-upload"
-                element={<BulkUploadQuestionsPage />}
-              />
+              <Route path="quizzes/:quizId/bulk-upload" element={<BulkUploadQuestionsPage />} />
               <Route path="quizzes/bulk-upload" element={<BulkUploadQuizzesPage />} />
-              <Route
-                path="quizzes/:quizId/questions"
-                element={<QuestionListPage />}
-              />
-              <Route
-                path="quizzes/:quizId/questions/new"
-                element={<QuestionForm />}
-              />
-              <Route
-                path="quizzes/:quizId/questions/:questionId/edit"
-                element={<QuestionForm />}
-              />
-              <Route
-                path="quizzes/:quizId/assign"
-                element={<AssignQuizPage />}
-              />
+              <Route path="quizzes/:quizId/questions" element={<QuestionListPage />} />
+              <Route path="quizzes/:quizId/questions/new" element={<QuestionForm />} />
+              <Route path="quizzes/:quizId/questions/:questionId/edit" element={<QuestionForm />} />
+              <Route path="quizzes/:quizId/assign" element={<AssignQuizPage />} />
 
-              {/* Admin leaderboard */}
               <Route path="leaderboard" element={<AdminLeaderboardPage />} />
             </Route>
           </Route>
 
-          {/* Fallback */}
+          {/* 404 Fallback */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
@@ -196,7 +169,6 @@ function LayoutWrapper() {
     </div>
   );
 }
-
 
 export default function App() {
   return (
