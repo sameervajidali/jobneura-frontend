@@ -200,7 +200,7 @@ export default function LoginForm() {
   const location = useLocation();
 
   // Grab redirect target from localStorage or default
-  const from = localStorage.getItem("loginRedirectFrom") || '/dashboard';
+  //const from = localStorage.getItem("loginRedirectFrom") || '/dashboard';
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -223,19 +223,20 @@ export default function LoginForm() {
     );
   };
 
-  const redirectUser = (user) => {
-    const role = user?.role?.toUpperCase();
-    const isAdmin = ADMIN_ROLES.includes(role);
+const redirectUser = (user) => {
+  const role = user.role?.toUpperCase();
+  const stored = localStorage.getItem('loginRedirectFrom');
 
-    if (isAdmin) {
-      navigate('/admin', { replace: true });
-    } else {
-      navigate(from, { replace: true });
-    }
+  if (ADMIN_ROLES.includes(role)) {
+    navigate('/admin', { replace: true });
+  } else if (stored && stored !== '/login') {
+    navigate(stored, { replace: true });
+    localStorage.removeItem('loginRedirectFrom');
+  } else {
+    navigate('/', { replace: true });
+  }
+};
 
-    // Clean up redirect path
-    localStorage.removeItem("loginRedirectFrom");
-  };
 
   const handleGoogleCallback = async (response) => {
     setLoading(true);
