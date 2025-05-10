@@ -30,7 +30,7 @@ export default function QuizExplorerPage() {
 
       {/* 3) Right: weekly leaderboard */}
       <aside className="w-80 p-6">
-        <QuizLeaderboard filters={{ ...filters, timePeriod: 'week' }} />
+        {/* <QuizLeaderboard filters={{ ...filters, timePeriod: 'week' }} /> */}
       </aside>
     </div>
   );
