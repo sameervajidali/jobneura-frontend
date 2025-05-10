@@ -89,9 +89,15 @@ export function unassignQuiz(quizId, userId) {
 
 // ─── Public Quiz Listing ────────────────────────────────────────────────────
 export function getQuizzes(params = {}) {
-  return API
-    .get('/quizzes', { params })
-    .then(res => res.data.items || []);
+  return API.get('/quizzes', { params })
+    .then(res => {
+      // if your server returns { quizzes: [...], total: ... }
+      return Array.isArray(res.data.quizzes)
+        ? res.data.quizzes
+        : Array.isArray(res.data)
+          ? res.data
+          : [];
+    });
 }
 
 // ─── Attempt Details & Stats ────────────────────────────────────────────────
