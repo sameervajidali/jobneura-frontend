@@ -35,10 +35,13 @@ export function getLeaderboard(params = {}) {
     .get('/quizzes/leaderboard', { params })
     .then(res => {
       const d = res.data;
-      // always return an array
-      if (Array.isArray(d)) return d;
-      if (Array.isArray(d.leaderboard)) return d.leaderboard;
-      return [];
+      if (Array.isArray(d)) {
+        return { items: d, total: d.length };
+      }
+      if (Array.isArray(d.leaderboard)) {
+        return { items: d.leaderboard, total: d.leaderboard.length };
+      }
+      return { items: [], total: 0 };
     });
 }
 
