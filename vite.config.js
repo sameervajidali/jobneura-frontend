@@ -22,11 +22,12 @@
 // })
 
 
-const { defineConfig } = require('vite');
-const react = require('@vitejs/plugin-react');
-const path = require('path');
+// vite.config.js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
-module.exports = defineConfig({
+export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
@@ -34,4 +35,3 @@ module.exports = defineConfig({
     },
   },
 });
-
