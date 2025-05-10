@@ -108,6 +108,7 @@
 
 import React, { useEffect, useState } from 'react';
 import UserDetailsCard from "../../../components/admin/UserDetailsCard.jsx";
+import { useParams, useNavigate } from "react-router-dom";
 
 import API from '../../../services/axios';
 export default function UserDetails() {
