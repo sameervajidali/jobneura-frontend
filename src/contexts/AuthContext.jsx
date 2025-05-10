@@ -161,17 +161,17 @@ export function AuthProvider({ children }) {
   }, [refreshSession]);
 
   // Handle login response
-  const login = useCallback(async (loginResponse) => {
-    try {
-      const userData = loginResponse.user ?? loginResponse;
-      setUser(userData);
-      scheduleAutoRefresh();
-    } catch (err) {
-      console.error("Login failed to process:", err);
-      setUser(null);
-      throw err;
-    }
-  }, [scheduleAutoRefresh]);
+const login = useCallback(async (loginResponse) => {
+  try {
+    const userData = loginResponse.user ?? loginResponse;
+    setUser(userData);
+    localStorage.setItem("hasSession", "true");
+    scheduleAutoRefresh();
+  } catch (err) {
+    setUser(null);
+    throw err;
+  }
+}, [scheduleAutoRefresh]);
 
   // Logout
   const logout = useCallback(async () => {
