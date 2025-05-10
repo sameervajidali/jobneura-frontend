@@ -118,56 +118,54 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const refreshTimer = useRef(null);
   const isRefreshing = useRef(false);
+  const refreshTimer = useRef(null);
 
-  // Load session from server (on first load)
+  // Load session on mount
   const loadUserFromSession = useCallback(async () => {
     try {
       const { data } = await API.get("/auth/me");
       setUser(data.user ?? data);
     } catch (err) {
-      console.warn("Session invalid or expired:", err?.response?.status);
+      console.warn("❌ Session fetch failed:", err?.response?.status);
       setUser(null);
     } finally {
-      setLoading(false); // ✅ Always resolve loading
+      setLoading(false); // ✅ always unset loading
     }
   }, []);
 
-  // Refresh token
+  // Background token refresh
   const refreshSession = useCallback(async () => {
     if (isRefreshing.current) return;
     isRefreshing.current = true;
-
     try {
       const { data } = await API.post("/auth/refresh-token");
       setUser(data.user ?? null);
       scheduleAutoRefresh();
     } catch (err) {
-      console.error("🔁 Refresh token failed:", err?.response?.status);
+      console.error("🔁 Refresh failed:", err?.response?.status);
       setUser(null);
     } finally {
       isRefreshing.current = false;
     }
   }, []);
 
-  // Setup background refresh (13 mins before expiry)
+  // Setup timer (13 minutes)
   const scheduleAutoRefresh = useCallback(() => {
     if (refreshTimer.current) clearTimeout(refreshTimer.current);
     refreshTimer.current = setTimeout(() => {
       refreshSession();
-    }, 13 * 60 * 1000); // 13 minutes
+    }, 13 * 60 * 1000);
   }, [refreshSession]);
 
-  // Login
+  // Handle login response
   const login = useCallback(async (loginResponse) => {
     try {
       const userData = loginResponse.user ?? loginResponse;
       setUser(userData);
-      // ✅ Avoid full reload right after login – just set timer and validate cookies later
       scheduleAutoRefresh();
     } catch (err) {
-      console.error("Login post-processing failed:", err);
+      console.error("Login failed to process:", err);
       setUser(null);
       throw err;
     }
@@ -178,34 +176,25 @@ export function AuthProvider({ children }) {
     try {
       await API.post("/auth/logout");
     } catch (err) {
-      console.error("Logout error:", err);
+      console.error("Logout failed:", err);
     } finally {
       clearTimeout(refreshTimer.current);
       setUser(null);
     }
   }, []);
 
-  // Initial session load
+  // On initial load
   useEffect(() => {
-    loadUserFromSession().then(() => {
-      scheduleAutoRefresh();
-    });
+    loadUserFromSession();
     return () => clearTimeout(refreshTimer.current);
-  }, [loadUserFromSession, scheduleAutoRefresh]);
+  }, [loadUserFromSession]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        logout,
-        refreshSession,
-      }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export const useAuth = () => useContext(AuthContext);
+
