@@ -234,7 +234,7 @@ export default function CreateQuizForm() {
     setError('');
     try {
       const quiz = await createQuiz(form);
-      navigate(`/admin/quizzes/${quiz._id}/edit`);
+      navigate(`/quizzes/admin/quizzes/${quiz._id}/edit`);
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -251,7 +251,7 @@ export default function CreateQuizForm() {
     setFileError('');
     try {
       await bulkUploadQuizzes(file);
-      navigate('/admin/quizzes');
+      navigate('/quizzes/admin/quizzes');
     } catch (err) {
       setFileError(err.response?.data?.message || 'Upload failed');
     } finally {
