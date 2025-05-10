@@ -196,7 +196,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
-import { createQuiz, bulkUploadQuizzesFile } from '../../../services/quizService';
+import { createQuiz, bulkUploadQuizzes } from '../../../services/quizService';
 
 export default function CreateQuizForm() {
   const navigate = useNavigate();
@@ -250,7 +250,7 @@ export default function CreateQuizForm() {
     setLoading(true);
     setFileError('');
     try {
-      await bulkUploadQuizzesFile(file);
+      await bulkUploadQuizzes(file);
       navigate('/admin/quizzes');
     } catch (err) {
       setFileError(err.response?.data?.message || 'Upload failed');
