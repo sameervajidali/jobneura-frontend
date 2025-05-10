@@ -23,34 +23,33 @@
 
 // vite.config.js
 // vite.config.js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
-// these imports come from the packages you just installed
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
-import { NodeModulesPolyfillPlugin }  from '@esbuild-plugins/node-modules-polyfill'
+import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
 
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      // tell Vite to use the browser‐safe stream polyfill
-      stream: 'stream-browserify'
-    }
-  },
+  // … above …
   optimizeDeps: {
     esbuildOptions: {
       define: {
-        // axios/browser expects a global, so polyfill it
         global: 'globalThis'
       },
       plugins: [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true,   // polyfill Buffer
-          process: true   // polyfill process.env
-        }),
+        NodeGlobalsPolyfillPlugin({ buffer: true, process: true }),
         NodeModulesPolyfillPlugin()
       ]
+    },
+    include: [
+      '@emotion/is-prop-valid',
+      'stream', 'buffer', 'process'
+    ]
+  },
+  resolve: {
+    alias: {
+      stream: 'stream-browserify',
+      buffer: 'buffer/',
+      process: 'process/browser',
+      '@emotion/is-prop-valid': require.resolve('@emotion/is-prop-valid'),
     }
   }
 })
