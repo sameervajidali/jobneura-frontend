@@ -117,13 +117,12 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Folder, Tag, Layers, Bookmark } from 'lucide-react';
 import {
-  Folder,
-  Tag,
-  Layers,
-  BookOpen,
+  
+  
+  
   Code,
   Package,
-  Bookmark,
+  
 } from 'lucide-react';
 import quizService from '../../services/quizService';
 
