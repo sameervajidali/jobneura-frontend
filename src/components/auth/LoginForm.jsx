@@ -183,9 +183,8 @@
 //   );
 // }
 
-
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { ADMIN_ROLES } from '../../constants/roles';
 import API from '../../services/axios';
@@ -195,30 +194,21 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = localStorage.getItem("loginRedirectFrom") || '/';
+  // Grab redirect target from localStorage or default
+  const from = localStorage.getItem("loginRedirectFrom") || '/dashboard';
 
-
-
-  // ===========================
-  // Google Login Setup
-  // ===========================
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.onload = initializeGoogle;
     document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-      if (window.google?.accounts?.id) {
-        window.google.accounts.id.cancel();
-      }
-    };
+    return () => document.body.removeChild(script);
   }, []);
 
   const initializeGoogle = () => {
@@ -233,6 +223,20 @@ export default function LoginForm() {
     );
   };
 
+  const redirectUser = (user) => {
+    const role = user?.role?.toUpperCase();
+    const isAdmin = ADMIN_ROLES.includes(role);
+
+    if (isAdmin) {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate(from, { replace: true });
+    }
+
+    // Clean up redirect path
+    localStorage.removeItem("loginRedirectFrom");
+  };
+
   const handleGoogleCallback = async (response) => {
     setLoading(true);
     try {
@@ -243,41 +247,30 @@ export default function LoginForm() {
       redirectUser(data.user);
     } catch (err) {
       console.error('❌ Google login error:', err);
-      alert('Google login failed. Please try again.');
+      alert('Google login failed. Try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // ===========================
-  // GitHub Login
-  // ===========================
   const handleGitHubLogin = () => {
     const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-    const authWindow = window.open(
-      `${API_BASE}/auth/github`,
-      '_blank',
-      'width=600,height=700'
-    );
-    if (!authWindow) {
-      alert('Please allow pop-ups for GitHub login.');
-      return;
-    }
+    const authWindow = window.open(`${API_BASE}/auth/github`, '_blank', 'width=600,height=700');
+
+    if (!authWindow) return alert('Please enable pop-ups for GitHub login.');
 
     const handleMessage = async (event) => {
-      const expectedOrigin = new URL(API_BASE).origin;
-      if (event.origin !== expectedOrigin) return;
+      if (new URL(API_BASE).origin !== event.origin) return;
 
       const { success, error } = event.data;
       if (success) {
         try {
           const { data } = await API.get('/auth/me');
-          const authedUser = data.user || data;
-          login(authedUser);
-          redirectUser(authedUser);
+          login(data.user);
+          redirectUser(data.user);
         } catch (err) {
-          console.error('GitHub session fetch error:', err);
-          alert('Failed to load user after GitHub login.');
+          console.error('GitHub post-login fetch failed:', err);
+          alert('GitHub login error.');
         }
       } else if (error) {
         alert('GitHub login failed: ' + error);
@@ -289,20 +282,16 @@ export default function LoginForm() {
     window.addEventListener('message', handleMessage);
   };
 
-  // ===========================
-  // Email/Password Login
-  // ===========================
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await API.post('/auth/login', { email, password });
-      const user = res.data.user;
-      login(user);
-      redirectUser(user);
+      const { data } = await API.post('/auth/login', { email, password });
+      login(data.user);
+      redirectUser(data.user);
     } catch (err) {
-      console.error('Login failed:', err);
       alert(err.response?.data?.message || 'Login failed');
+      console.error(err);
       setEmail('');
       setPassword('');
     } finally {
@@ -310,27 +299,6 @@ export default function LoginForm() {
     }
   };
 
-  // ===========================
-  // Role-based Redirect
-  // ===========================
-const redirectUser = (user) => {
-  const role = user?.role?.toUpperCase();
-  const isAdmin = ADMIN_ROLES.includes(role);
-
-  if (isAdmin) {
-    navigate("/admin", { replace: true });
-  } else {
-    navigate(from, { replace: true });
-  }
-
-  localStorage.removeItem("loginRedirectFrom");
-};
-
-
-
-  // ===========================
-  // Render
-  // ===========================
   return (
     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
       <h2 className="text-4xl font-extrabold text-center mb-6">Welcome Back</h2>
@@ -351,12 +319,6 @@ const redirectUser = (user) => {
             Sign in with GitHub
           </span>
         </button>
-      </div>
-
-      <div className="flex items-center my-4">
-        <hr className="flex-grow border-gray-300" />
-        <span className="px-4 text-gray-400">OR</span>
-        <hr className="flex-grow border-gray-300" />
       </div>
 
       <form className="space-y-5" onSubmit={handleLogin}>
