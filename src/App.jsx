@@ -73,6 +73,24 @@ import LeaderboardPage from "./pages/LeaderboardPage";
 // 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Fix: prevent users being stuck in admin route
+  useEffect(() => {
+    if (!loading && user) {
+      const path = location.pathname;
+      const role = user.role?.toUpperCase();
+
+      if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
+        navigate('/dashboard', { replace: true });
+      }
+
+      if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
+        navigate('/admin', { replace: true });
+      }
+    }
+  }, [loading, user, location.pathname]);
 
   if (loading) {
     return (
@@ -85,6 +103,7 @@ function AppInitializer({ children }) {
   return <>{children}</>;
 }
 
+
 // 🌐 Layout wrapper for navbar/footer logic
 function LayoutWrapper() {
   const { user } = useAuth();
@@ -92,7 +111,8 @@ function LayoutWrapper() {
 
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isAdmin =
-    user?.role && ADMIN_ROLES.includes(user.role.toUpperCase()) &&
+    user?.role &&
+    ADMIN_ROLES.includes(user.role.toUpperCase()) &&
     location.pathname.startsWith("/admin");
 
   return (
@@ -117,11 +137,17 @@ function LayoutWrapper() {
           <Route path="/quizzes" element={<QuizExplorerPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/quiz/:quizId/start" element={<QuizStartPage />} />
-          <Route path="/quiz/:quizId/result/:attemptId" element={<QuizResultPage />} />
+          <Route
+            path="/quiz/:quizId/result/:attemptId"
+            element={<QuizResultPage />}
+          />
 
           {/* Account & Recovery */}
           <Route path="/activate" element={<AccountActivationPage />} />
-          <Route path="/account-activation-info" element={<AccountActivationInfo />} />
+          <Route
+            path="/account-activation-info"
+            element={<AccountActivationInfo />}
+          />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* User Dashboard */}
@@ -132,30 +158,48 @@ function LayoutWrapper() {
           </Route>
 
           {/* Admin Protected Routes */}
-          <Route path="/admin/*" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}>
-  <Route path="" element={<AdminDashboardLayout />}>
-    <Route index element={<AdminDashboardHome />} />
-    <Route path="dashboard" element={<AdminDashboardHome />} />  {/* ← ADD THIS */}
-
+          <Route
+            path="/admin/*"
+            element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}
+          >
+            <Route path="" element={<AdminDashboardLayout />}>
+              <Route index element={<AdminDashboardHome />} />
+              <Route path="dashboard" element={<AdminDashboardHome />} />{" "}
+              {/* ← ADD THIS */}
               <Route path="profile" element={<ProfilePage />} />
               <Route path="change-password" element={<ChangePasswordPage />} />
-
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="users/:id/edit" element={<UserForm />} />
               <Route path="users/:id/history" element={<UserHistoryPage />} />
-
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
-              <Route path="quizzes/:quizId/bulk-upload" element={<BulkUploadQuestionsPage />} />
-              <Route path="quizzes/bulk-upload" element={<BulkUploadQuizzesPage />} />
-              <Route path="quizzes/:quizId/questions" element={<QuestionListPage />} />
-              <Route path="quizzes/:quizId/questions/new" element={<QuestionForm />} />
-              <Route path="quizzes/:quizId/questions/:questionId/edit" element={<QuestionForm />} />
-              <Route path="quizzes/:quizId/assign" element={<AssignQuizPage />} />
-
+              <Route
+                path="quizzes/:quizId/bulk-upload"
+                element={<BulkUploadQuestionsPage />}
+              />
+              <Route
+                path="quizzes/bulk-upload"
+                element={<BulkUploadQuizzesPage />}
+              />
+              <Route
+                path="quizzes/:quizId/questions"
+                element={<QuestionListPage />}
+              />
+              <Route
+                path="quizzes/:quizId/questions/new"
+                element={<QuestionForm />}
+              />
+              <Route
+                path="quizzes/:quizId/questions/:questionId/edit"
+                element={<QuestionForm />}
+              />
+              <Route
+                path="quizzes/:quizId/assign"
+                element={<AssignQuizPage />}
+              />
               <Route path="leaderboard" element={<AdminLeaderboardPage />} />
             </Route>
           </Route>

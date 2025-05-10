@@ -18,12 +18,13 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
   const allowed = allowedRoles.map(r => r.toUpperCase());
 
   if (!allowed.includes(userRole)) {
-    return (
-      <div className="p-6 text-center text-red-600">
-        🚫 You are not authorized to access this page.
-      </div>
-    );
-  }
+  const fallback = userRole === "SUPERADMIN" || userRole === "ADMIN"
+    ? "/admin"
+    : "/dashboard";
+
+  return <Navigate to={fallback} replace />;
+}
+
 
   return <Outlet />;
 }
