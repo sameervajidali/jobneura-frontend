@@ -35,6 +35,7 @@ export function getLeaderboard(params = {}) {
     .get('/quizzes/leaderboard', { params })
     .then(res => {
       const d = res.data;
+      console.log("📊 Raw leaderboard response:", d);
       if (Array.isArray(d)) {
         return { items: d, total: d.length };
       }
