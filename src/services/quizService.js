@@ -142,12 +142,37 @@ export function bulkUploadQuizzes(file) {
 
 
 
+export const fetchSidebarFilters = async () => {
+  const [categories, levels] = await Promise.all([
+    API.get('/quizzes/distinct/category'),
+    API.get('/quizzes/distinct/level')
+  ]);
+  return {
+    categories: categories.data,
+    levels: levels.data
+  };
+};
+
+export const fetchGroupedTopics = async () => {
+  const res = await API.get('/quizzes/grouped-topics');
+  return res.data; // [{ category: 'Programming', topics: ['Java', 'Python'] }, ...]
+};
+
+export const fetchDistinctTopics = async () => {
+  const res = await API.get('/quizzes/distinct/topic');
+  return res.data; // ["Java", "Python", ...]
+
+};
+
 // ─── Default Export (convenience) ───────────────────────────────────────────
 const quizService = {
   getAllQuizzes,
   bulkUploadQuizzes,
   createQuiz,
   getQuizById,
+  fetchSidebarFilters,
+  fetchGroupedTopics,
+  fetchDistinctTopics,
   updateQuiz,
   submitQuizAttempt,
   getUserAttempts,
