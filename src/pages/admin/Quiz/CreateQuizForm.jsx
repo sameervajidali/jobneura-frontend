@@ -1,190 +1,190 @@
-// import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { createQuiz } from '../../../services/quizService.js';
-
-// export default function CreateQuizForm() {
-//   const navigate = useNavigate();
-//   const [form, setForm] = useState({
-//     title: '',
-//     category: '',
-//     topic: '',
-//     level: 'Beginner',
-//     duration: 10,
-//     totalMarks: 0,
-//     isActive: true,
-//   });
-//   const [loading, setLoading] = useState(false);
-//   const [error, setError] = useState('');
-
-//   const handleChange = e => {
-//     const { name, value, type, checked } = e.target;
-//     setForm(prev => ({
-//       ...prev,
-//       [name]: type === 'checkbox' ? checked : (type === 'number' ? +value : value),
-//     }));
-//   };
-
-//   const handleSubmit = async e => {
-//     e.preventDefault();
-//     setLoading(true);
-//     setError('');
-//     try {
-//       const quiz = await createQuiz(form);
-//       navigate(`/admin/quizzes/${quiz._id}/edit`);
-//     } catch (err) {
-//       setError(err.response?.data?.message || err.message);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="p-6 max-w-lg mx-auto">
-//       <h2 className="text-xl font-semibold mb-4">Create New Quiz</h2>
-//       {error && <p className="text-red-500 mb-2">{error}</p>}
-//       <form onSubmit={handleSubmit} className="space-y-4">
-//         <div>
-//           <label className="block mb-1">Title</label>
-//           <input
-//             name="title"
-//             value={form.title}
-//             onChange={handleChange}
-//             type="text"
-//             className="w-full border rounded px-3 py-2"
-//             required
-//           />
-//         </div>
-//         <div>
-//           <label className="block mb-1">Category</label>
-//           <input
-//             name="category"
-//             value={form.category}
-//             onChange={handleChange}
-//             type="text"
-//             className="w-full border rounded px-3 py-2"
-//             required
-//           />
-//         </div>
-//         <div>
-//           <label className="block mb-1">Topic</label>
-//           <input
-//             name="topic"
-//             value={form.topic}
-//             onChange={handleChange}
-//             type="text"
-//             className="w-full border rounded px-3 py-2"
-//             required
-//           />
-//         </div>
-//         <div className="grid grid-cols-2 gap-4">
-//           <div>
-//             <label className="block mb-1">Level</label>
-//             <select
-//               name="level"
-//               value={form.level}
-//               onChange={handleChange}
-//               className="w-full border rounded px-3 py-2"
-//             >
-//               <option>Beginner</option>
-//               <option>Intermediate</option>
-//               <option>Expert</option>
-//             </select>
-//           </div>
-//           <div>
-//             <label className="block mb-1">Duration (min)</label>
-//             <input
-//               name="duration"
-//               value={form.duration}
-//               onChange={handleChange}
-//               type="number"
-//               min="1"
-//               className="w-full border rounded px-3 py-2"
-//             />
-//           </div>
-//         </div>
-//         <div>
-//           <label className="block mb-1">Total Marks</label>
-//           <input
-//             name="totalMarks"
-//             value={form.totalMarks}
-//             onChange={handleChange}
-//             type="number"
-//             min="0"
-//             className="w-full border rounded px-3 py-2"
-//           />
-//         </div>
-//         <div className="flex items-center">
-//           <input
-//             name="isActive"
-//             id="isActive"
-//             checked={form.isActive}
-//             onChange={handleChange}
-//             type="checkbox"
-//             className="mr-2"
-//           />
-//           <label htmlFor="isActive">Active</label>
-//         </div>
-//         <button
-//           type="submit"
-//           disabled={loading}
-//           className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50"
-//         >
-//           {loading ? 'Creating…' : 'Create Quiz'}
-//         </button>
-//       </form>
-//     </div>
-//   );
-// }
-
-
-
 // src/pages/admin/Quiz/CreateQuizForm.jsx
-import React, { useState } from 'react';
-import { Tab } from '@headlessui/react';  // you can use any tabs lib or roll your own
-import QuizDetailsForm from './QuizDetailsForm';       // your existing quiz meta form
-import QuestionForm from './QuestionForm';              // your existing question‐by‐question form
-import BulkUploadQuestions from './BulkUploadQuestionsPage'; // reuse your bulk‐upload page
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { createQuiz, bulkUploadQuestionsFile } from '../../../services/quizService'
+import { useDropzone } from 'react-dropzone'
+import { FaUpload, FaPlus } from 'react-icons/fa'
 
 export default function CreateQuizForm() {
-  const [quizId, setQuizId] = useState(null);
-  const [tabIndex, setTabIndex] = useState(0);
+  const navigate = useNavigate()
+  const [form, setForm] = useState({
+    title: '',
+    category: '',
+    topic: '',
+    level: 'Beginner',
+    duration: 10,
+    totalMarks: 0,
+    isActive: true,
+  })
+  const [quizId, setQuizId] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [bulkFile, setBulkFile] = useState(null)
+  const [error, setError] = useState('')
+  const [bulkError, setBulkError] = useState('')
+  const [bulkLoading, setBulkLoading] = useState(false)
+
+  const onDrop = files => {
+    // Only take the first file
+    setBulkFile(files[0])
+    setBulkError('')
+  }
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'text/csv': ['.csv'],
+      'application/json': ['.json']
+    },
+    multiple: false
+  })
+
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target
+    setForm(f => ({
+      ...f,
+      [name]: type === 'checkbox' ? checked
+               : type === 'number'   ? +value
+               : value
+    }))
+  }
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const quiz = await createQuiz(form)
+      setQuizId(quiz._id)
+      navigate(`/admin/quizzes/${quiz._id}/edit`)
+    } catch (err) {
+      setError(err.response?.data?.message || err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleBulkUpload = async () => {
+    if (!quizId) {
+      setBulkError('Please create the quiz first.')
+      return
+    }
+    if (!bulkFile) {
+      setBulkError('Select a CSV or JSON file first.')
+      return
+    }
+    setBulkLoading(true)
+    setBulkError('')
+    try {
+      await bulkUploadQuestionsFile(quizId, bulkFile)
+      // after upload, navigate into the question list
+      navigate(`/admin/quizzes/${quizId}/questions`)
+    } catch (err) {
+      setBulkError(err.response?.data?.message || err.message)
+    } finally {
+      setBulkLoading(false)
+    }
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Create New Quiz</h1>
+    <div className="p-6 max-w-lg mx-auto space-y-8">
+      <h2 className="text-2xl font-semibold">Create New Quiz</h2>
 
-      {/* First, your Quiz metadata form */}
-      {!quizId && <QuizDetailsForm onCreated={(id) => setQuizId(id)} />}
+      {/* — Quiz Metadata Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <p className="text-red-600 text-sm">{error}</p>}
 
-      {/* Only show the question tabs once quizId exists */}
+        {[
+          { label: 'Title', name: 'title', type: 'text' },
+          { label: 'Category', name: 'category', type: 'text' },
+          { label: 'Topic', name: 'topic', type: 'text' }
+        ].map(({ label, name, type }) => (
+          <div key={name}>
+            <label className="block text-sm font-medium">{label}</label>
+            <input
+              name={name}
+              type={type}
+              value={form[name]}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
+          </div>
+        ))}
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium">Level</label>
+            <select
+              name="level"
+              value={form.level}
+              onChange={handleChange}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            >
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Expert</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Duration (min)</label>
+            <input
+              name="duration"
+              type="number"
+              min="1"
+              value={form.duration}
+              onChange={handleChange}
+              className="mt-1 block w-full border rounded px-3 py-2"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="flex items-center gap-2">
+            <input
+              name="isActive"
+              type="checkbox"
+              checked={form.isActive}
+              onChange={handleChange}
+            />
+            <span className="text-sm">Active</span>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded disabled:opacity-50 transition"
+        >
+          <FaPlus /> {loading ? 'Creating…' : 'Create Quiz'}
+        </button>
+      </form>
+
+      {/* — Bulk Upload Section */}
       {quizId && (
-        <Tab.Group selectedIndex={tabIndex} onChange={setTabIndex}>
-          <Tab.List className="flex space-x-2 border-b">
-            <Tab className={({ selected }) =>
-                `px-4 py-2 font-medium ${selected ? 'border-b-2 border-indigo-600' : 'text-gray-600'}`
-              }>
-              Add Questions
-            </Tab>
-            <Tab className={({ selected }) =>
-                `px-4 py-2 font-medium ${selected ? 'border-b-2 border-indigo-600' : 'text-gray-600'}`
-              }>
-              Bulk Upload
-            </Tab>
-          </Tab.List>
+        <div className="border-t pt-6 space-y-4">
+          <h3 className="text-lg font-medium">Or Bulk Upload Questions</h3>
+          <div
+            {...getRootProps()}
+            className={`cursor-pointer p-6 border-2 border-dashed rounded ${
+              isDragActive ? 'border-indigo-400 bg-indigo-50' : 'border-gray-300'
+            }`}
+          >
+            <input {...getInputProps()} />
+            {bulkFile
+              ? <p className="text-gray-800">{bulkFile.name}</p>
+              : <p className="text-gray-500">Drag & drop a CSV/JSON here, or click to select</p>
+            }
+          </div>
+          {bulkError && <p className="text-red-600 text-sm">{bulkError}</p>}
 
-          <Tab.Panels className="mt-4">
-            <Tab.Panel>
-              {/* your existing per‐question form */}
-              <QuestionForm quizId={quizId} />
-            </Tab.Panel>
-            <Tab.Panel>
-              {/* Bulk‐upload component */}
-              <BulkUploadQuestions quizId={quizId} />
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
+          <button
+            onClick={handleBulkUpload}
+            disabled={bulkLoading}
+            className="w-full flex justify-center items-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 rounded disabled:opacity-50 transition"
+          >
+            <FaUpload /> {bulkLoading ? 'Uploading…' : 'Upload Questions'}
+          </button>
+        </div>
       )}
     </div>
-  );
+  )
 }
-
