@@ -35,8 +35,9 @@ export default function QuizList({ filters, onPageChange }) {
           >
             <h3 className="text-lg font-semibold text-indigo-700">{q.title}</h3>
             <p className="text-sm text-gray-600">
-              {q.questions?.length ?? q.totalMarks} Questions &middot; {q.duration} min
-            </p>
+  {Array.isArray(q.questions) ? q.questions.length : (q.totalMarks ?? 0)} Questions &middot; {q.duration || 0} min
+</p>
+
             <div className="mt-4 flex items-center text-sm text-gray-500 gap-2">
               <svg
                 className="w-4 h-4 inline-block"
