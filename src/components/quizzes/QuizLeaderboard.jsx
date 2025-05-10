@@ -40,6 +40,10 @@ export default function QuizLeaderboard({ filters = {} }) {
           limit,
         });
 
+        console.log("📤 Sending leaderboard request with filters:", {
+  category, topic, level, tab, page, limit,
+});
+
         if (!isMounted) return;
 
         setEntries(Array.isArray(data?.items) ? data.items : []);
