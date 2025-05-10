@@ -127,6 +127,7 @@ export function getQuizTopThree(quizId, timePeriod = 'week') {
  * POST /quizzes/admin/bulk-upload-file
  * @param {File} file CSV/XLSX file object
  */
+// POST /quizzes/admin/quizzes/bulk-upload-file
 export function bulkUploadQuizzes(file) {
   const formData = new FormData()
   formData.append('file', file)
