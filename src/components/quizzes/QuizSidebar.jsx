@@ -118,7 +118,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Folder, Tag, Layers, Bookmark } from 'lucide-react';
 import {
   
-  
+  BookOpen,
   
   Code,
   Package,
