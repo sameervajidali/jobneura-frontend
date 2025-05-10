@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import API from '../services/axios.js';
 
-export default function useQuizList(filters) {
+export default function useQuizList(filters = {}) {
   const [quizzes, setQuizzes] = useState([]);
   const [total, setTotal]     = useState(0);
   const [page, setPage]       = useState(filters.page);

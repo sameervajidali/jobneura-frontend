@@ -5,14 +5,15 @@ import useQuizList from '../../hooks/useQuizList';
 
 export default function QuizList({ filters, onPageChange }) {
   const navigate = useNavigate();
-  const {
-    quizzes = [],      // default to empty array
-    total = 0,
-    page = 1,
-    limit = 10,
-    loading = false,
-    error,
-  } = useQuizList(filters) || {};
+ const quizData = useQuizList(filters);
+const {
+  quizzes = [],
+  total = 0,
+  page = 1,
+  limit = 10,
+  loading = false,
+  error,
+} = quizData || {};
 
   if (loading) return <p className="p-6 text-center">Loading quizzes…</p>;
   if (error)   return <p className="p-6 text-center text-red-500">{error}</p>;

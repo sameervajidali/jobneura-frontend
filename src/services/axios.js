@@ -1,3 +1,64 @@
+// import axios from 'axios'
+
+// const API = axios.create({
+//   baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.jobneura.tech/api',
+//   withCredentials: true,
+// })
+
+// let isRefreshing = false
+// let queue = []
+
+// function processQueue(err) {
+//   queue.forEach(p => err ? p.reject(err) : p.resolve())
+//   queue = []
+// }
+
+// API.interceptors.response.use(
+//   response => response,
+//   async (error) => {
+//     const { config, response } = error
+//     if (!response || response.status !== 401) return Promise.reject(error)
+
+//       const noRetryPaths = ['/auth/me', '/auth/refresh-token', '/auth/login']
+
+//     if (noRetryPaths.some(path => config.url.includes(path))) {
+//       return Promise.reject(error)
+//     }
+
+//     if (config._retry) return Promise.reject(error)
+//     config._retry = true
+
+//     if (isRefreshing) {
+//       return new Promise((resolve, reject) => {
+//         queue.push({ resolve: () => resolve(API(config)), reject })
+//       })
+//     }
+
+//     isRefreshing = true
+//     return new Promise((resolve, reject) => {
+//       API.post('/auth/refresh-token')
+//         .then(() => {
+//           isRefreshing = false
+//           processQueue()
+//           resolve(API(config))
+//         })
+//         .catch(err => {
+//           isRefreshing = false
+//           processQueue(err)
+//           window.location.href = '/login'
+//           reject(err)
+//         })
+//     })
+//   }
+// )
+
+// export default API
+
+
+
+
+
+
 import axios from 'axios'
 
 const API = axios.create({
@@ -9,22 +70,26 @@ let isRefreshing = false
 let queue = []
 
 function processQueue(err) {
-  queue.forEach(p => err ? p.reject(err) : p.resolve())
+  queue.forEach(p => (err ? p.reject(err) : p.resolve()))
   queue = []
 }
 
 API.interceptors.response.use(
   response => response,
-  async (error) => {
+  async error => {
     const { config, response } = error
-    if (!response || response.status !== 401) return Promise.reject(error)
 
-      const noRetryPaths = ['/auth/me', '/auth/refresh-token', '/auth/login']
+    // Skip if no response or not 401
+    if (!response || response.status !== 401) {
+      return Promise.reject(error)
+    }
 
+    const noRetryPaths = ['/auth/me', '/auth/refresh-token', '/auth/login']
     if (noRetryPaths.some(path => config.url.includes(path))) {
       return Promise.reject(error)
     }
 
+    // Prevent multiple retries
     if (config._retry) return Promise.reject(error)
     config._retry = true
 
@@ -35,26 +100,22 @@ API.interceptors.response.use(
     }
 
     isRefreshing = true
-    return new Promise((resolve, reject) => {
-      API.post('/auth/refresh-token')
-        .then(() => {
-          isRefreshing = false
-          processQueue()
-          resolve(API(config))
-        })
-        .catch(err => {
-          isRefreshing = false
-          processQueue(err)
-          window.location.href = '/login'
-          reject(err)
-        })
-    })
+
+    try {
+      await API.post('/auth/refresh-token')
+      isRefreshing = false
+      processQueue()
+      return API(config)
+    } catch (err) {
+      isRefreshing = false
+      processQueue(err)
+
+      // Optional: Clear stale tokens from localStorage or cookies here
+
+      window.location.href = '/login' // force logout
+      return Promise.reject(err)
+    }
   }
 )
 
 export default API
-
-
-
-
-
