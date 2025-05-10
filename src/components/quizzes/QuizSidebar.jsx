@@ -111,18 +111,15 @@
 
 
 
-// src/components/quizzes/QuizSidebar.jsx
 import React, { useState, useEffect } from 'react';
 import API from '../../services/axios';
 
 export default function QuizSidebar({ filters = {}, onChange }) {
-  const [categories, setCategories] = useState([]);
-  const [subtopics, setSubtopics] = useState({});
+  const [cats, setCats] = useState([]);
+  const [topics, setTopics] = useState([]);
   const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const selectedCategory = filters.category || '';
 
   useEffect(() => {
     let isMounted = true;
@@ -139,15 +136,8 @@ export default function QuizSidebar({ filters = {}, onChange }) {
 
         if (!isMounted) return;
 
-        const topicMap = {};
-        topicRes.data.forEach(topic => {
-          const [cat, sub] = topic.split(':');
-          if (!topicMap[cat]) topicMap[cat] = [];
-          topicMap[cat].push(sub);
-        });
-
-        setCategories(Array.isArray(catRes.data) ? catRes.data : []);
-        setSubtopics(topicMap);
+        setCats(Array.isArray(catRes.data) ? catRes.data : []);
+        setTopics(Array.isArray(topicRes.data) ? topicRes.data : []);
         setLevels(Array.isArray(levelRes.data) ? levelRes.data : []);
       } catch (err) {
         if (!isMounted) return;
@@ -164,54 +154,38 @@ export default function QuizSidebar({ filters = {}, onChange }) {
     };
   }, []);
 
-  const handleChange = (key) => (e) => {
+  const handleSelect = (key) => (e) => {
     onChange({ ...filters, [key]: e.target.value, page: 1 });
   };
 
-  return (
-    <aside className="w-full md:w-1/4 p-4 bg-white border-r dark:bg-gray-900 dark:border-gray-700 space-y-6">
-      {error && <div className="text-red-600 text-sm">{error}</div>}
+  const programmingLanguages = ['Java', 'Python', 'Go', 'JavaScript', 'C++', 'C#'];
 
-      {/* Category */}
+  return (
+    <aside className="w-64 p-4 bg-white border-r space-y-6">
+      {error && <div className="text-red-600 text-sm mb-4">{error}</div>}
+
       <div>
-        <label className="block font-semibold text-sm mb-1">Category</label>
+        <label className="block font-semibold mb-1">Category</label>
         <select
-          className="w-full border rounded p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+          className="w-full border rounded p-2"
           value={filters.category || ''}
-          onChange={handleChange('category')}
+          onChange={handleSelect('category')}
+          disabled={loading}
         >
           <option value="">All</option>
-          {categories.map(c => (
+          {cats.map(c => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
       </div>
 
-      {/* Subtopics */}
-      {selectedCategory && subtopics[selectedCategory] && (
-        <div>
-          <label className="block font-semibold text-sm mb-1">Languages / Topics</label>
-          <div className="space-y-1">
-            {subtopics[selectedCategory].map(topic => (
-              <button
-                key={topic}
-                onClick={() => onChange({ ...filters, topic, page: 1 })}
-                className={`block w-full text-left px-3 py-1.5 rounded-md border hover:bg-indigo-100 dark:hover:bg-indigo-600 dark:text-white transition ${filters.topic === topic ? 'bg-indigo-500 text-white dark:bg-indigo-700' : 'bg-white dark:bg-gray-800 dark:border-gray-700'}`}
-              >
-                {topic}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Level */}
       <div>
-        <label className="block font-semibold text-sm mb-1">Level</label>
+        <label className="block font-semibold mb-1">Level</label>
         <select
-          className="w-full border rounded p-2 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+          className="w-full border rounded p-2"
           value={filters.level || ''}
-          onChange={handleChange('level')}
+          onChange={handleSelect('level')}
+          disabled={loading}
         >
           <option value="">All</option>
           {levels.map(l => (
@@ -219,6 +193,25 @@ export default function QuizSidebar({ filters = {}, onChange }) {
           ))}
         </select>
       </div>
+
+      {filters.category === 'Programming' && (
+        <div>
+          <label className="block font-semibold mb-1">Languages</label>
+          <div className="flex flex-col space-y-2">
+            {programmingLanguages.map(lang => (
+              <button
+                key={lang}
+                onClick={() => onChange({ ...filters, topic: lang, page: 1 })}
+                className={`text-left px-3 py-2 rounded transition border hover:bg-blue-50 ${
+                  filters.topic === lang ? 'bg-blue-100 text-blue-600 font-bold border-blue-500' : 'border-gray-200'
+                }`}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
