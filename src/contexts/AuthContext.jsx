@@ -123,16 +123,18 @@ export function AuthProvider({ children }) {
 
   // Load session on mount
   const loadUserFromSession = useCallback(async () => {
-    try {
-      const { data } = await API.get("/auth/me");
-      setUser(data.user ?? data);
-    } catch (err) {
-      console.warn("❌ Session fetch failed:", err?.response?.status);
-      setUser(null);
-    } finally {
-      setLoading(false); // ✅ always unset loading
-    }
-  }, []);
+  try {
+    const { data } = await API.get("/auth/me");
+    setUser(data.user ?? data);
+    return true;
+  } catch (err) {
+    setUser(null);
+    return false; // ✨ important
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   // Background token refresh
   const refreshSession = useCallback(async () => {

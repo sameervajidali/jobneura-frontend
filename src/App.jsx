@@ -69,11 +69,8 @@ import BulkUploadQuizzesPage from "./pages/admin/Quiz/BulkUploadQuizzesPage.jsx"
 // 🌟 AppInit: handles redirects post-login (or session restoration)
 function AppInitializer({ children }) {
   const { user, loading } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
 
-
-  if (loading || (!user && localStorage.getItem("hasSession") === "true")) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading session…</p>
@@ -83,6 +80,7 @@ function AppInitializer({ children }) {
 
   return <>{children}</>;
 }
+
 
 function LayoutWrapper() {
   const { user } = useAuth();

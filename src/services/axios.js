@@ -76,45 +76,32 @@ function processQueue(err) {
 }
 
 API.interceptors.response.use(
-  response => response,
-  async error => {
-    const { config, response } = error;
+  res => res,
+  async err => {
+    const originalConfig = err.config;
+    const isUnauthorized = err.response?.status === 401;
 
-    // Skip if not 401 or no response
-    if (!response || response.status !== 401) {
-      return Promise.reject(error);
+    if (
+      isUnauthorized &&
+      !originalConfig._retry &&
+      !["/auth/login", "/auth/refresh-token", "/auth/me"].some(path => originalConfig.url.includes(path))
+    ) {
+      originalConfig._retry = true;
+
+      try {
+        await API.post("/auth/refresh-token");
+        return API(originalConfig);
+      } catch (refreshErr) {
+        // Force logout
+        window.localStorage.removeItem("hasSession");
+        window.location.href = "/login";
+        return Promise.reject(refreshErr);
+      }
     }
 
-    // Skip if already retried
-    if (config._retry) return Promise.reject(error);
-    config._retry = true;
-
-    // Don't retry refresh-token itself
-    if (config.url.includes('/auth/refresh-token')) {
-      return Promise.reject(error);
-    }
-
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        queue.push({ resolve: () => resolve(API(config)), reject });
-      });
-    }
-
-    isRefreshing = true;
-
-    try {
-      await API.post('/auth/refresh-token');
-      isRefreshing = false;
-      processQueue();
-      return API(config);
-    } catch (err) {
-      isRefreshing = false;
-      processQueue(err);
-      // Optional: cleanup
-      window.location.href = '/login';
-      return Promise.reject(err);
-    }
+    return Promise.reject(err);
   }
 );
+
 
 export default API;
