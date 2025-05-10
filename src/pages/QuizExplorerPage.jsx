@@ -17,7 +17,7 @@ export default function QuizExplorerPage() {
   return (
     <div className="flex bg-gray-50 min-h-screen">
       {/* 1) Left sidebar */}
-      {/* <QuizSidebar filters={filters} onChange={setFilters} /> */}
+      <QuizSidebar filters={filters} onChange={setFilters} />
 
       {/* 2) Center: list of quiz cards */}
       <main className="flex-1 p-6 space-y-6">
