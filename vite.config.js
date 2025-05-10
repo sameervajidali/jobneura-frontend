@@ -21,28 +21,36 @@
 //   },
 // })
 
-
 // vite.config.js
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+// vite.config.js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// these imports come from the packages you just installed
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
+import { NodeModulesPolyfillPlugin }  from '@esbuild-plugins/node-modules-polyfill'
 
 export default defineConfig({
   plugins: [react()],
-  optimizeDeps: {
-    include: [
-      '@emotion/react',
-      '@emotion/styled',
-      '@emotion/is-prop-valid'
-    ]
-  },
-  // If you still see CJS left over, enable mixed‐module transforms:
-  build: {
-    commonjsOptions: {
-      transformMixedEsModules: true
+  resolve: {
+    alias: {
+      // tell Vite to use the browser‐safe stream polyfill
+      stream: 'stream-browserify'
     }
   },
-  resolve: {
-    // Prefer the "module" or "jsnext:main" entrypoints, not the CJS one
-    mainFields: ['module', 'jsnext:main', 'main']
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        // axios/browser expects a global, so polyfill it
+        global: 'globalThis'
+      },
+      plugins: [
+        NodeGlobalsPolyfillPlugin({
+          buffer: true,   // polyfill Buffer
+          process: true   // polyfill process.env
+        }),
+        NodeModulesPolyfillPlugin()
+      ]
+    }
   }
-});
+})
