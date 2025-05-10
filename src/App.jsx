@@ -27,6 +27,8 @@ import AccountActivationInfo from "./pages/AccountActivationInfo";
 import NotFoundPage from "./pages/NotFoundPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 
+
+
 // Dashboard Pages
 import DashboardHome from "./pages/DashboardHome";
 import Profile from "./pages/Profile";
@@ -70,6 +72,7 @@ import QuizExplorerPage from "./pages/QuizExplorerPage";
 import QuizStartPage from "./pages/QuizStartPage";
 import QuizResultPage from "./pages/QuizResultPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import LoginPageWrapper from "./pages/LoginPageWrapper";
 
 // 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
@@ -133,6 +136,7 @@ function LayoutWrapper() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/login"element={<LoginPageWrapper />}/>
 
           {/* Quizzes & Leaderboard */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />

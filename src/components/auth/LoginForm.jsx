@@ -199,6 +199,9 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const from = location.state?.from?.pathname || localStorage.getItem('loginRedirectFrom');
+
+
   // ===========================
   // Google Login Setup
   // ===========================
@@ -309,19 +312,22 @@ export default function LoginForm() {
   // ===========================
   // Role-based Redirect
   // ===========================
-  const redirectUser = (user) => {
-    const role = user?.role?.toUpperCase();
-    const isAdmin = ADMIN_ROLES.includes(role);
-    const from = location.state?.from?.pathname;
+const redirectUser = (user) => {
+  const role = user?.role?.toUpperCase();
+  const isAdmin = ADMIN_ROLES.includes(role);
 
-    if (isAdmin) {
-      navigate('/admin', { replace: true });
-    } else if (from && from !== '/login') {
-      navigate(from, { replace: true });
-    } else {
-      navigate('/dashboard', { replace: true });
-    }
-  };
+  if (isAdmin) {
+    navigate('/admin', { replace: true });
+  } else if (from && from !== '/login') {
+    navigate(from, { replace: true });
+  } else {
+    navigate('/', { replace: true }); // default fallback
+  }
+
+  // Clean up redirect storage
+  localStorage.removeItem('loginRedirectFrom');
+};
+
 
   // ===========================
   // Render
