@@ -132,12 +132,11 @@ function LayoutWrapper() {
           </Route>
 
           {/* Admin Protected Routes */}
-          <Route
-            path="/admin/*"
-            element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}
-          >
-            <Route path="" element={<AdminDashboardLayout />}>
-              <Route index element={<AdminDashboardHome />} />
+          <Route path="/admin/*" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} />}>
+  <Route path="" element={<AdminDashboardLayout />}>
+    <Route index element={<AdminDashboardHome />} />
+    <Route path="dashboard" element={<AdminDashboardHome />} />  {/* ← ADD THIS */}
+
               <Route path="profile" element={<ProfilePage />} />
               <Route path="change-password" element={<ChangePasswordPage />} />
 
