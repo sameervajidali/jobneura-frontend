@@ -7,19 +7,31 @@
 // })
 
 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+// import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react'
+// import path from 'path'
 
-export default defineConfig({
+// export default defineConfig({
+//   plugins: [react()],
+//   resolve: {
+//     alias: {
+//       // make @ point to your src/ directory
+//       '@': path.resolve(__dirname, 'src'),
+//     },
+//   },
+// })
+
+
+const { defineConfig } = require('vite');
+const react = require('@vitejs/plugin-react');
+const path = require('path');
+
+module.exports = defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // make @ point to your src/ directory
       '@': path.resolve(__dirname, 'src'),
     },
   },
-})
-
-
+});
 
