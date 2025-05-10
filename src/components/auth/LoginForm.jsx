@@ -316,12 +316,20 @@ export default function LoginForm() {
     }
   };
 
-  const redirectUser = (user) => {
-    const role = user?.role?.toUpperCase();
-    const isAdmin = ADMIN_ROLES.includes(role);
-    const dest = isAdmin ? '/admin' : from;
-    navigate(dest, { replace: true });
-  };
+ const redirectUser = (user) => {
+  const role = user?.role?.toUpperCase();
+  const isAdmin = ADMIN_ROLES.includes(role);
+  const fallback = isAdmin ? '/admin' : '/dashboard';
+  const returnTo = location.state?.from?.pathname;
+
+  // If user navigated from a protected route → go back
+  if (returnTo && returnTo !== '/login') {
+    navigate(returnTo, { replace: true });
+  } else {
+    navigate(fallback, { replace: true });
+  }
+};
+
 
   return (
     <div className="bg-white bg-opacity-90 backdrop-blur-md p-10 rounded-2xl shadow-2xl w-full max-w-md">
