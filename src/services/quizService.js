@@ -31,19 +31,17 @@ export function getUserAttempts() {
 
 // ─── Leaderboard ────────────────────────────────────────────────────────────
 export function getLeaderboard(params = {}) {
-  return API
-    .get('/quizzes/leaderboard', { params })
-    .then(res => {
-      const d = res.data;
-      if (Array.isArray(d)) {
-        return { items: d, total: d.length };
-      }
-      if (Array.isArray(d.leaderboard)) {
-        return { items: d.leaderboard, total: d.leaderboard.length };
-      }
-      return { items: [], total: 0 };
-    });
+  return API.get('/quizzes/leaderboard', { params }).then(res => {
+    const d = res.data;
+    console.log("📊 Raw leaderboard response:", d);
+
+    return {
+      items: Array.isArray(d.items) ? d.items : [],
+      total: typeof d.total === 'number' ? d.total : 0,
+    };
+  });
 }
+
 
 // ─── Bulk‐Upload Questions (admin) ───────────────────────────────────────────
 export function bulkUploadQuestions(quizId, questions) {
