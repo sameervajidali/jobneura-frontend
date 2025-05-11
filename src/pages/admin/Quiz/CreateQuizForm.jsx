@@ -204,7 +204,7 @@ export default function CreateQuizForm() {
     title:      '',
     category:   '',
     topic:      '',
-    level:      'easy',      // match backend enum: easy, medium, hard
+    level:      '',      // match backend enum: easy, medium, hard
     duration:   10,
     totalMarks: 0,
     isActive:   true,
