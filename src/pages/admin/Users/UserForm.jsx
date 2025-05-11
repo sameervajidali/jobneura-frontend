@@ -27,9 +27,10 @@ export default function UserForm() {
         const data = await getAllRoles();
         setRoles(data);
         // set default role for creation
-        if (!isEdit && data.length) {
-          setForm(f => ({ ...f, role: data[0]._id }));
-        }
+       // after fetching roles
+if (!isEdit && data.length) {
+  setForm(f => ({ ...f, role: data[0].name }));
+}
       } catch (err) {
         console.error("Failed to load roles:", err);
       }
@@ -177,16 +178,17 @@ export default function UserForm() {
         {/* Role */}
         <div>
           <label className="block text-sm font-medium mb-1">Role</label>
-          <select
+           <select
             name="role"
-            value={form.role}
+           value={form.role}
             onChange={handleChange}
             disabled={loading}
             className="w-full px-3 py-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
           >
             {roles.map(r => (
-              <option key={r._id} value={r._id}>
-                {r.name}
+              // value should be the ENUM name, not the ObjectId
+              <option key={r._id} value={r.name}>
+                {r.name.charAt(0) + r.name.slice(1).toLowerCase()}
               </option>
             ))}
           </select>
