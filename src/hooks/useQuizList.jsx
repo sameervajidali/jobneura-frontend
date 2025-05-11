@@ -65,7 +65,7 @@ export default function useQuizList(filters = {}) {
 
     // build full params including page & limit
     const params = { page, limit, ...cleaned };
-
+    console.log('Fetching quizzes with params →', params);
     API.get('/quizzes', { params })
       .then(res => {
         const data = res.data;
