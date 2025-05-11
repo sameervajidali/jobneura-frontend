@@ -1,8 +1,8 @@
 // src/pages/admin/TopicForm.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import topicService from "../../../services/topicService";
-import categoryService from "../../../services/categoryService";
+import topicService from "../../services/topicService";
+import categoryService from "../../services/categoryService";
 
 export default function TopicForm() {
   const { id } = useParams();

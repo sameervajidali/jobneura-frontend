@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash, FaSearch } from "react-icons/fa";
-import categoryService from "../../../services/categoryService";
+import categoryService from "../../services/categoryService";
 
 export default function CategoriesPage() {
   const [cats, setCats] = useState([]);
