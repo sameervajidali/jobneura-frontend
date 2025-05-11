@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react';
 import API from '../services/axios.js';
 
 export default function useQuizList(rawFilters = {}) {
-  // Pull out only page from incoming filters (if you ever want to control page externally)
-  const { page: initialPage = 1, ...otherFilters } = rawFilters;
+  // ✔︎ Pull out page and explicitly discard any incoming limit
+  const { page: initialPage = 1, limit: _discarded, ...otherFilters } = rawFilters;
 
-  // Always default to 12, never take a limit from filters
+  // ✔︎ Always 12 per page
   const [page,  setPage]  = useState(initialPage);
-  const [limit, setLimit] = useState(12);
+  const [limit] = useState(12);
 
   const [quizzes, setQuizzes] = useState([]);
   const [total,   setTotal]   = useState(0);
@@ -19,7 +19,7 @@ export default function useQuizList(rawFilters = {}) {
     setLoading(true);
     setError('');
 
-    // build params: page + fixed limit + any non-empty filters (category, topic, level…)
+    // Build params: fixed limit + page + only non-empty filters
     const params = { page, limit };
     for (const [key, value] of Object.entries(otherFilters)) {
       if (value != null && value !== '') {
@@ -34,16 +34,15 @@ export default function useQuizList(rawFilters = {}) {
         const d = res.data;
         setQuizzes(Array.isArray(d.quizzes) ? d.quizzes : []);
         setTotal(typeof d.total === 'number' ? d.total : 0);
-        // Sync page/limit if your API echoes them back
-        setPage(d.page  ?? page);
-        setLimit(d.limit ?? limit);
+        // If your API echoes back page (but probably not limit):
+        setPage(d.page ?? page);
       })
       .catch(err => {
         console.error('❌ Quiz list fetch error:', err);
         setError(err.response?.data?.message || err.message);
       })
       .finally(() => setLoading(false));
-  }, [page, limit, JSON.stringify(otherFilters)]);
+  }, [page, JSON.stringify(otherFilters)]); // limit never changes so omit it
 
   return { quizzes, total, page, limit, loading, error };
 }
