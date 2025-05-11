@@ -1,59 +1,60 @@
-// // src/pages/AdminUsersPage.jsx
+// // src/pages/admin/Users/AdminUsersPage.jsx
 // import React, { useEffect, useState } from "react";
-// import { Link } from "react-router-dom";
 // import { useNavigate, useLocation } from "react-router-dom";
 // import { FaPlus, FaSearch, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 // import API from "../../../services/axios";
 
 // export default function AdminUsersPage() {
-//   const [users, setUsers] = useState([]);
+//   const [users, setUsers]       = useState([]);
 //   const [filtered, setFiltered] = useState([]);
-//   const [query, setQuery] = useState("");
-//   const [page, setPage] = useState(1);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
+//   const [query, setQuery]       = useState("");
+//   const [page, setPage]         = useState(1);
+//   const [loading, setLoading]   = useState(true);
+//   const [error, setError]       = useState(null);
+
 //   const navigate = useNavigate();
 //   const { pathname } = useLocation();
+
 //   const usersPerPage = 10;
-//   const totalPages = Math.ceil(filtered.length / usersPerPage);
-//   const pageItems = filtered.slice(
+//   const totalPages   = Math.ceil(filtered.length / usersPerPage);
+//   const pageItems    = filtered.slice(
 //     (page - 1) * usersPerPage,
 //     page * usersPerPage
 //   );
 
-//   useEffect(fetchUsers, [pathname]);
-
-//   async function fetchUsers() {
-//     setLoading(true);
-//     try {
-//       const { data } = await API.get("/admin/users");
-//       const list = Array.isArray(data) ? data : data.users || [];
-//       setUsers(list);
-//       setFiltered(list);
-//     } catch (err) {
-//       console.error(err);
-//       setError("Could not load users.");
-//     } finally {
-//       setLoading(false);
+//   useEffect(() => {
+//     async function fetchUsers() {
+//       setLoading(true);
+//       try {
+//         const { data } = await API.get("/admin/users");
+//         const list = Array.isArray(data) ? data : data.users || [];
+//         setUsers(list);
+//         setFiltered(list);
+//       } catch (err) {
+//         console.error(err);
+//         setError("Could not load users.");
+//       } finally {
+//         setLoading(false);
+//       }
 //     }
-//   }
+//     fetchUsers();
+//   }, [pathname]);
 
 //   function handleSearch(e) {
 //     const q = e.target.value.toLowerCase();
 //     setQuery(q);
 //     setPage(1);
 //     setFiltered(
-//       users.filter(
-//         (u) =>
-//           u.name.toLowerCase().includes(q) ||
-//           u.email.toLowerCase().includes(q) ||
-//           u.role.toLowerCase().includes(q)
+//       users.filter((user) =>
+//         user.name.toLowerCase().includes(q) ||
+//         user.email.toLowerCase().includes(q) ||
+//         user.role.toLowerCase().includes(q)
 //       )
 //     );
 //   }
 
 //   async function handleDelete(id) {
-//     if (!confirm("Delete this user?")) return;
+//     if (!window.confirm("Delete this user?")) return;
 //     try {
 //       await API.delete(`/admin/users/${id}`);
 //       const updated = users.filter((u) => u._id !== id);
@@ -100,39 +101,42 @@
 //             <table className="min-w-full divide-y divide-gray-200">
 //               <thead className="bg-gray-50">
 //                 <tr>
-//                   {["Name", "Email", "Role", "Status", "Actions"].map(
-//                     (h, i) => (
-//                       <th
-//                         key={i}
-//                         className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-//                           h === "Actions" ? "text-right" : ""
-//                         }`}
-//                       >
-//                         {h}
-//                       </th>
-//                     )
-//                   )}
+//                   {["Name", "Email", "Role", "Status", "Actions"].map((h, i) => (
+//                     <th
+//                       key={i}
+//                       className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+//                         h === "Actions" ? "text-right" : ""
+//                       }`}
+//                     >
+//                       {h}
+//                     </th>
+//                   ))}
 //                 </tr>
 //               </thead>
 //               <tbody className="divide-y divide-gray-100">
 //                 {pageItems.map((user) => (
 //                   <tr key={user._id} className="hover:bg-gray-50 transition">
-//                     <td className="p-3">
-//                       <td>
-//                         <button
-//                           onClick={() => navigate(`users/${u._id}/history`)}
-//                           className="text-indigo-600 hover:underline"
-//                         >
-//                           {u.name}
-//                         </button>
-//                       </td>
+//                     {/* Name with history link */}
+//                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+//                       <button
+//                         onClick={() => navigate(`/admin/users/${user._id}/history`)}
+//                         className="text-indigo-600 hover:underline"
+//                       >
+//                         {user.name}
+//                       </button>
 //                     </td>
+
+//                     {/* Email */}
 //                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
 //                       {user.email}
 //                     </td>
+
+//                     {/* Role */}
 //                     <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-600">
 //                       {user.role}
 //                     </td>
+
+//                     {/* Status */}
 //                     <td className="px-6 py-4 whitespace-nowrap text-sm">
 //                       {user.isVerified ? (
 //                         <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
@@ -144,27 +148,27 @@
 //                         </span>
 //                       )}
 //                     </td>
+
+//                     {/* Actions */}
 //                     <td className="px-6 py-4 whitespace-nowrap text-sm text-right flex justify-end items-center gap-3">
 //                       <button
 //                         onClick={() => navigate(`/admin/users/${user._id}`)}
-//                         className="p-1 hover:text-indigo-600 transition"
 //                         title="View"
+//                         className="p-1 hover:text-indigo-600 transition"
 //                       >
 //                         <FaEye />
 //                       </button>
 //                       <button
-//                         onClick={() =>
-//                           navigate(`/admin/users/${user._id}/edit`)
-//                         }
-//                         className="p-1 hover:text-yellow-600 transition"
+//                         onClick={() => navigate(`/admin/users/${user._id}/edit`)}
 //                         title="Edit"
+//                         className="p-1 hover:text-yellow-600 transition"
 //                       >
 //                         <FaEdit />
 //                       </button>
 //                       <button
 //                         onClick={() => handleDelete(user._id)}
-//                         className="p-1 hover:text-red-600 transition"
 //                         title="Delete"
+//                         className="p-1 hover:text-red-600 transition"
 //                       >
 //                         <FaTrash />
 //                       </button>
@@ -179,8 +183,8 @@
 //           <div className="flex justify-between items-center text-sm text-gray-600">
 //             <div>
 //               Showing <strong>{(page - 1) * usersPerPage + 1}</strong> to{" "}
-//               <strong>{Math.min(page * usersPerPage, filtered.length)}</strong>{" "}
-//               of <strong>{filtered.length}</strong> users
+//               <strong>{Math.min(page * usersPerPage, filtered.length)}</strong> of{" "}
+//               <strong>{filtered.length}</strong> users
 //             </div>
 //             <div className="flex items-center gap-2">
 //               <button
@@ -254,10 +258,10 @@ export default function AdminUsersPage() {
     setQuery(q);
     setPage(1);
     setFiltered(
-      users.filter((user) =>
-        user.name.toLowerCase().includes(q) ||
-        user.email.toLowerCase().includes(q) ||
-        user.role.toLowerCase().includes(q)
+      users.filter((u) =>
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.role.toLowerCase().includes(q)
       )
     );
   }
@@ -310,41 +314,52 @@ export default function AdminUsersPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  {["Name", "Email", "Role", "Status", "Actions"].map((h, i) => (
-                    <th
-                      key={i}
-                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                        h === "Actions" ? "text-right" : ""
-                      }`}
-                    >
-                      {h}
-                    </th>
-                  ))}
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  {/* Separate action columns */}
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    View
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Edit
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Delete
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {pageItems.map((user) => (
                   <tr key={user._id} className="hover:bg-gray-50 transition">
-                    {/* Name with history link */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {/* Name as history link */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-600">
                       <button
-                        onClick={() => navigate(`/admin/users/${user._id}/history`)}
-                        className="text-indigo-600 hover:underline"
+                        onClick={() =>
+                          navigate(`/admin/users/${user._id}/history`)
+                        }
+                        className="hover:underline"
                       >
                         {user.name}
                       </button>
                     </td>
-
                     {/* Email */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {user.email}
                     </td>
-
                     {/* Role */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-600">
                       {user.role}
                     </td>
-
                     {/* Status */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {user.isVerified ? (
@@ -357,27 +372,36 @@ export default function AdminUsersPage() {
                         </span>
                       )}
                     </td>
-
-                    {/* Actions */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right flex justify-end items-center gap-3">
+                    {/* View */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                       <button
-                        onClick={() => navigate(`/admin/users/${user._id}`)}
+                        onClick={() =>
+                          navigate(`/admin/users/${user._id}`)
+                        }
+                        className="p-1 text-indigo-600 hover:bg-indigo-50 rounded-full transition"
                         title="View"
-                        className="p-1 hover:text-indigo-600 transition"
                       >
                         <FaEye />
                       </button>
+                    </td>
+                    {/* Edit */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                       <button
-                        onClick={() => navigate(`/admin/users/${user._id}/edit`)}
+                        onClick={() =>
+                          navigate(`/admin/users/${user._id}/edit`)
+                        }
+                        className="p-1 text-yellow-600 hover:bg-yellow-50 rounded-full transition"
                         title="Edit"
-                        className="p-1 hover:text-yellow-600 transition"
                       >
                         <FaEdit />
                       </button>
+                    </td>
+                    {/* Delete */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                       <button
                         onClick={() => handleDelete(user._id)}
+                        className="p-1 text-red-600 hover:bg-red-50 rounded-full transition"
                         title="Delete"
-                        className="p-1 hover:text-red-600 transition"
                       >
                         <FaTrash />
                       </button>
@@ -392,8 +416,10 @@ export default function AdminUsersPage() {
           <div className="flex justify-between items-center text-sm text-gray-600">
             <div>
               Showing <strong>{(page - 1) * usersPerPage + 1}</strong> to{" "}
-              <strong>{Math.min(page * usersPerPage, filtered.length)}</strong> of{" "}
-              <strong>{filtered.length}</strong> users
+              <strong>
+                {Math.min(page * usersPerPage, filtered.length)}
+              </strong>{" "}
+              of <strong>{filtered.length}</strong> users
             </div>
             <div className="flex items-center gap-2">
               <button
