@@ -83,20 +83,45 @@ function AppInitializer({ children }) {
   const navigate = useNavigate();
 
   // Fix: prevent users being stuck in admin route
+  // useEffect(() => {
+  //   if (!loading && user) {
+  //     const path = location.pathname;
+  //     const role = user.role?.toUpperCase();
+
+  //     if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
+  //       navigate('/dashboard', { replace: true });
+  //     }
+
+  //     if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
+  //       navigate('/admin', { replace: true });
+  //     }
+  //   }
+  // }, [loading, user, location.pathname]);
+
+
   useEffect(() => {
-    if (!loading && user) {
-      const path = location.pathname;
-      const role = user.role?.toUpperCase();
+  if (!loading && user) {
+    // 1) Safely grab the role name string
+    const rawName = user.role?.name;
+    const role    = typeof rawName === 'string' 
+      ? rawName.toUpperCase() 
+      : '';
 
-      if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
-        navigate('/dashboard', { replace: true });
-      }
+    const path = location.pathname;
 
-      if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
-        navigate('/admin', { replace: true });
-      }
+    // 2) If a non-admin hit an /admin/* URL, boot them back to /dashboard
+    if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
+      navigate('/dashboard', { replace: true });
     }
-  }, [loading, user, location.pathname]);
+
+    // 3) If an admin is on the user dashboard, send them into the admin panel
+    if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
+      navigate('/admin/users', { replace: true });
+    }
+  }
+}, [loading, user, location.pathname, navigate]);
+
+
 
   if (loading) {
     return (
