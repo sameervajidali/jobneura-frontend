@@ -28,16 +28,31 @@ import Topbar     from "../components/admin/Topbar";
 
 export default function AdminDashboardLayout() {
   return (
-    <div className="flex h-screen overflow-hidden">
-      <SidebarNav />
-      <div className="flex-1 flex flex-col overflow-auto">
-        <Topbar />
+    // <div className="flex h-screen overflow-hidden">
+    //   <SidebarNav />
+    //   <div className="flex-1 flex flex-col overflow-auto">
+    //     <Topbar />
        
-       <main className="flex-1 overflow-auto p-4 max-w-7xl mx-auto">
-         {/* This is where your nested /admin/* routes will render */}
-         <Outlet />
-       </main>
+    //    <main className="flex-1 overflow-auto p-4 max-w-7xl mx-auto">
+    //      {/* This is where your nested /admin/* routes will render */}
+    //      <Outlet />
+    //    </main>
+    //   </div>
+    // </div>
+    <div className="flex h-screen overflow-hidden">
+  <SidebarNav />
+
+  <div className="flex-1 flex flex-col overflow-hidden">
+    <Topbar />
+
+    {/* adjust from overflow-auto here ↓ */}
+    <main className="flex-1 overflow-auto pt-4 px-6 pb-6 max-w-screen-xl mx-auto">
+      <div className="space-y-6">
+        <Outlet/>
       </div>
-    </div>
+    </main>
+  </div>
+</div>
+
   );
 }
