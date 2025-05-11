@@ -41,18 +41,13 @@
 import { useState, useEffect } from 'react';
 import API from '../services/axios.js';
 
-export default function useQuizList(rawFilters = {}) {
-  // pull out page & limit, with defaults
-  const {
-    page: initialPage = 1,
-    limit: initialLimit = 12,
-    ...otherFilters
-  } = rawFilters;
+export default function useQuizList(filters = {}) {
+  // initialize page & limit (defaults: 1 & 12)
+  const [page,  setPage]  = useState(filters.page  || 1);
+  const [limit, setLimit] = useState(filters.limit || 12);
 
   const [quizzes, setQuizzes] = useState([]);
   const [total,   setTotal]   = useState(0);
-  const [page,    setPage]    = useState(initialPage);
-  const [limit,   setLimit]   = useState(initialLimit);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState('');
 
@@ -60,30 +55,32 @@ export default function useQuizList(rawFilters = {}) {
     setLoading(true);
     setError('');
 
-    // build params object, stripping out any empty / falsy values
-    const params = { page, limit };
-    for (const [key, value] of Object.entries(otherFilters)) {
-      if (value != null && value !== '') {
-        params[key] = value;
+    // strip out only the other filter keys (category, topic, level, etc)
+    const cleaned = {};
+    for (const key in filters) {
+      if (filters[key] != null && filters[key] !== '') {
+        cleaned[key] = filters[key];
       }
     }
 
+    // build full params including page & limit
+    const params = { page, limit, ...cleaned };
+
     API.get('/quizzes', { params })
       .then(res => {
-        // your API should return { quizzes: [], total: number, page, limit }
         const data = res.data;
+        // server should echo back quizzes, total, page, limit
         setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
         setTotal(typeof data.total === 'number' ? data.total : 0);
-        // if your API echoes back page & limit, you can sync state here:
-        setPage(data.page    ?? page);
-        setLimit(data.limit  ?? limit);
+        setPage(data.page  ?? page);
+        setLimit(data.limit ?? limit);
       })
       .catch(err => {
         console.error('Quiz list fetch error:', err);
         setError(err.response?.data?.message || err.message);
       })
       .finally(() => setLoading(false));
-  }, [page, limit, JSON.stringify(otherFilters)]);
+  }, [page, limit, JSON.stringify(filters)]);
 
   return { quizzes, total, page, limit, loading, error };
 }
