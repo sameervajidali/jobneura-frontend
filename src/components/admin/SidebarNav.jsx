@@ -97,7 +97,7 @@ export default function SidebarNav() {
     : '';
 
   return (
-     <aside className="hidden md:flex flex-col w-64 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+     <aside className="hidden md:flex  p-6 flex-col w-64 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
        <div className="px-6 py-4 text-lg font-bold text-indigo-700 dark:text-indigo-300 border-b border-gray-200 dark:border-gray-700">
         JobNeura
       </div>

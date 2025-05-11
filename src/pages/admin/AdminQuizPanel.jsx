@@ -109,11 +109,11 @@ export default function AdminQuizPanel() {
                 <tr key={q._id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                   <td className="px-6 py-4 text-center whitespace-normal">
                     <Link to={`/admin/quizzes/${q._id}/questions`} className="text-indigo-600 hover:underline">
-                      {q.title}
+                      {q.topic}
                     </Link>
                   </td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category}</td>
-                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.topic}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.title}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.level}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">
                     {q.questions?.length ?? 0}
