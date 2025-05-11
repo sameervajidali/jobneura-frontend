@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaEye } from 'react-icons/fa';
-import { getAllTickets } from '../../../services/ticketService';
+import { getAllTickets } from '../../services/ticketService';
 
 export default function TicketListPage() {
   const [tickets, setTickets] = useState([]);

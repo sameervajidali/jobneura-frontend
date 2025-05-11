@@ -1,7 +1,7 @@
 // src/pages/admin/TicketDetailsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTicketById, updateTicketStatus } from '../../../services/ticketService';
+import { getTicketById, updateTicketStatus } from '../../services/ticketService';
 
 export default function TicketDetailsPage() {
   const { ticketId } = useParams();
