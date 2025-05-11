@@ -111,7 +111,7 @@ export default function QuizList({ filters, onPageChange }) {
     quizzes = [],
     total = 0,
     page = 1,
-    limit = 10,
+    limit = 12,
     loading,
     error,
   } = useQuizList(filters) || {};
