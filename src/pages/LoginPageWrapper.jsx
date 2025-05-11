@@ -11,7 +11,7 @@ export default function LoginPageWrapper() {
 
   useEffect(() => {
     if (!loading && user) {
-      const role = user.role?.toUpperCase();
+      const role = user.role?.name
       const stored = localStorage.getItem("loginRedirectFrom");
 
       if (ADMIN_ROLES.includes(role)) {

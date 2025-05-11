@@ -1,55 +1,73 @@
 // src/pages/admin/Users/UserForm.jsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams }     from "react-router-dom";
-import API                             from "../../../services/axios";
-import { VALID_ROLES }                 from "../../../constants/roles";
+import { useNavigate, useParams } from "react-router-dom";
+import { getAllRoles, createUser, updateUser } from "../../../services/userService";
 
 export default function UserForm() {
-  const { id }       = useParams();       // defined on /admin/users/:id/edit
-  const navigate     = useNavigate();
-  const isEdit       = Boolean(id);
+  const { id } = useParams();           // defined on /admin/users/:id/edit
+  const isEdit = Boolean(id);
+  const navigate = useNavigate();
 
+  // all available roles from backend
+  const [roles, setRoles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");  // success or error
   const [form, setForm] = useState({
     name:     "",
     email:    "",
-    role:     VALID_ROLES[0].toUpperCase(),
+    role:     "",      // will hold role._id
     password: "",
-    status:   true,
+    isVerified: true,
   });
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");  // success or error
 
-  // Fetch user on edit, or reset on create
+  // Load roles on mount
   useEffect(() => {
-    if (isEdit) {
-      setLoading(true);
-      API.get(`/admin/users/${id}`)
-        .then(res => {
-          const data = res.data.user ?? res.data;
-          setForm({
-            name:     data.name,
-            email:    data.email,
-            role:     data.role.toUpperCase(),
-            password: "",
-            status:   data.status,
-          });
-          setMessage("");
-        })
-        .catch(() => {
-          setMessage("Failed to load user data.");
-        })
-        .finally(() => setLoading(false));
-    } else {
-      // reset form for “create” mode
-      setForm({
-        name:     "",
-        email:    "",
-        role:     VALID_ROLES[0].toUpperCase(),
-        password: "",
-        status:   true,
-      });
-      setMessage("");
+    async function fetchRoles() {
+      try {
+        const data = await getAllRoles();
+        setRoles(data);
+        // set default role for creation
+        if (!isEdit && data.length) {
+          setForm(f => ({ ...f, role: data[0]._id }));
+        }
+      } catch (err) {
+        console.error("Failed to load roles:", err);
+      }
     }
+    fetchRoles();
+  }, [isEdit]);
+
+  // Fetch user on edit
+  useEffect(() => {
+    if (!isEdit) return;
+    setLoading(true);
+    async function fetchUser() {
+      try {
+        const data = await getAllRoles();
+      } catch {
+        // ignore
+      }
+      try {
+        const payload = await fetch(`/admin/users/${id}`); // adjust endpoint if needed
+        // or use service: const userData = await getUserById(id)
+        const res = await fetch(`/api/admin/users/${id}`);
+        const { user } = await res.json();
+        setForm({
+          name:       user.name,
+          email:      user.email,
+          role:       user.role._id,
+          password:   "",
+          isVerified: user.isVerified,
+        });
+        setMessage("");
+      } catch (err) {
+        console.error(err);
+        setMessage("Failed to load user data.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUser();
   }, [id, isEdit]);
 
   const handleChange = e => {
@@ -66,23 +84,26 @@ export default function UserForm() {
     setMessage("");
 
     const payload = {
-      ...form,
-      role: form.role.toUpperCase(),
+      name:       form.name,
+      email:      form.email,
+      role:       form.role,
+      isVerified: form.isVerified,
     };
+    // include password only on create
+    if (!isEdit) payload.password = form.password;
 
     try {
       if (isEdit) {
-        await API.put(`/admin/users/${id}`, payload);
+        await updateUser(id, payload);
         setMessage("User updated successfully.");
       } else {
-        await API.post("/admin/users", payload);
+        await createUser(payload);
         setMessage("User created successfully.");
       }
-
-      // redirect back to user list after a short pause
       setTimeout(() => navigate("/admin/users"), 1000);
     } catch (err) {
-      setMessage(err.response?.data?.message || "Failed to submit user.");
+      console.error(err);
+      setMessage(err?.response?.data?.message || "Failed to submit user.");
     } finally {
       setLoading(false);
     }
@@ -97,7 +118,9 @@ export default function UserForm() {
       {message && (
         <div
           className={`mb-4 p-3 rounded ${
-            message.includes("success") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+            message.includes("success")
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
           }`}
         >
           {message}
@@ -128,7 +151,7 @@ export default function UserForm() {
             value={form.email}
             onChange={handleChange}
             required
-            disabled={loading || isEdit}  // prevent changing email on edit
+            disabled={loading || isEdit}
             className={`w-full px-3 py-2 border rounded ${
               isEdit ? "bg-gray-100 cursor-not-allowed" : ""
             }`}
@@ -161,14 +184,11 @@ export default function UserForm() {
             disabled={loading}
             className="w-full px-3 py-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
           >
-            {VALID_ROLES.map(r => {
-              const val = r.toUpperCase();
-              return (
-                <option key={val} value={val}>
-                  {val}
-                </option>
-              );
-            })}
+            {roles.map(r => (
+              <option key={r._id} value={r._id}>
+                {r.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -176,13 +196,13 @@ export default function UserForm() {
         <div className="flex items-center">
           <input
             type="checkbox"
-            name="status"
-            checked={form.status}
+            name="isVerified"
+            checked={form.isVerified}
             onChange={handleChange}
             disabled={loading}
             className="h-4 w-4 text-indigo-600"
           />
-          <label className="ml-2 text-sm">Active</label>
+          <label className="ml-2 text-sm">Verified</label>
         </div>
 
         {/* Submit */}
