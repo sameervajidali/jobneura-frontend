@@ -12,13 +12,11 @@ export default function AdminDashboardLayout() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />
 
+        {/* 
+          pl-0 on mobile, pl-64 on md+  → reserves the sidebar width 
+          px-4 .. px-8               → responsive gutters 
+        */}
         <main className="flex-1 overflow-auto">
-          {/*
-            1) pl-64 on md+ reserves space for the 16rem-wide sidebar
-            2) px-6 always gives you your horizontal gutters
-            3) All your page-content lives inside the max-w-screen-xl box
-               which is centered within that padded area
-          */}
           <div className="pl-0 md:pl-64 px-4 sm:px-6 lg:px-8 py-6">
             <div className="max-w-screen-xl mx-auto space-y-6">
               <Outlet />
