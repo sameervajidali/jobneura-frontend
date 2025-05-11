@@ -176,23 +176,25 @@ if (!isEdit && data.length) {
         )}
 
         {/* Role */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Role</label>
-           <select
-            name="role"
-           value={form.role}
-            onChange={handleChange}
-            disabled={loading}
-            className="w-full px-3 py-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            {roles.map(r => (
-              // value should be the ENUM name, not the ObjectId
-              <option key={r._id} value={r.name}>
-                {r.name.charAt(0) + r.name.slice(1).toLowerCase()}
-              </option>
-            ))}
-          </select>
-        </div>
+       {/* Role */}
+<div>
+  <label className="block text-sm font-medium mb-1">Role</label>
+  <select
+    name="role"
+    value={form.role}
+    onChange={handleChange}
+    disabled={loading}
+    className="w-full px-3 py-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+  >
+    {roles.map(r => (
+      // r.name is already one of: USER, MODERATOR, etc.
+      <option key={r._id} value={r.name}>
+        {r.name.charAt(0).toUpperCase() + r.name.slice(1).toLowerCase()}
+      </option>
+    ))}
+  </select>
+</div>
+
 
         {/* Status */}
         <div className="flex items-center">
