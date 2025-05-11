@@ -79,6 +79,7 @@ import TicketDetailsPage from "./pages/admin/TicketDetailsPage";
 import CategoryForm from "./pages/admin/CategoryForm";
 import TopicsPage from "./pages/admin/TopicsPage";
 import TopicForm from "./pages/admin/TopicForm";
+import CategoriesPage from "./pages/admin/CategoriesPage";
 
 // 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
