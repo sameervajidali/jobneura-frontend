@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      const role = user.role?.toUpperCase(); // ✅ ensure uppercase match
+      const role = user.role.name?.toUpperCase(); // ✅ ensure uppercase match
       console.log("🔐 User after login:", user);
 console.log("🔐 Role check:", user.role?.toUpperCase(), ADMIN_ROLES.includes(user.role?.toUpperCase()));
 
