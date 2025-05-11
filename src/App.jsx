@@ -73,6 +73,7 @@ import LoginPageWrapper from "./pages/LoginPageWrapper";
 import AdminRolesPage from "./pages/admin/Roles/AdminRolesPage";
 import RoleForm from "./pages/admin/Roles/RoleForm";
 import ReportsPage from "./pages/admin/Reports/ReportsPage";
+import SettingsPage from "./pages/admin/SettingsPage";
 
 // 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
@@ -204,6 +205,7 @@ function LayoutWrapper() {
               <Route path="roles" element={<AdminRolesPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="reports" element={<ReportsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
 
               <Route path="roles/new" element={<RoleForm />} />
               <Route path="roles/:id/edit" element={<RoleForm />} />
