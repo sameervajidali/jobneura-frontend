@@ -108,127 +108,117 @@
 
 
 // src/components/quizzes/QuizSidebar.jsx
-import React, { useState, useEffect } from 'react';
-import { Disclosure } from '@headlessui/react';
+// src/components/quizzes/QuizList.jsx
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import useQuizList from '../../hooks/useQuizList';
 import {
-  ChevronUpIcon,
-  ChevronRightIcon,
-  CollectionIcon,
-} from '@heroicons/react/outline';
-import { BookOpenIcon, BadgeCheckIcon } from '@heroicons/react/solid';
-import API from '../../services/axios';
+  BookOpenIcon,
+  ClockIcon,
+  UserIcon,
+  BookmarkIcon,
+  ArrowPathIcon,
+  ChartBarIcon,
+  StarIcon,
+  ArrowRightIcon,
+} from '@heroicons/react/24/outline';
 
-export default function QuizSidebar({ filters = {}, onChange }) {
-  const [data, setData] = useState([]);
-  const [levels, setLevels] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function QuizList({ filters, onPageChange }) {
+  const navigate = useNavigate();
+  const { quizzes = [], total = 0, page = 1, limit = 10, loading, error } = useQuizList(filters);
 
-  // fetch categories & topics and levels
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [catsRes, levelsRes] = await Promise.all([
-          API.get('/quizzes/grouped-topics'),
-          API.get('/quizzes/distinct/level'),
-        ]);
-        if (cancelled) return;
-        setData(catsRes.data);            // expected: [{ category, topics: [...] }, ...]
-        setLevels(levelsRes.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true };
-  }, []);
+  if (loading) return <p className="p-6 text-center text-gray-500">Loading quizzes…</p>;
+  if (error)   return <p className="p-6 text-center text-red-500">{error}</p>;
+  if (!quizzes.length) return <p className="p-6 text-center text-gray-500">No quizzes found.</p>;
 
-  if (loading) return (
-    <aside className="w-64 p-4">
-      <p className="text-gray-500">Loading filters…</p>
-    </aside>
-  );
+  const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
 
   return (
-    <aside className="w-64 bg-white border-r shadow-sm p-4 space-y-6 sticky top-20 h-[calc(100vh-5rem)] overflow-auto">
-      {/* Category / Topic Accordions */}
-      <div className="space-y-2">
-        {data.map(({ category, topics }) => (
-          <Disclosure key={category}>
-            {({ open }) => (
-              <>
-                <Disclosure.Button
-                  className={`flex items-center justify-between w-full px-3 py-2 text-left rounded-lg
-                    ${filters.category === category
-                      ? 'bg-indigo-100 text-indigo-700'
-                      : 'hover:bg-gray-50 text-gray-700'}`}
-                  onClick={() => {
-                    onChange({ ...filters, category, topic: '', page: 1 });
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <CollectionIcon className="w-5 h-5" />
-                    <span className="font-medium">{category}</span>
-                  </div>
-                  {open ? (
-                    <ChevronUpIcon className="w-5 h-5 text-gray-500" />
-                  ) : (
-                    <ChevronRightIcon className="w-5 h-5 text-gray-500" />
-                  )}
-                </Disclosure.Button>
-                <Disclosure.Panel className="pl-8 space-y-1">
-                  {topics.map((t) => (
-                    <button
-                      key={t}
-                      className={`flex items-center gap-2 w-full px-2 py-1 text-sm rounded-lg text-gray-600
-                        ${filters.topic === t
-                          ? 'bg-indigo-50 text-indigo-700'
-                          : 'hover:bg-gray-50'}`}
-                      onClick={() =>
-                        onChange({ ...filters, topic: t, page: 1 })
-                      }
-                    >
-                      <BookOpenIcon className="w-4 h-4" />
-                      <span>{t}</span>
-                    </button>
-                  ))}
-                </Disclosure.Panel>
-              </>
-            )}
-          </Disclosure>
-        ))}
+    <div className="space-y-8">
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {quizzes.map(q => {
+          const createdAt = new Date(q.createdAt).getTime();
+          const isNew = Date.now() - createdAt < ONE_WEEK;
+          return (
+            <div
+              key={q._id}
+              className="bg-white p-6 rounded-2xl shadow transition hover:shadow-lg hover:-translate-y-1"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="text-xl font-semibold text-indigo-700">{q.title}</h3>
+                {isNew && (
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">
+                    New
+                  </span>
+                )}
+              </div>
+
+              {/* Difficulty Badge */}
+              {q.level && (
+                <div className="mt-2">
+                  <span className="inline-block px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full">
+                    {q.level}
+                  </span>
+                </div>
+              )}
+
+              {/* Stats */}
+              <div className="mt-4 space-y-3 text-gray-600">
+                <div className="flex items-center gap-2">
+                  <BookOpenIcon className="w-5 h-5" />
+                  <span className="font-medium">{q.questionCount || 0} Questions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ClockIcon className="w-5 h-5" />
+                  <span className="font-medium">{q.duration || 0} min</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <UserIcon className="w-5 h-5" />
+                  <span className="font-medium">{q.attemptCount || 0} attempts</span>
+                </div>
+              </div>
+
+              {/* Micro-actions */}
+              <div className="mt-4 flex items-center justify-between text-gray-400">
+                <button className="hover:text-indigo-500"><BookmarkIcon className="w-5 h-5" /></button>
+                <button className="hover:text-indigo-500"><ArrowPathIcon className="w-5 h-5" /></button>
+                <button className="hover:text-indigo-500"><ChartBarIcon className="w-5 h-5" /></button>
+              </div>
+
+              {/* Start Quiz CTA */}
+              <button
+                onClick={() => navigate(`/quiz/${q._id}/start`)}
+                className="mt-6 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium transition"
+              >
+                <StarIcon className="w-5 h-5" />
+                Start Quiz
+                <ArrowRightIcon className="w-5 h-5" />
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Level Filter */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Level
-        </label>
-        <select
-          className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-          value={filters.level || ''}
-          onChange={(e) =>
-            onChange({ ...filters, level: e.target.value, page: 1 })
-          }
+      {/* Pagination */}
+      <div className="flex justify-center items-center space-x-4">
+        <button
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+          disabled={page === 1}
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
         >
-          <option value="">All Levels</option>
-          {levels.map((lvl) => (
-            <option key={lvl} value={lvl}>
-              {lvl}
-            </option>
-          ))}
-        </select>
+          Prev
+        </button>
+        <span className="text-gray-700">
+          Page <strong>{page}</strong> of <strong>{Math.ceil(total / limit)}</strong>
+        </span>
+        <button
+          onClick={() => onPageChange(page + 1)}
+          disabled={page * limit >= total}
+          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
-
-      {/* Clear Filters */}
-      <button
-        className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition"
-        onClick={() => onChange({ category: '', topic: '', level: '', page: 1 })}
-      >
-        <BadgeCheckIcon className="w-5 h-5" />
-        Clear Filters
-      </button>
-    </aside>
+    </div>
   );
 }
