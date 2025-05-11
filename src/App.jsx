@@ -117,7 +117,7 @@ useEffect(() => {
       navigate('/dashboard', { replace: true });
     }
     if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
-      navigate('/admin/users', { replace: true });
+      navigate('/admin', { replace: true });
     }
   }
 }, [loading, user, location.pathname, navigate]);
