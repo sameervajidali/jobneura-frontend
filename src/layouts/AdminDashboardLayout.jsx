@@ -7,21 +7,22 @@ import Topbar     from "../components/admin/Topbar";
 export default function AdminDashboardLayout() {
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* fixed 64px sidebar */}
       <SidebarNav />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />
 
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto">
           {/*
-            - w-full: span full width of free space
-            - max-w-screen-xl: cap at XL
-            - mx-auto: center within its container
-            - md:ml-64: push right by sidebar width on md+ so it never hides under sidebar 
+            1) pl-64 on md+ reserves space for the 16rem-wide sidebar
+            2) px-6 always gives you your horizontal gutters
+            3) All your page-content lives inside the max-w-screen-xl box
+               which is centered within that padded area
           */}
-          <div className="w-full max-w-screen-xl mx-auto md:ml-64 space-y-6">
-            <Outlet />
+          <div className="pl-0 md:pl-64 px-4 sm:px-6 lg:px-8 py-6">
+            <div className="max-w-screen-xl mx-auto space-y-6">
+              <Outlet />
+            </div>
           </div>
         </main>
       </div>
