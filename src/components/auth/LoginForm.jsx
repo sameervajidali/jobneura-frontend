@@ -277,7 +277,7 @@ export default function LoginForm() {
     const stored = localStorage.getItem('loginRedirectFrom');
 
     if (ADMIN_ROLES.includes(role)) {
-      navigate('/admin', { replace: true });
+      navigate('/admin/users', { replace: true });
     } else if (stored && stored !== '/login') {
       navigate(stored, { replace: true });
       localStorage.removeItem('loginRedirectFrom');
