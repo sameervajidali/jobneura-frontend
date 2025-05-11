@@ -204,7 +204,7 @@ export default function CreateQuizForm() {
     title:      '',
     category:   '',
     topic:      '',
-    level:      '',      // match backend enum: easy, medium, hard
+    level:      'Beginner',      // match backend enum: easy, medium, hard
     duration:   10,
     totalMarks: 0,
     isActive:   true,
@@ -268,7 +268,7 @@ export default function CreateQuizForm() {
   });
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="p-3 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Create Quiz</h1>
 
       {/* Mode Tabs */}
