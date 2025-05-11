@@ -12,24 +12,32 @@ export default function RoleForm() {
   const [form, setForm] = useState({
     name:        '',
     description: '',
-    permissions: '',
+    permissions: '',   // comma-separated string
   });
   const [loading, setLoading] = useState(isEdit);
   const [error,   setError]   = useState('');
 
-  // If editing, load existing role
+  // Load existing role if editing
   useEffect(() => {
     if (!isEdit) return;
-    getRoleById(id)
-      .then(r => {
+    (async () => {
+      try {
+        const raw = await getRoleById(id);
+        console.log('getRoleById returned:', raw);
+        // Unwrap payload: accept either raw or { role: raw }
+        const r = raw.role || raw;
         setForm({
-          name:        r.name,
+          name:        r.name || '',
           description: r.description || '',
           permissions: (r.permissions || []).join(', ')
         });
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+      } catch (e) {
+        console.error(e);
+        setError(e.message || 'Failed to load role');
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id, isEdit]);
 
   const handleChange = e => {
@@ -40,6 +48,7 @@ export default function RoleForm() {
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
+    // Build the payload
     const payload = {
       name:        form.name.trim(),
       description: form.description.trim(),
@@ -57,6 +66,7 @@ export default function RoleForm() {
       }
       navigate('/admin/roles');
     } catch (e) {
+      console.error(e);
       setError(e.message || 'Save failed');
     }
   };
@@ -70,9 +80,7 @@ export default function RoleForm() {
       </h1>
 
       {error && (
-        <div className="mb-4 text-red-600">
-          {error}
-        </div>
+        <div className="mb-4 text-red-600">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">

@@ -223,7 +223,7 @@ export default function AdminUsersPage() {
         const { data } = await API.get("/admin/users");
         const list = Array.isArray(data) ? data : data.users || [];
         // Only end-users
-        setUsers(list.filter(u => u.role === "USER"));
+        setUsers(list.filter(u => u.role.name === "USER"));
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
                     {user.email}
                   </td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">
-                    {user.role.toLowerCase()}
+                    {user.role.name.toLowerCase()}
                   </td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm">
                     {user.isVerified ? '✅ Verified' : '⏳ Pending'}

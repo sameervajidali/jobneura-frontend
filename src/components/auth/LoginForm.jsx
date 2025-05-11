@@ -224,7 +224,7 @@ export default function LoginForm() {
   };
 
 const redirectUser = (user) => {
-  const role = user.role?.toUpperCase();
+  const role = user.role.name?.toUpperCase();
   const stored = localStorage.getItem('loginRedirectFrom');
 
   if (ADMIN_ROLES.includes(role)) {
