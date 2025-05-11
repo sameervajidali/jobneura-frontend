@@ -117,8 +117,8 @@ function LayoutWrapper() {
 
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isAdmin =
-    user?.role &&
-    ADMIN_ROLES.includes(user.role.toUpperCase()) &&
+    user?.role.name &&
+    ADMIN_ROLES.includes(user.role.name.toUpperCase()) &&
     location.pathname.startsWith("/admin");
 
   return (
