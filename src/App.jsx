@@ -95,27 +95,33 @@ function AppInitializer({ children }) {
   //   }
   // }, [loading, user, location.pathname]);
 
-  useEffect(() => {
-    if (!loading && user) {
-      const path = location.pathname;
-      // 1) grab the string name from the role object
-      const rawName = user.role?.name;
-      // 2) only uppercase if it really is a string
-      const role = typeof rawName === "string" ? rawName.toUpperCase() : "";
+useEffect(() => {
+  if (!loading && user) {
+    const path = location.pathname;
 
-      // if a non-admin somehow hit /admin/*, bounce them out
+    // 🔍 Debug logging
+    console.group('🔐 redirectUser debug');
+    console.log('Full user object:', user);
+    console.log('user.role:', user.role);
+    console.log('user.role?.name:', user.role?.name);
+    console.log('Type of user.role?.name:', typeof user.role?.name);
+    const rawName = user.role?.name;
+    const role    = typeof rawName === 'string'
+      ? rawName.toUpperCase()
+      : `<INVALID: ${typeof rawName}>`;
+    console.log('Computed role string:', role);
+    console.groupEnd();
 
-      if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
-        navigate("/dashboard", { replace: true });
-      }
-
-      // if an admin hits the user dashboard, send them into admin
-
-      if (path.startsWith("/dashboard") && ADMIN_ROLES.includes(role)) {
-        navigate("/admin/users", { replace: true });
-      }
+    // your redirect logic
+    if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
+      navigate('/dashboard', { replace: true });
     }
-  }, [loading, user, location.pathname, navigate]);
+    if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
+      navigate('/admin/users', { replace: true });
+    }
+  }
+}, [loading, user, location.pathname, navigate]);
+
 
   if (loading) {
     return (
