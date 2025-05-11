@@ -62,10 +62,23 @@
 
 import axios from 'axios';
 
+// const API = axios.create({
+//   baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.jobneura.tech/api',
+//   withCredentials: true,
+// });
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.jobneura.tech/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL
+    ? import.meta.env.VITE_API_BASE_URL
+    // if no custom URL, and we're in dev mode, point to your local backend
+    : import.meta.env.DEV
+    ? 'http://localhost:5000/api'
+    // otherwise fall back to production
+    : 'https://api.jobneura.tech/api',
   withCredentials: true,
 });
+
+
 
 let isRefreshing = false;
 let queue = [];
