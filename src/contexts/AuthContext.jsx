@@ -14,7 +14,11 @@ export function AuthProvider({ children }) {
   const loadUserFromSession = useCallback(async () => {
     try {
       const { data } = await API.get('/auth/me');
+     // const raw = data.user ?? data;
+    const roleName = typeof raw.role === 'object' ? raw.role.name : raw.role;
+     setUser({ ...raw, role: roleName });
       setUser(data.user ?? data);
+      
     } catch (err) {
       console.warn('❌ Session invalid:', err?.response?.status);
       setUser(null);
@@ -46,7 +50,13 @@ export function AuthProvider({ children }) {
   }, [refreshSession]);
 
   const login = useCallback(async (loginResponse) => {
-    const userData = loginResponse.user ?? loginResponse;
+    //const userData = loginResponse.user ?? loginResponse;
+    const raw = loginResponse.user ?? loginResponse;
+    
+    const roleName = typeof raw.role === 'object' && raw.role !== null
+   ? raw.role.name
+     : raw.role;
+   const userData = { ...raw, role: roleName };
     setUser(userData);
     scheduleAutoRefresh();
   }, [scheduleAutoRefresh]);
