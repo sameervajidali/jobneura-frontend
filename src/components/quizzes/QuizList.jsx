@@ -108,134 +108,128 @@
 
 
 
-// src/components/quizzes/QuizList.jsx
-import React from "react";
-import { useNavigate } from "react-router-dom";
+// src/components/quizzes/QuizSidebar.jsx
+import React, { useState, useEffect } from 'react';
+import { Disclosure } from '@headlessui/react';
 import {
-  BookOpen,
-  Clock,
-  User,
-  Bookmark,
-  RefreshCcw,
-  BarChart2,
-  Star,
-} from "lucide-react";
-import useQuizList from "../../hooks/useQuizList";
+  ChevronUpIcon,
+  ChevronRightIcon,
+  CollectionIcon,
+} from '@heroicons/react/outline';
+import { BookOpenIcon, BadgeCheckIcon } from '@heroicons/react/solid';
+import API from '../../services/axios';
 
-export default function QuizList({ filters, onPageChange }) {
-  const navigate = useNavigate();
-  const { quizzes = [], total = 0, page = 1, limit = 10, loading, error } =
-    useQuizList(filters) || {};
+export default function QuizSidebar({ filters = {}, onChange }) {
+  const [data, setData] = useState([]);
+  const [levels, setLevels] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  if (loading)
-    return <p className="p-6 text-center text-gray-600">Loading quizzes…</p>;
-  if (error)
-    return (
-      <p className="p-6 text-center text-red-500">Error: {error}</p>
-    );
-  if (!quizzes.length)
-    return <p className="p-6 text-center text-gray-600">No quizzes found.</p>;
+  // fetch categories & topics and levels
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [catsRes, levelsRes] = await Promise.all([
+          API.get('/quizzes/grouped-topics'),
+          API.get('/quizzes/distinct/level'),
+        ]);
+        if (cancelled) return;
+        setData(catsRes.data);            // expected: [{ category, topics: [...] }, ...]
+        setLevels(levelsRes.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true };
+  }, []);
+
+  if (loading) return (
+    <aside className="w-64 p-4">
+      <p className="text-gray-500">Loading filters…</p>
+    </aside>
+  );
 
   return (
-    <div className="space-y-6">
-      {/* 3-column grid */}
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {quizzes.map((q) => {
-          const isNew =
-            Date.now() - new Date(q.createdAt).getTime() < 7 * 86400 * 1000;
-          return (
-            <div
-              key={q._id}
-              className="flex flex-col bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-shadow h-full"
-            >
-              {/* Badges */}
-              <div className="flex justify-end gap-2 mb-2">
-                <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs">
-                  {q.level || "—"}
-                </span>
-                {isNew && (
-                  <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs">
-                    New
-                  </span>
-                )}
-              </div>
-
-              {/* Title */}
-              <h3 className="text-xl font-semibold text-indigo-700 mb-4">
-                {q.title}
-              </h3>
-
-              {/* Stats */}
-              <ul className="flex flex-col gap-2 text-gray-600 flex-grow">
-                <li className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" />
-                  <span>{q.questionCount ?? 0} questions</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  <span>{q.duration || 0} min</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  <span>{q.attemptCount ?? 0} attempts</span>
-                </li>
-              </ul>
-
-              {/* Micro-actions */}
-              <div className="flex items-center justify-start gap-4 mt-4 text-gray-400">
-                <button
-                  aria-label="Bookmark"
-                  className="p-1 rounded hover:bg-gray-100"
+    <aside className="w-64 bg-white border-r shadow-sm p-4 space-y-6 sticky top-20 h-[calc(100vh-5rem)] overflow-auto">
+      {/* Category / Topic Accordions */}
+      <div className="space-y-2">
+        {data.map(({ category, topics }) => (
+          <Disclosure key={category}>
+            {({ open }) => (
+              <>
+                <Disclosure.Button
+                  className={`flex items-center justify-between w-full px-3 py-2 text-left rounded-lg
+                    ${filters.category === category
+                      ? 'bg-indigo-100 text-indigo-700'
+                      : 'hover:bg-gray-50 text-gray-700'}`}
+                  onClick={() => {
+                    onChange({ ...filters, category, topic: '', page: 1 });
+                  }}
                 >
-                  <Bookmark className="w-5 h-5" />
-                </button>
-                <button
-                  aria-label="Retry"
-                  className="p-1 rounded hover:bg-gray-100"
-                >
-                  <RefreshCcw className="w-5 h-5" />
-                </button>
-                <button
-                  aria-label="Leaderboard"
-                  className="p-1 rounded hover:bg-gray-100"
-                >
-                  <BarChart2 className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* CTA */}
-              <button
-                onClick={() => navigate(`/quiz/${q._id}/start`)}
-                className="mt-6 inline-flex items-center justify-center gap-2 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
-              >
-                <Star className="w-4 h-4" />
-                Start Quiz
-              </button>
-            </div>
-          );
-        })}
+                  <div className="flex items-center gap-2">
+                    <CollectionIcon className="w-5 h-5" />
+                    <span className="font-medium">{category}</span>
+                  </div>
+                  {open ? (
+                    <ChevronUpIcon className="w-5 h-5 text-gray-500" />
+                  ) : (
+                    <ChevronRightIcon className="w-5 h-5 text-gray-500" />
+                  )}
+                </Disclosure.Button>
+                <Disclosure.Panel className="pl-8 space-y-1">
+                  {topics.map((t) => (
+                    <button
+                      key={t}
+                      className={`flex items-center gap-2 w-full px-2 py-1 text-sm rounded-lg text-gray-600
+                        ${filters.topic === t
+                          ? 'bg-indigo-50 text-indigo-700'
+                          : 'hover:bg-gray-50'}`}
+                      onClick={() =>
+                        onChange({ ...filters, topic: t, page: 1 })
+                      }
+                    >
+                      <BookOpenIcon className="w-4 h-4" />
+                      <span>{t}</span>
+                    </button>
+                  ))}
+                </Disclosure.Panel>
+              </>
+            )}
+          </Disclosure>
+        ))}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center items-center gap-4">
-        <button
-          onClick={() => onPageChange(Math.max(1, page - 1))}
-          disabled={page <= 1}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+      {/* Level Filter */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Level
+        </label>
+        <select
+          className="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          value={filters.level || ''}
+          onChange={(e) =>
+            onChange({ ...filters, level: e.target.value, page: 1 })
+          }
         >
-          Prev
-        </button>
-        <span className="text-gray-700">
-          Page <strong>{page}</strong> of <strong>{Math.ceil(total / limit)}</strong>
-        </span>
-        <button
-          onClick={() => onPageChange(page + 1)}
-          disabled={page * limit >= total}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
+          <option value="">All Levels</option>
+          {levels.map((lvl) => (
+            <option key={lvl} value={lvl}>
+              {lvl}
+            </option>
+          ))}
+        </select>
       </div>
-    </div>
+
+      {/* Clear Filters */}
+      <button
+        className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition"
+        onClick={() => onChange({ category: '', topic: '', level: '', page: 1 })}
+      >
+        <BadgeCheckIcon className="w-5 h-5" />
+        Clear Filters
+      </button>
+    </aside>
   );
 }
