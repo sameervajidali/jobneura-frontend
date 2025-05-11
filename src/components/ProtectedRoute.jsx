@@ -16,7 +16,7 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
     return <Navigate to="/login" replace />;
   }
 
-  const userRole = user.role?.toUpperCase();
+  const userRole = user.role.name?.toUpperCase();
   const allowed = allowedRoles.map((r) => r.toUpperCase());
 
   if (!allowed.includes(userRole)) {

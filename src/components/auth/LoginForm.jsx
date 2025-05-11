@@ -55,7 +55,8 @@ export default function LoginForm() {
 
   const redirectUser = (user) => {
   // 1) Safely grab the role name (might be undefined)
-  const rawName = user?.role?.name;
+    const rawName = user?.role?.name;
+    console.log('rawName:', rawName);
   // 2) Only upper-case if it’s really a string
   const role    = typeof rawName === 'string' 
     ? rawName.toUpperCase() 
