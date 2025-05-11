@@ -7,16 +7,19 @@ import Topbar     from "../components/admin/Topbar";
 export default function AdminDashboardLayout() {
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* 1) Sidebar (fixed width, always visible) */}
+      {/*  ─── SidebarNav is fixed at w-56 ───────────────────── */}
       <SidebarNav />
 
-      {/* 2) Main column */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* 2a) Topbar (sticky height) */}
+      {/*  ─── Right side: Topbar + scrollable main ──────────── */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar />
 
-        {/* 2b) Scrollable content area */}
-        <main className="flex-1 overflow-auto bg-gray-50 p-6">
+        {/* 
+          ─── On desktop (md+), we pad the left by exactly 56 so 
+          the fixed-sidebar never covers our content.
+          On mobile, pl-0 so when sidebar slides in it simply overlays.
+        */}
+        <main className="flex-1 overflow-auto pt-4 px-6 pb-6 md:pl-56">
           <Outlet />
         </main>
       </div>
