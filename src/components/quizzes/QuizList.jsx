@@ -115,10 +115,10 @@ import {
   BookOpen,
   Clock,
   User,
-  Star,
-  RefreshCcw,
   Bookmark,
+  RefreshCcw,
   BarChart2,
+  Star,
 } from "lucide-react";
 import useQuizList from "../../hooks/useQuizList";
 
@@ -138,55 +138,51 @@ export default function QuizList({ filters, onPageChange }) {
 
   return (
     <div className="space-y-6">
-      {/* GRID */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {/* 3-column grid */}
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {quizzes.map((q) => {
           const isNew =
-            Date.now() - new Date(q.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000; // 7 days
+            Date.now() - new Date(q.createdAt).getTime() < 7 * 86400 * 1000;
           return (
             <div
               key={q._id}
-              className="relative flex flex-col bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition"
+              className="flex flex-col bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-shadow h-full"
             >
-              {/* Top-right badges */}
-              <div className="absolute top-4 right-4 flex flex-wrap gap-1 text-xs">
-                <span
-                  className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600"
-                >
+              {/* Badges */}
+              <div className="flex justify-end gap-2 mb-2">
+                <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 text-xs">
                   {q.level || "—"}
                 </span>
                 {isNew && (
-                  <span
-                    className="px-2 py-0.5 rounded-full bg-green-100 text-green-800"
-                  >
+                  <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs">
                     New
                   </span>
                 )}
               </div>
 
               {/* Title */}
-              <h3 className="text-lg font-semibold text-indigo-700 mb-4">
+              <h3 className="text-xl font-semibold text-indigo-700 mb-4">
                 {q.title}
               </h3>
 
               {/* Stats */}
-              <div className="flex flex-col gap-2 text-gray-500 text-sm">
-                <div className="flex items-center gap-2">
-                  <BookOpen className="w-4 h-4" />
-                  <span>{q.questionCount ?? 0} Questions</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
+              <ul className="flex flex-col gap-2 text-gray-600 flex-grow">
+                <li className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  <span>{q.questionCount ?? 0} questions</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
                   <span>{q.duration || 0} min</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
+                </li>
+                <li className="flex items-center gap-2">
+                  <User className="w-5 h-5" />
                   <span>{q.attemptCount ?? 0} attempts</span>
-                </div>
-              </div>
+                </li>
+              </ul>
 
               {/* Micro-actions */}
-              <div className="mt-4 flex gap-4 text-gray-400 hover:text-gray-600">
+              <div className="flex items-center justify-start gap-4 mt-4 text-gray-400">
                 <button
                   aria-label="Bookmark"
                   className="p-1 rounded hover:bg-gray-100"
@@ -207,13 +203,10 @@ export default function QuizList({ filters, onPageChange }) {
                 </button>
               </div>
 
-              {/* Spacer */}
-              <div className="flex-grow" />
-
-              {/* Primary CTA */}
+              {/* CTA */}
               <button
                 onClick={() => navigate(`/quiz/${q._id}/start`)}
-                className="mt-6 inline-flex items-center justify-center gap-2 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition"
+                className="mt-6 inline-flex items-center justify-center gap-2 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
               >
                 <Star className="w-4 h-4" />
                 Start Quiz
@@ -223,8 +216,8 @@ export default function QuizList({ filters, onPageChange }) {
         })}
       </div>
 
-      {/* PAGINATION */}
-      <div className="flex justify-center items-center space-x-4">
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-4">
         <button
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page <= 1}
@@ -233,8 +226,7 @@ export default function QuizList({ filters, onPageChange }) {
           Prev
         </button>
         <span className="text-gray-700">
-          Page <strong>{page}</strong> of{" "}
-          <strong>{Math.ceil(total / limit)}</strong>
+          Page <strong>{page}</strong> of <strong>{Math.ceil(total / limit)}</strong>
         </span>
         <button
           onClick={() => onPageChange(page + 1)}
