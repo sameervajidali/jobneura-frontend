@@ -59,7 +59,7 @@ export default function QuizLeaderboard({ filters = {} }) {
 
   return (
     <aside className="w-72 bg-white border-l shadow-sm p-6 font-sans sticky top-20 h-[calc(100vh-5rem)] overflow-auto space-y-4">
-      <h3 className="text-base font-bold text-gray-800">Top Scorers</h3>
+      <h3 className="text-base font-bold text-gray-800">Leaderboard</h3>
 
       {/* tabs */}
       <div className="flex space-x-2 text-base">
