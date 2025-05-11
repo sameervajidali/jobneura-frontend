@@ -19,7 +19,7 @@ export default function AdminDashboardLayout() {
           the fixed-sidebar never covers our content.
           On mobile, pl-0 so when sidebar slides in it simply overlays.
         */}
-        <main className="flex-1 overflow-auto pt-4 px-6 pb-6 md:pl-56">
+        <main className="flex-1 overflow-auto pt-4 px-6 pb-6 md:pl-56 md:px-8">
           <Outlet />
         </main>
       </div>
