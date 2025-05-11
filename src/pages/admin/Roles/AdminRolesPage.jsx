@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { FaPlus, FaSearch, FaEdit, FaTrash } from 'react-icons/fa';
-import API from '../../../services/axios';
-import { useAuth } from '../../../contexts/AuthContext';
+import { getAllRoles, deleteRole } from '../../../services/userService';
 
 export default function AdminRolesPage() {
-  const { user: currentUser } = useAuth();
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,11 +19,10 @@ export default function AdminRolesPage() {
     async function loadRoles() {
       setLoading(true);
       try {
-        const { data } = await API.get('/admin/roles');
-        const list = Array.isArray(data) ? data : data.roles || [];
-        setRoles(list);
+        const data = await getAllRoles();
+        setRoles(data);
       } catch (err) {
-        setError(err.response?.data?.message || err.message);
+        setError(err.message || 'Failed to load roles');
       } finally {
         setLoading(false);
       }
@@ -33,7 +30,7 @@ export default function AdminRolesPage() {
     loadRoles();
   }, [pathname]);
 
-  // filter & paginate
+  // Filter & paginate
   const filtered = roles.filter(r =>
     r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (r.description || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -44,11 +41,10 @@ export default function AdminRolesPage() {
   const handleDelete = async id => {
     if (!window.confirm('Delete this role?')) return;
     try {
-      await API.delete(`/admin/roles/${id}`);
+      await deleteRole(id);
       setRoles(prev => prev.filter(r => r._id !== id));
     } catch (err) {
-      console.error('Delete failed:', err);
-      alert('Delete failed: ' + (err.response?.data?.message || err.message));
+      alert('Delete failed: ' + (err.message || ''));
     }
   };
 
@@ -145,13 +141,13 @@ export default function AdminRolesPage() {
         <div className="mt-4 flex justify-center items-center space-x-4">
           <button
             onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
+            disabled={currentPage===1}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
           >Prev</button>
           <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
           <button
-            onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => Math.min(p+1, totalPages))}
+            disabled={currentPage===totalPages}
             className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
           >Next</button>
         </div>
