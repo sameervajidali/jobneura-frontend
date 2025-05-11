@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 import React, { useEffect } from "react";
 
-
 // Public Pages
 import HomePage from "./pages/HomePage";
 //import LoginPage from "./pages/LoginPage";
@@ -26,8 +25,6 @@ import AccountActivationPage from "./pages/AccountActivation";
 import AccountActivationInfo from "./pages/AccountActivationInfo";
 import NotFoundPage from "./pages/NotFoundPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-
-
 
 // Dashboard Pages
 import DashboardHome from "./pages/DashboardHome";
@@ -98,30 +95,27 @@ function AppInitializer({ children }) {
   //   }
   // }, [loading, user, location.pathname]);
 
-
   useEffect(() => {
-  if (!loading && user) {
-    // 1) Safely grab the role name string
-    const rawName = user.role?.name;
-    const role    = typeof rawName === 'string' 
-      ? rawName.toUpperCase() 
-      : '';
+    if (!loading && user) {
+      const path = location.pathname;
+      // 1) grab the string name from the role object
+      const rawName = user.role?.name;
+      // 2) only uppercase if it really is a string
+      const role = typeof rawName === "string" ? rawName.toUpperCase() : "";
 
-    const path = location.pathname;
+      // if a non-admin somehow hit /admin/*, bounce them out
 
-    // 2) If a non-admin hit an /admin/* URL, boot them back to /dashboard
-    if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
-      navigate('/dashboard', { replace: true });
+      if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
+        navigate("/dashboard", { replace: true });
+      }
+
+      // if an admin hits the user dashboard, send them into admin
+
+      if (path.startsWith("/dashboard") && ADMIN_ROLES.includes(role)) {
+        navigate("/admin/users", { replace: true });
+      }
     }
-
-    // 3) If an admin is on the user dashboard, send them into the admin panel
-    if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
-      navigate('/admin/users', { replace: true });
-    }
-  }
-}, [loading, user, location.pathname, navigate]);
-
-
+  }, [loading, user, location.pathname, navigate]);
 
   if (loading) {
     return (
@@ -133,7 +127,6 @@ function AppInitializer({ children }) {
 
   return <>{children}</>;
 }
-
 
 // 🌐 Layout wrapper for navbar/footer logic
 function LayoutWrapper() {
@@ -153,7 +146,7 @@ function LayoutWrapper() {
         <Routes>
           {/* Public Pages */}
           <Route path="/" element={<HomePage />} />
-         
+
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -163,7 +156,7 @@ function LayoutWrapper() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/login"element={<LoginPageWrapper />}/>
+          <Route path="/login" element={<LoginPageWrapper />} />
 
           {/* Quizzes & Leaderboard */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />
@@ -202,7 +195,7 @@ function LayoutWrapper() {
               <Route path="change-password" element={<ChangePasswordPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="roles" element={<AdminRolesPage />} />
-              <Route path="roles/new" element={<RoleForm />} />  
+              <Route path="roles/new" element={<RoleForm />} />
               <Route path="roles/:id/edit" element={<RoleForm />} />
               <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
