@@ -87,9 +87,9 @@ export default function AdminQuizPanel() {
             <thead className="bg-gray-50">
               <tr>
                 {[
-                  "Title",
-                  "Category",
                   "Topic",
+                  "Category",
+                  "Title",
                   "Level",
                   "Questions",
                   "Active",
