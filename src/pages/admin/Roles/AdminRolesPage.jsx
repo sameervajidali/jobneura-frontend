@@ -19,7 +19,8 @@ export default function AdminRolesPage() {
     async function loadRoles() {
       setLoading(true);
       try {
-        const data = await getAllRoles();
+          const data = await getAllRoles();
+          console.log(data);
         setRoles(data);
       } catch (err) {
         setError(err.message || 'Failed to load roles');
