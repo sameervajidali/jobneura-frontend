@@ -7,21 +7,18 @@ import Topbar     from "../components/admin/Topbar";
 export default function AdminDashboardLayout() {
   return (
     <div className="flex h-screen overflow-hidden">
+      {/* 1. Sidebar: fixed width, full height */}
       <SidebarNav />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* 2. Main column: takes remaining width, flexes vertically */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* 2a. Topbar: fixed height */}
         <Topbar />
 
-        {/* 
-          pl-0 on mobile, pl-64 on md+  → reserves the sidebar width 
-          px-4 .. px-8               → responsive gutters 
-        */}
-        <main className="flex-1 overflow-auto">
-          <div className="pl-0 md:pl-64 px-4 sm:px-6 lg:px-8 py-6">
-            <div className="max-w-screen-xl mx-auto space-y-6">
-              <Outlet />
-            </div>
-          </div>
+        {/* 2b. Content area: flex-1 so it grows to fill leftover height;
+                 overflow-auto so only this scrolls */}
+        <main className="flex-1 overflow-auto p-6">
+          <Outlet />
         </main>
       </div>
     </div>

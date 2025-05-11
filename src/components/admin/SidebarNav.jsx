@@ -155,7 +155,7 @@ export default function SidebarNav() {
   return (
     <>
       {/* Mobile toggle button */}
-      <div className="top-4 left-4 z-50 md:hidden">
+      <div className="fixed top-4 left-4 z-50 md:hidden">
         <button
           onClick={() => setIsOpen(o => !o)}
           className="p-2 bg-white dark:bg-gray-800 rounded shadow"
