@@ -112,11 +112,11 @@
 import React, { useState, useEffect } from 'react';
 import { Disclosure } from '@headlessui/react';
 import {
-  ChevronUpIcon,
-  ChevronRightIcon,
-  CollectionIcon,
-} from '@heroicons/react/outline';
-import { BookOpenIcon, BadgeCheckIcon } from '@heroicons/react/solid';
+ ChevronUpIcon,
+   ChevronRightIcon,
+   CollectionIcon,
+ } from '@heroicons/react/24/outline';
+ import { BookOpenIcon, BadgeCheckIcon } from '@heroicons/react/24/solid';
 import API from '../../services/axios';
 
 export default function QuizSidebar({ filters = {}, onChange }) {
