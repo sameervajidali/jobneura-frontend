@@ -93,7 +93,6 @@
 //   );
 // }
 
-
 // src/components/quizzes/QuizList.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -108,8 +107,14 @@ import {
 
 export default function QuizList({ filters, onPageChange }) {
   const navigate = useNavigate();
-  const { quizzes = [], total = 0, page = 1, limit = 10, loading, error } =
-    useQuizList(filters) || {};
+  const {
+    quizzes = [],
+    total = 0,
+    page = 1,
+    limit = 10,
+    loading,
+    error,
+  } = useQuizList(filters) || {};
 
   if (loading)
     return (
@@ -126,7 +131,6 @@ export default function QuizList({ filters, onPageChange }) {
 
   return (
     <div className="space-y-6">
-      {/* 3-col grid */}
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {quizzes.map((q) => {
           const isNew =
@@ -138,15 +142,13 @@ export default function QuizList({ filters, onPageChange }) {
               key={q._id}
               className="flex flex-col bg-white rounded-lg shadow-sm hover:shadow-md transition font-sans"
             >
-              {/* ─── HEADER ───────────────────────────────────── */}
+              {/* ─── HEADER with fixed min-height ───────────────── */}
               <div
                 className="
                   p-6 
-                  min-h-[5rem]     /* <- forces header to this height */
-                  flex-shrink-0    /* <- never collapse below that */
-                  items-start
-                  justify-between
-                  flex
+                  min-h-[5rem]       /* force same height across cards */
+                  flex-shrink-0
+                  flex items-start justify-between
                 "
               >
                 <h3 className="text-sm font-semibold text-gray-800">
@@ -160,7 +162,7 @@ export default function QuizList({ filters, onPageChange }) {
                 )}
               </div>
 
-              {/* ─── STATS (always aligned) ──────────────────── */}
+              {/* ─── STATS (always aligned) ─────────────────────── */}
               <div className="px-6 space-y-2 flex-shrink-0">
                 <div className="flex items-center text-sm text-gray-600 space-x-2">
                   <BookOpenIcon className="w-5 h-5" />
@@ -176,7 +178,7 @@ export default function QuizList({ filters, onPageChange }) {
                 </div>
               </div>
 
-              {/* ─── FOOTER ──────────────────────────────────── */}
+              {/* ─── CTA FOOTER ─────────────────────────────────── */}
               <div className="mt-auto p-6">
                 <button
                   onClick={() => navigate(`/quiz/${q._id}/start`)}
@@ -195,7 +197,7 @@ export default function QuizList({ filters, onPageChange }) {
         })}
       </div>
 
-      {/* ─── PAGINATION ───────────────────────────────── */}
+      {/* ─── PAGINATION ───────────────────────────────────── */}
       <div className="flex justify-center items-center space-x-4 text-gray-700 text-sm">
         <button
           onClick={() => onPageChange(Math.max(1, page - 1))}
