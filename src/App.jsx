@@ -76,6 +76,9 @@ import ReportsPage from "./pages/admin/Reports/ReportsPage";
 import SettingsPage from "./pages/admin/SettingsPage";
 import TicketListPage from "./pages/admin/TicketListPage";
 import TicketDetailsPage from "./pages/admin/TicketDetailsPage";
+import CategoryForm from "./pages/admin/CategoryForm";
+import TopicsPage from "./pages/admin/TopicsPage";
+import TopicForm from "./pages/admin/TopicForm";
 
 // 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
@@ -209,7 +212,14 @@ function LayoutWrapper() {
               <Route path="reports" element={<ReportsPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="tickets" element={<TicketListPage />} />
-<Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
+              <Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
+              <Route path="categories" element={<CategoriesPage />} />
+<Route path="categories/new" element={<CategoryForm />} />
+<Route path="categories/:id/edit" element={<CategoryForm />} />
+
+<Route path="topics" element={<TopicsPage />} />
+<Route path="topics/new" element={<TopicForm />} />
+<Route path="topics/:id/edit" element={<TopicForm />} />
 
 
               <Route path="roles/new" element={<RoleForm />} />
