@@ -125,8 +125,12 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const { data } = await API.post('/auth/login', { email, password });
-      login(data.user);
-      redirectUser(data.user);
+          
+      console.group('🔐 LoginForm debug (email/password)');
+      console.log('Login response user:', data.user);
+       login(data.user);
+      redirectUser(data.user); 
+      console.groupEnd();
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
       console.error(err);
