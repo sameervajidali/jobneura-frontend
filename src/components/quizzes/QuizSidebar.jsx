@@ -192,7 +192,7 @@ export default function QuizSidebar({ filters = {}, onChange }) {
   };
 
   return (
-    <aside className="w-64 bg-gray-50 border-r border-gray-200 p-4 sticky top-0 h-screen overflow-y-auto">
+    <aside className="w-64 bg-white border-r border-gray-200 p-4 sticky top-20 h-[calc(100vh-5rem)]">
       {error && (
         <div role="alert" className="text-red-600 text-sm mb-3">
           {error}
