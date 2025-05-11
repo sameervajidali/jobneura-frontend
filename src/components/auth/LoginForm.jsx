@@ -38,13 +38,34 @@ export default function LoginForm() {
     );
   };
 
-const redirectUser = (user) => {
-  const role = user.role.name?.role.toUpperCase();
+// const redirectUser = (user) => {
+//   const role = user.role.name?.role.toUpperCase();
+//   const stored = localStorage.getItem('loginRedirectFrom');
+
+//  if (ADMIN_ROLES.includes(role)) {
+//   // send Admin/SuperAdmin into the users list by default
+//    navigate('/admin/users', { replace: true });
+//   } else if (stored && stored !== '/login') {
+//     navigate(stored, { replace: true });
+//     localStorage.removeItem('loginRedirectFrom');
+//   } else {
+//     navigate('/', { replace: true });
+//   }
+// };
+
+  const redirectUser = (user) => {
+  // 1) Safely grab the role name (might be undefined)
+  const rawName = user?.role?.name;
+  // 2) Only upper-case if it’s really a string
+  const role    = typeof rawName === 'string' 
+    ? rawName.toUpperCase() 
+    : '';
+
   const stored = localStorage.getItem('loginRedirectFrom');
 
- if (ADMIN_ROLES.includes(role)) {
-  // send Admin/SuperAdmin into the users list by default
-   navigate('/admin/users', { replace: true });
+  if (ADMIN_ROLES.includes(role)) {
+    // send Admin/SuperAdmin into the users list by default
+    navigate('/admin/users', { replace: true });
   } else if (stored && stored !== '/login') {
     navigate(stored, { replace: true });
     localStorage.removeItem('loginRedirectFrom');
