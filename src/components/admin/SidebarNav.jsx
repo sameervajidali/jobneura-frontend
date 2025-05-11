@@ -127,7 +127,7 @@ export default function SidebarNav() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 transform bg-white dark:bg-gray-800 border-r dark:border-gray-700 w-56 md:translate-x-0 transition-transform duration-200 ease-in-out z-50 ${
+        className={`fixed h-16 inset-y-0 left-0 transform bg-white dark:bg-gray-800 border-r dark:border-gray-700 w-56 md:translate-x-0 transition-transform duration-200 ease-in-out z-50 ${
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
       >
