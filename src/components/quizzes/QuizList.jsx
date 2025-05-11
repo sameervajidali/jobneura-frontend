@@ -110,51 +110,32 @@ import {
 
 export default function QuizList({ filters, onPageChange }) {
   const navigate = useNavigate();
-  const {
-    quizzes = [],
-    total = 0,
-    page = 1,
-    limit = 10,
-    loading = false,
-    error = "",
-  } = useQuizList(filters);
+  const { quizzes = [], total = 0, page = 1, limit = 10, loading, error } =
+    useQuizList(filters);
 
-  if (loading) {
-    return (
-      <p className="p-6 text-center text-gray-500">Loading quizzes…</p>
-    );
-  }
-
-  if (error) {
-    return (
-      <p className="p-6 text-center text-red-500">{error}</p>
-    );
-  }
-
-  if (quizzes.length === 0) {
-    return (
-      <p className="p-6 text-center text-gray-600">No quizzes found.</p>
-    );
-  }
+  if (loading)
+    return <p className="p-6 text-center text-gray-500">Loading quizzes…</p>;
+  if (error)
+    return <p className="p-6 text-center text-red-500">{error}</p>;
+  if (!quizzes.length)
+    return <p className="p-6 text-center text-gray-600">No quizzes found.</p>;
 
   return (
     <div className="space-y-6">
-      {/* Quiz Grid */}
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      {/* 3-col responsive grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {quizzes.map((q) => {
           const isNew =
             q.createdAt &&
-            Date.now() - new Date(q.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
-
+            Date.now() - new Date(q.createdAt).getTime() < 7 * 86400000;
           return (
             <div
               key={q._id}
-              className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-6
-                         grid grid-rows-[auto,1fr,auto] gap-4 h-full"
+              className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-6 flex flex-col h-full"
             >
-              {/* Row 1: Title + New badge */}
+              {/* Header */}
               <div className="flex justify-between items-start">
-                <h3 className="text-sm font-semibold text-indigo-700">
+                <h3 className="text-lg font-semibold text-indigo-700">
                   {q.title}
                 </h3>
                 {isNew && (
@@ -164,62 +145,50 @@ export default function QuizList({ filters, onPageChange }) {
                 )}
               </div>
 
-              {/* Row 2: Stats */}
-              <div className="space-y-4">
-                {/* 2a: Questions + micro-actions */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-gray-700">
-                    <BookOpenIcon className="w-5 h-5" />
-                    <span className="text-sm font-medium">
-                      {q.questionCount ?? 0} Questions
-                    </span>
+              {/* Stats */}
+              <div className="mt-4 flex-1 flex flex-col justify-between">
+                <div>
+                  {/* Row 1 */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center text-gray-700 gap-2">
+                      <BookOpenIcon className="w-5 h-5" />
+                      <span className="text-sm font-medium">
+                        {q.questionCount ?? 0}
+                      </span>
+                    </div>
+                    <div className="flex items-center text-gray-400 gap-3">
+                      <button aria-label="Bookmark" className="hover:text-indigo-600">
+                        <BookmarkIcon className="w-5 h-5" />
+                      </button>
+                      <button aria-label="Retry" className="hover:text-indigo-600">
+                        <ArrowPathIcon className="w-5 h-5" />
+                      </button>
+                      <button aria-label="Leaderboard" className="hover:text-indigo-600">
+                        <ChartBarIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-3 text-gray-400">
-                    <button
-                      aria-label="Bookmark"
-                      className="hover:text-indigo-600 transition"
-                    >
-                      <BookmarkIcon className="w-5 h-5" />
-                    </button>
-                    <button
-                      aria-label="Retry"
-                      className="hover:text-indigo-600 transition"
-                    >
-                      <ArrowPathIcon className="w-5 h-5" />
-                    </button>
-                    <button
-                      aria-label="Leaderboard"
-                      className="hover:text-indigo-600 transition"
-                    >
-                      <ChartBarIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* 2b: Duration & Attempts */}
-                <div className="flex items-center gap-6 text-gray-600">
-                  <div className="flex items-center gap-2 text-sm">
-                    <ClockIcon className="w-5 h-5" />
-                    {q.duration || 0} min
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <UserIcon className="w-5 h-5" />
-                    {q.attemptCount ?? 0} attempts
+                  {/* Row 2 */}
+                  <div className="mt-3 flex items-center text-gray-600 gap-6 text-sm">
+                    <div className="flex items-center gap-2">
+                      <ClockIcon className="w-5 h-5" />
+                      <span>{q.duration || 0} min</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <UserIcon className="w-5 h-5" />
+                      <span>{q.attemptCount ?? 0} attempts</span>
+                    </div>
                   </div>
                 </div>
+                {/* Footer */}
+                <button
+                  onClick={() => navigate(`/quiz/${q._id}/start`)}
+                  className="mt-6 bg-indigo-600 text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-indigo-700 transition"
+                >
+                  <ArrowRightIcon className="w-5 h-5" />
+                  Start Quiz
+                </button>
               </div>
-
-              {/* Row 3: Start button */}
-              <button
-                type="button"
-                onClick={() => navigate(`/quiz/${q._id}/start`)}
-                className="mt-auto bg-indigo-600 text-white py-2 px-4 rounded-lg
-                           font-medium flex items-center justify-center gap-2 hover:bg-indigo-700
-                           transition"
-              >
-                <ArrowRightIcon className="w-5 h-5" />
-                Start Quiz
-              </button>
             </div>
           );
         })}
@@ -235,8 +204,7 @@ export default function QuizList({ filters, onPageChange }) {
           Prev
         </button>
         <span className="text-gray-700">
-          Page <strong>{page}</strong> of{" "}
-          <strong>{Math.ceil(total / limit)}</strong>
+          Page <strong>{page}</strong> of <strong>{Math.ceil(total / limit)}</strong>
         </span>
         <button
           onClick={() => onPageChange(page + 1)}
