@@ -146,7 +146,7 @@ export default function QuizList({ filters, onPageChange }) {
               <div
                 className="
                   p-6 
-                  min-h-[5rem]       /* force same height across cards */
+                  min-h-[7rem]       /* force same height across cards */
                   flex-shrink-0
                   flex items-start justify-between
                 "
