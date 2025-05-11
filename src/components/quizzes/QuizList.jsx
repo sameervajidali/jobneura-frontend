@@ -135,7 +135,7 @@ export default function QuizList({ filters, onPageChange }) {
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4">
         {quizzes.map(q => {
           const createdAt = new Date(q.createdAt).getTime();
           const isNew = Date.now() - createdAt < ONE_WEEK;
