@@ -322,9 +322,10 @@ export default function CreateQuizForm() {
                 disabled={loading}
                 className="w-full border rounded px-3 py-2"
               >
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="expert">Expert</option>
+                
               </select>
             </div>
             <div>
