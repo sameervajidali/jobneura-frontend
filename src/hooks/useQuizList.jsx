@@ -1,24 +1,35 @@
+
 // import { useState, useEffect } from 'react';
 // import API from '../services/axios.js';
 
 // export default function useQuizList(filters = {}) {
 //   const [quizzes, setQuizzes] = useState([]);
-//   const [total, setTotal]     = useState(0);
-//   const [page, setPage]       = useState(filters.page);
-//   const [limit, setLimit]     = useState(filters.limit);
+//   const [total, setTotal] = useState(0);
+//   const [page, setPage] = useState(filters.page || 1);
+//   const [limit, setLimit] = useState(filters.limit || 12);
 //   const [loading, setLoading] = useState(true);
-//   const [error, setError]     = useState('');
+//   const [error, setError] = useState('');
 
 //   useEffect(() => {
 //     setLoading(true);
-//     API.get('/quizzes', { params: filters })
+//     setError('');
+
+//     const cleanedFilters = {};
+//     for (const key in filters) {
+//       if (filters[key]) cleanedFilters[key] = filters[key];
+//     }
+
+//     API.get('/quizzes', { params: cleanedFilters })
 //       .then(res => {
-//         setQuizzes(res.data.quizzes);
-//         setTotal(res.data.total);
-//         setPage(res.data.page);
-//         setLimit(res.data.limit);
+//         setQuizzes(Array.isArray(res.data.quizzes) ? res.data.quizzes : []);
+//         setTotal(res.data.total ?? 0);
+//         setPage(res.data.page ?? 1);
+//         setLimit(res.data.limit ?? 12);
 //       })
-//       .catch(err => setError(err.response?.data?.message || err.message))
+//       .catch(err => {
+//         console.error('Quiz list fetch error:', err);
+//         setError(err.response?.data?.message || err.message);
+//       })
 //       .finally(() => setLoading(false));
 //   }, [JSON.stringify(filters)]);
 
@@ -26,39 +37,53 @@
 // }
 
 
+// src/hooks/useQuizList.js
 import { useState, useEffect } from 'react';
 import API from '../services/axios.js';
 
-export default function useQuizList(filters = {}) {
+export default function useQuizList(rawFilters = {}) {
+  // pull out page & limit, with defaults
+  const {
+    page: initialPage = 1,
+    limit: initialLimit = 12,
+    ...otherFilters
+  } = rawFilters;
+
   const [quizzes, setQuizzes] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(filters.page || 1);
-  const [limit, setLimit] = useState(filters.limit || 12);
+  const [total,   setTotal]   = useState(0);
+  const [page,    setPage]    = useState(initialPage);
+  const [limit,   setLimit]   = useState(initialLimit);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error,   setError]   = useState('');
 
   useEffect(() => {
     setLoading(true);
     setError('');
 
-    const cleanedFilters = {};
-    for (const key in filters) {
-      if (filters[key]) cleanedFilters[key] = filters[key];
+    // build params object, stripping out any empty / falsy values
+    const params = { page, limit };
+    for (const [key, value] of Object.entries(otherFilters)) {
+      if (value != null && value !== '') {
+        params[key] = value;
+      }
     }
 
-    API.get('/quizzes', { params: cleanedFilters })
+    API.get('/quizzes', { params })
       .then(res => {
-        setQuizzes(Array.isArray(res.data.quizzes) ? res.data.quizzes : []);
-        setTotal(res.data.total ?? 0);
-        setPage(res.data.page ?? 1);
-        setLimit(res.data.limit ?? 12);
+        // your API should return { quizzes: [], total: number, page, limit }
+        const data = res.data;
+        setQuizzes(Array.isArray(data.quizzes) ? data.quizzes : []);
+        setTotal(typeof data.total === 'number' ? data.total : 0);
+        // if your API echoes back page & limit, you can sync state here:
+        setPage(data.page    ?? page);
+        setLimit(data.limit  ?? limit);
       })
       .catch(err => {
         console.error('Quiz list fetch error:', err);
         setError(err.response?.data?.message || err.message);
       })
       .finally(() => setLoading(false));
-  }, [JSON.stringify(filters)]);
+  }, [page, limit, JSON.stringify(otherFilters)]);
 
   return { quizzes, total, page, limit, loading, error };
 }
