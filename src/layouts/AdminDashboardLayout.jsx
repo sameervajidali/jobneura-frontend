@@ -1,58 +1,34 @@
-// // src/layouts/AdminDashboardLayout.jsx
-// import React from "react";
-// import { Outlet } from "react-router-dom";
-// import SidebarNav from "../components/admin/SidebarNav";
-// import Topbar from "../components/admin/Topbar";
-
-
-// export default function AdminDashboardLayout({ children }) {
-//   return (
-//     <div className="flex h-screen overflow-hidden">
-//       <SidebarNav />
-//       <div className="flex-1 flex flex-col overflow-auto">
-//         <Topbar />
-//         <main className="flex-1 overflow-auto p-4 max-w-7xl mx-auto">
-//           {children}
-//         </main>
-//       </div>
-//     </div>
-//   );
-// }
-
 // src/layouts/AdminDashboardLayout.jsx
 import React from "react";
 import { Outlet } from "react-router-dom";
 import SidebarNav from "../components/admin/SidebarNav";
 import Topbar     from "../components/admin/Topbar";
 
-
 export default function AdminDashboardLayout() {
   return (
-    // <div className="flex h-screen overflow-hidden">
-    //   <SidebarNav />
-    //   <div className="flex-1 flex flex-col overflow-auto">
-    //     <Topbar />
-       
-    //    <main className="flex-1 overflow-auto p-4 max-w-7xl mx-auto">
-    //      {/* This is where your nested /admin/* routes will render */}
-    //      <Outlet />
-    //    </main>
-    //   </div>
-    // </div>
     <div className="flex h-screen overflow-hidden">
-  <SidebarNav />
+      {/* ─── Sidebar ─────────────────────────────────────── */}
+      <SidebarNav />
 
-  <div className="flex-1 flex flex-col overflow-hidden">
-    <Topbar />
+      {/* ─── Main Column ──────────────────────────────────── */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* fixed-height topbar */}
+        <Topbar />
 
-    {/* adjust from overflow-auto here ↓ */}
-    <main className="flex-1 overflow-auto pt-4 px-6 pb-6 max-w-screen-xl mx-auto">
-      <div className="space-y-6">
-        <Outlet/>
+        {/* 
+          Only this <main> scrolls.
+          p-6 gives you 24px on all sides; adjust to your taste 
+        */}
+        <main className="flex-1 overflow-auto p-6">
+          {/* 
+            Constrain inner content to max width,
+            center it, and maintain full width down to small screens 
+          */}
+          <div className="max-w-screen-xl w-full mx-auto space-y-6">
+            <Outlet />
+          </div>
+        </main>
       </div>
-    </main>
-  </div>
-</div>
-
+    </div>
   );
 }
