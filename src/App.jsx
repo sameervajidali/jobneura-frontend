@@ -73,6 +73,7 @@ import QuizStartPage from "./pages/QuizStartPage";
 import QuizResultPage from "./pages/QuizResultPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import LoginPageWrapper from "./pages/LoginPageWrapper";
+import AdminRolesPage from "./pages/admin/Roles/AdminRolesPage";
 
 // 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
@@ -174,6 +175,7 @@ function LayoutWrapper() {
               <Route path="profile" element={<ProfilePage />} />
               <Route path="change-password" element={<ChangePasswordPage />} />
               <Route path="users" element={<AdminUsersPage />} />
+               <Route path="roles" element={<AdminRolesPage />} />
               <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
               <Route path="users/:id/edit" element={<UserForm />} />
