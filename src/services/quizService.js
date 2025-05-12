@@ -411,34 +411,53 @@ export function bulkUploadQuizzes(file) {
 
 /**
  * Fetch distinct categories and levels for filters
+ * @returns {Object} categories, levels
  */
 export const fetchSidebarFilters = async () => {
-  const [categories, levels] = await Promise.all([
-    API.get('/quizzes/distinct/category'),
-    API.get('/quizzes/distinct/level')
-  ]);
-  return {
-    categories: categories.data,
-    levels: levels.data,
-  };
+  try {
+    const [categories, levels] = await Promise.all([
+      API.get('/quizzes/distinct/category'),
+      API.get('/quizzes/distinct/level'),
+    ]);
+    
+    // Assuming 'categories' contains { _id, name } and 'levels' contains just names.
+    return {
+      categories: categories.data,  // Category data will now contain names along with IDs
+      levels: levels.data,          // Levels data will be used directly
+    };
+  } catch (error) {
+    console.error("Error fetching sidebar filters:", error);
+    return { categories: [], levels: [] };
+  }
 };
 
 /**
- * Fetch grouped topics by category
+ * Fetch grouped topics by category, along with the category name
+ * @returns {Array} groups containing category and their respective topics
  */
 export const fetchGroupedTopics = async () => {
-  const res = await API.get('/quizzes/grouped-topics');
-  return res.data;
+  try {
+    const res = await API.get('/quizzes/grouped-topics');
+    return res.data;  // [{ category: 'Programming', topics: [...] }, ...]
+  } catch (error) {
+    console.error("Error fetching grouped topics:", error);
+    return [];
+  }
 };
 
 /**
- * Fetch distinct topics
+ * Fetch distinct topics for filtering
+ * @returns {Array} distinct topic names
  */
 export const fetchDistinctTopics = async () => {
-  const res = await API.get('/quizzes/distinct/topic');
-  return res.data;
+  try {
+    const res = await API.get('/quizzes/distinct/topic');
+    return res.data;  // ["Java", "Python", ...]
+  } catch (error) {
+    console.error("Error fetching distinct topics:", error);
+    return [];
+  }
 };
-
 // ─────────────────────────────────────────────────────────────
 // Default export of all quiz service functions
 // ─────────────────────────────────────────────────────────────
