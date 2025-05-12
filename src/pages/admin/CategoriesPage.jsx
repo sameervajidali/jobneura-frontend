@@ -25,19 +25,24 @@ export default function CategoriesPage() {
   const [pageSize, setPageSize] = useState(10);
 
   // Sorting state
-  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState({
+    key: "name",
+    direction: "asc",
+  });
 
   useEffect(() => {
-    categoryService.getAllCategories()
-      .then(data => setCats(data))
+    categoryService
+      .getAllCategories()
+      .then((data) => setCats(data))
       .finally(() => setLoading(false));
   }, []);
 
   // Filtered → Sorted → Paginated
   const processed = useMemo(() => {
-    let filtered = cats.filter(c =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      (c.description || "").toLowerCase().includes(search.toLowerCase())
+    let filtered = cats.filter(
+      (c) =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        (c.description || "").toLowerCase().includes(search.toLowerCase())
     );
 
     // sorting
@@ -56,18 +61,23 @@ export default function CategoriesPage() {
     return filtered.slice(start, start + pageSize);
   }, [cats, search, sortConfig, currentPage, pageSize]);
 
-  const totalCount = useMemo(() => cats.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    (c.description || "").toLowerCase().includes(search.toLowerCase())
-  ).length, [cats, search]);
+  const totalCount = useMemo(
+    () =>
+      cats.filter(
+        (c) =>
+          c.name.toLowerCase().includes(search.toLowerCase()) ||
+          (c.description || "").toLowerCase().includes(search.toLowerCase())
+      ).length,
+    [cats, search]
+  );
 
   function handleSort(key) {
-    setSortConfig(cfg => {
+    setSortConfig((cfg) => {
       if (cfg.key === key) {
         // toggle direction
         return {
           key,
-          direction: cfg.direction === "asc" ? "desc" : "asc"
+          direction: cfg.direction === "asc" ? "desc" : "asc",
         };
       } else {
         return { key, direction: "asc" };
@@ -76,7 +86,7 @@ export default function CategoriesPage() {
   }
 
   function toggleSelect(id) {
-    setSelectedIds(s => {
+    setSelectedIds((s) => {
       const next = new Set(s);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -85,7 +95,7 @@ export default function CategoriesPage() {
 
   function toggleSelectAll(e) {
     if (e.target.checked) {
-      setSelectedIds(new Set(processed.map(c => c._id)));
+      setSelectedIds(new Set(processed.map((c) => c._id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -94,16 +104,19 @@ export default function CategoriesPage() {
   async function handleDelete(id) {
     if (!window.confirm("Delete this category?")) return;
     await categoryService.deleteCategory(id);
-    setCats(cs => cs.filter(c => c._id !== id));
-    setSelectedIds(s => { s.delete(id); return new Set(s); });
+    setCats((cs) => cs.filter((c) => c._id !== id));
+    setSelectedIds((s) => {
+      s.delete(id);
+      return new Set(s);
+    });
   }
 
   async function handleDeleteSelected() {
     if (!window.confirm(`Delete ${selectedIds.size} categories?`)) return;
     await Promise.all(
-      Array.from(selectedIds).map(id => categoryService.deleteCategory(id))
+      Array.from(selectedIds).map((id) => categoryService.deleteCategory(id))
     );
-    setCats(cs => cs.filter(c => !selectedIds.has(c._id)));
+    setCats((cs) => cs.filter((c) => !selectedIds.has(c._id)));
     setSelectedIds(new Set());
   }
 
@@ -119,7 +132,10 @@ export default function CategoriesPage() {
             <input
               type="text"
               value={search}
-              onChange={e => { setSearch(e.target.value); setCurrentPage(1); }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search…"
               className="pl-10 pr-4 py-2 border rounded w-full sm:w-64"
             />
@@ -156,7 +172,7 @@ export default function CategoriesPage() {
                     onChange={toggleSelectAll}
                     checked={
                       processed.length > 0 &&
-                      processed.every(c => selectedIds.has(c._id))
+                      processed.every((c) => selectedIds.has(c._id))
                     }
                   />
                 </th>
@@ -164,13 +180,9 @@ export default function CategoriesPage() {
                   className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
                   onClick={() => handleSort("sr")}
                 >
-                  <SortIcon
-                    label="SR"
-                    sortKey="sr"
-                    sortConfig={sortConfig}
-                  />
+                  <SortIcon label="SR" sortKey="sr" sortConfig={sortConfig} />
                 </th>
-                {["name", "description"].map(col => (
+                {["name", "description"].map((col) => (
                   <th
                     key={col}
                     className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
@@ -201,29 +213,36 @@ export default function CategoriesPage() {
                   <td className="px-6 py-3 text-sm text-gray-900">
                     {(currentPage - 1) * pageSize + idx + 1}
                   </td>
-                  <td className="px-6 py-3 text-sm text-gray-900">{cat.name}</td>
+                  <td className="px-6 py-3 text-sm text-gray-900">
+                    {cat.name}
+                  </td>
                   <td className="px-6 py-3 text-sm text-gray-700">
                     {cat.description || "—"}
                   </td>
-                  <td className="px-6 py-3 text-sm space-x-3">
-                    <Link
-                      to={`${cat._id}/edit`}
-                      className="text-yellow-600 hover:text-yellow-800"
-                    >
-                      <FaEdit />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(cat._id)}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <FaTrash />
-                    </button>
+                  <td className="px-6 py-3 text-sm">
+                    <div className="flex items-center space-x-3">
+                      <Link
+                        to={`${cat._id}/edit`}
+                        className="text-yellow-600 hover:text-yellow-800"
+                      >
+                        <FaEdit />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(cat._id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {processed.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
                     No categories found.
                   </td>
                 </tr>
@@ -240,17 +259,22 @@ export default function CategoriesPage() {
             <label>Rows per page:</label>
             <select
               value={pageSize}
-              onChange={e => { setPageSize(+e.target.value); setCurrentPage(1); }}
+              onChange={(e) => {
+                setPageSize(+e.target.value);
+                setCurrentPage(1);
+              }}
               className="border px-2 py-1 rounded"
             >
-              {[5, 10, 20, 50].map(n => (
-                <option key={n} value={n}>{n}</option>
+              {[5, 10, 20, 50].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
               ))}
             </select>
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
               className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
             >
@@ -260,7 +284,7 @@ export default function CategoriesPage() {
               Page {currentPage} of {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
               className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
             >
@@ -280,7 +304,11 @@ function SortIcon({ label, sortKey, sortConfig }) {
     <span className="inline-flex items-center gap-1">
       {label}
       {isActive ? (
-        sortConfig.direction === "asc" ? <FaSortUp /> : <FaSortDown />
+        sortConfig.direction === "asc" ? (
+          <FaSortUp />
+        ) : (
+          <FaSortDown />
+        )
       ) : (
         <FaSort className="text-gray-300" />
       )}
