@@ -147,6 +147,8 @@
 // }
 
 
+
+
 import React, { useState, useEffect } from 'react';
 import quizService from '../../services/quizService';
 import {
@@ -160,33 +162,35 @@ import {
 } from 'lucide-react';
 
 export default function QuizSidebar({ filters = {}, onChange }) {
-  const [groups, setGroups]   = useState([]);
-  const [levels, setLevels]   = useState([]);
+  const [groups, setGroups] = useState([]);
+  const [levels, setLevels] = useState([]);
   const [categories, setCategories] = useState([]);
   const [topics, setTopics] = useState([]);
   const [openCat, setOpenCat] = useState(null);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let mounted = true;
     Promise.all([
       quizService.fetchSidebarFilters(),
       quizService.fetchGroupedTopics(),
-      quizService.fetchCategories(), // Assuming you now fetch categories
-      quizService.fetchTopics()      // Assuming you now fetch topics
+      quizService.fetchCategories(), // Fetch categories with name and ID
+      quizService.fetchTopics(),     // Fetch topics with name and ID
     ])
-    .then(([{ levels }, grouped, categoriesData, topicsData]) => {
-      if (!mounted) return;
-      setGroups(grouped);
-      setLevels(levels);
-      setCategories(categoriesData);
-      setTopics(topicsData);
-    })
-    .catch(err => {
-      console.error(err);
-      if (mounted) setError('Failed to load filters.');
-    });
-    return () => { mounted = false; };
+      .then(([{ levels }, grouped, categoriesData, topicsData]) => {
+        if (!mounted) return;
+        setGroups(grouped);
+        setLevels(levels);
+        setCategories(categoriesData);
+        setTopics(topicsData);
+      })
+      .catch((err) => {
+        console.error(err);
+        if (mounted) setError('Failed to load filters.');
+      });
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const toggle = (cat) => setOpenCat(openCat === cat ? null : cat);
@@ -201,16 +205,23 @@ export default function QuizSidebar({ filters = {}, onChange }) {
 
   const IconFor = (name) => {
     switch (name) {
-      case 'Programming': return <Code className="w-4 h-4" />;
-      case 'Software Development': return <Layout className="w-4 h-4" />;
-      case 'Design': return <Brush className="w-4 h-4" />;
-      case 'AI': return <Cpu className="w-4 h-4" />;
-      default: return <BookOpen className="w-4 h-4" />;
+      case 'Programming':
+        return <Code className="w-4 h-4" />;
+      case 'Software Development':
+        return <Layout className="w-4 h-4" />;
+      case 'Design':
+        return <Brush className="w-4 h-4" />;
+      case 'AI':
+        return <Cpu className="w-4 h-4" />;
+      default:
+        return <BookOpen className="w-4 h-4" />;
     }
   };
 
-  const getCategoryName = (categoryId) => categories.find(cat => cat._id === categoryId)?.name || categoryId;
-  const getTopicName = (topicId) => topics.find(topic => topic._id === topicId)?.name || topicId;
+  const getCategoryName = (categoryId) =>
+    categories.find((cat) => cat._id === categoryId)?.name || categoryId;
+  const getTopicName = (topicId) =>
+    topics.find((topic) => topic._id === topicId)?.name || topicId;
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 p-4 sticky top-20 h-[calc(100vh-5rem)]">
@@ -238,21 +249,18 @@ export default function QuizSidebar({ filters = {}, onChange }) {
                 aria-controls={`cat-${category}`}
               >
                 <span className="inline-flex items-center gap-2">
-                  {IconFor(getCategoryName(category))}
-                  {getCategoryName(category)}
+                  {IconFor(getCategoryName(category))} {/* Display category icon */}
+                  {getCategoryName(category)} {/* Display category name */}
                 </span>
-                {isOpen
-                  ? <ChevronDown className="w-4 h-4 text-gray-500" />
-                  : <ChevronRight className="w-4 h-4 text-gray-400" />
-                }
+                {isOpen ? (
+                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                )}
               </button>
 
               {isOpen && (
-                <ul
-                  id={`cat-${category}`}
-                  role="menu"
-                  className="mt-1 ml-5 space-y-1"
-                >
+                <ul id={`cat-${category}`} role="menu" className="mt-1 ml-5 space-y-1">
                   {topics.map((t) => {
                     const isTopicActive = filters.topic === t;
                     return (
@@ -267,7 +275,7 @@ export default function QuizSidebar({ filters = {}, onChange }) {
                           role="menuitem"
                         >
                           <BookOpen className="w-4 h-4 opacity-60" />
-                          <span className="ml-2">{getTopicName(t)}</span>
+                          <span className="ml-2">{getTopicName(t)}</span> {/* Display topic name */}
                         </button>
                       </li>
                     );
