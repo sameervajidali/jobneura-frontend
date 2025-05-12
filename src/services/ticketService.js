@@ -23,7 +23,7 @@ import API from './axios';
  * Supports optional query params: page, limit, search, status
  */
 export function getAllTickets(params = {}) {
-  return API.get('/admin/tickets', { params }).then(res => res.data);
+  return API.get('/ticket/admin/tickets', { params }).then(res => res.data);
 }
 
 /**
