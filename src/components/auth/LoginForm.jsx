@@ -1,3 +1,4 @@
+// // src/components/auth/LoginForm.jsx
 // import React, { useEffect, useState } from 'react';
 // import { Link, useNavigate, useLocation } from 'react-router-dom';
 // import { useAuth } from '../../contexts/AuthContext';
@@ -14,9 +15,7 @@
 //   const navigate = useNavigate();
 //   const location = useLocation();
 
-//   // Grab redirect target from localStorage or default
-//   //const from = localStorage.getItem("loginRedirectFrom") || '/dashboard';
-
+//   // Load Google script for OAuth
 //   useEffect(() => {
 //     const script = document.createElement('script');
 //     script.src = 'https://accounts.google.com/gsi/client';
@@ -38,52 +37,38 @@
 //     );
 //   };
 
-// // const redirectUser = (user) => {
-// //   const role = user.role.name?.role.toUpperCase();
-// //   const stored = localStorage.getItem('loginRedirectFrom');
-
-// //  if (ADMIN_ROLES.includes(role)) {
-// //   // send Admin/SuperAdmin into the users list by default
-// //    navigate('/admin/users', { replace: true });
-// //   } else if (stored && stored !== '/login') {
-// //     navigate(stored, { replace: true });
-// //     localStorage.removeItem('loginRedirectFrom');
-// //   } else {
-// //     navigate('/', { replace: true });
-// //   }
-// // };
-
 //   const redirectUser = (user) => {
-//   // 1) Safely grab the role name (might be undefined)
+//     console.group('🔐 redirectUser');
+//     console.log('Full user object:', user);
 //     const rawName = user?.role?.name;
-//     console.log('rawName:', rawName);
-//   // 2) Only upper-case if it’s really a string
-//   const role    = typeof rawName === 'string'
-//     ? rawName.toUpperCase()
-//     : '';
+//     console.log('user.role.name raw:', rawName);
+//     const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
+//     console.log('Computed role:', role);
+//     console.log('ADMIN_ROLES:', ADMIN_ROLES);
+//     console.groupEnd();
 
-//   const stored = localStorage.getItem('loginRedirectFrom');
+//     const stored = localStorage.getItem('loginRedirectFrom');
 
-//   if (ADMIN_ROLES.includes(role)) {
-//     // send Admin/SuperAdmin into the users list by default
-//     navigate('/admin/users', { replace: true });
-//   } else if (stored && stored !== '/login') {
-//     navigate(stored, { replace: true });
-//     localStorage.removeItem('loginRedirectFrom');
-//   } else {
-//     navigate('/', { replace: true });
-//   }
-// };
-
+//     if (ADMIN_ROLES.includes(role)) {
+//       navigate('/admin/users', { replace: true });
+//     } else if (stored && stored !== '/login') {
+//       navigate(stored, { replace: true });
+//       localStorage.removeItem('loginRedirectFrom');
+//     } else {
+//       navigate('/', { replace: true });
+//     }
+//   };
 
 //   const handleGoogleCallback = async (response) => {
 //     setLoading(true);
 //     try {
-//       const { data } = await API.post('/auth/google', {
-//         idToken: response.credential,
-//       });
+//       console.group('🔐 Google login callback');
+//       console.log('Google response credential:', response.credential);
+//       const { data } = await API.post('/auth/google', { idToken: response.credential });
+//       console.log('Google login user:', data.user);
 //       login(data.user);
 //       redirectUser(data.user);
+//       console.groupEnd();
 //     } catch (err) {
 //       console.error('❌ Google login error:', err);
 //       alert('Google login failed. Try again.');
@@ -94,7 +79,11 @@
 
 //   const handleGitHubLogin = () => {
 //     const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-//     const authWindow = window.open(`${API_BASE}/auth/github`, '_blank', 'width=600,height=700');
+//     const authWindow = window.open(
+//       `${API_BASE}/auth/github`,
+//       '_blank',
+//       'width=600,height=700'
+//     );
 
 //     if (!authWindow) return alert('Please enable pop-ups for GitHub login.');
 
@@ -104,9 +93,12 @@
 //       const { success, error } = event.data;
 //       if (success) {
 //         try {
+//           console.group('🔐 GitHub login callback');
 //           const { data } = await API.get('/auth/me');
+//           console.log('GitHub login user from /auth/me:', data.user);
 //           login(data.user);
 //           redirectUser(data.user);
+//           console.groupEnd();
 //         } catch (err) {
 //           console.error('GitHub post-login fetch failed:', err);
 //           alert('GitHub login error.');
@@ -126,10 +118,9 @@
 //     setLoading(true);
 //     try {
 //       const { data } = await API.post('/auth/login', { email, password });
-          
 //       console.group('🔐 LoginForm debug (email/password)');
 //       console.log('Login response user:', data.user);
-//        login(data.user);
+//       login(data.user);
 //       redirectUser(data.user);
 //       console.groupEnd();
 //     } catch (err) {
@@ -242,7 +233,6 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load Google script for OAuth
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
@@ -266,21 +256,16 @@ export default function LoginForm() {
 
   const redirectUser = (user) => {
     console.group('🔐 redirectUser');
-    console.log('Full user object:', user);
     const rawName = user?.role?.name;
-    console.log('user.role.name raw:', rawName);
     const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
-    console.log('Computed role:', role);
-    console.log('ADMIN_ROLES:', ADMIN_ROLES);
+    const from = location.state?.from?.pathname;
+    console.log('Redirecting to:', from || (ADMIN_ROLES.includes(role) ? '/admin/users' : '/'));
     console.groupEnd();
 
-    const stored = localStorage.getItem('loginRedirectFrom');
-
-    if (ADMIN_ROLES.includes(role)) {
+    if (from && from !== '/login') {
+      navigate(from, { replace: true });
+    } else if (ADMIN_ROLES.includes(role)) {
       navigate('/admin/users', { replace: true });
-    } else if (stored && stored !== '/login') {
-      navigate(stored, { replace: true });
-      localStorage.removeItem('loginRedirectFrom');
     } else {
       navigate('/', { replace: true });
     }
@@ -289,13 +274,9 @@ export default function LoginForm() {
   const handleGoogleCallback = async (response) => {
     setLoading(true);
     try {
-      console.group('🔐 Google login callback');
-      console.log('Google response credential:', response.credential);
       const { data } = await API.post('/auth/google', { idToken: response.credential });
-      console.log('Google login user:', data.user);
       login(data.user);
       redirectUser(data.user);
-      console.groupEnd();
     } catch (err) {
       console.error('❌ Google login error:', err);
       alert('Google login failed. Try again.');
@@ -320,12 +301,9 @@ export default function LoginForm() {
       const { success, error } = event.data;
       if (success) {
         try {
-          console.group('🔐 GitHub login callback');
           const { data } = await API.get('/auth/me');
-          console.log('GitHub login user from /auth/me:', data.user);
           login(data.user);
           redirectUser(data.user);
-          console.groupEnd();
         } catch (err) {
           console.error('GitHub post-login fetch failed:', err);
           alert('GitHub login error.');
@@ -345,11 +323,8 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const { data } = await API.post('/auth/login', { email, password });
-      console.group('🔐 LoginForm debug (email/password)');
-      console.log('Login response user:', data.user);
       login(data.user);
       redirectUser(data.user);
-      console.groupEnd();
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
       console.error(err);
