@@ -181,8 +181,8 @@ export default function QuizSidebar({ filters = {}, onChange }) {
         setCategories(categoriesData); // Set categories
 
         // Log to verify data
-        console.log("Categories Data:", categoriesData); // Log categories to check if names are populated
-        console.log("Grouped Topics Data:", groupedTopics); // Log topics to check if names are populated
+        console.log("Categories Data:", categoriesData?.name); // Log categories to check if names are populated
+        console.log("Grouped Topics Data:", groupedTopics?.name); // Log topics to check if names are populated
       })
       .catch((err) => {
         console.error(err);
