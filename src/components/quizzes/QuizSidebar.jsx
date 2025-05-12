@@ -215,22 +215,18 @@ export default function QuizSidebar({ filters = {}, onChange }) {
   };
 
   // Find category name by ID (if populated correctly, it will have a name field)
-const getCategoryName = (categoryId) => {
-  const category = categories.find((cat) => cat._id === categoryId);
-  if (!category) {
-    console.log(`Category not found for ID: ${categoryId}`);  // Debugging line
-  }
-  return category ? category.name : categoryId;  // Return category name if found, else return ID
-};
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((cat) => cat._id === categoryId);
+    console.log(`Category Name for ${categoryId}:`, category); // Debugging line to see category data
+    return category ? category.name : categoryId; // Return name or ID if not found
+  };
 
-const getTopicName = (topicId) => {
-  const topic = topics.find((t) => t._id === topicId);
-  if (!topic) {
-    console.log(`Topic not found for ID: ${topicId}`);  // Debugging line
-  }
-  return topic ? topic.name : topicId;  // Return topic name if found, else return ID
-};
-
+  // Find topic name by ID (if populated correctly, it will have a name field)
+  const getTopicName = (topicId) => {
+    const topic = topics.find((t) => t._id === topicId);
+    console.log(`Topic Name for ${topicId}:`, topic); // Debugging line to see topic data
+    return topic ? topic.name : topicId; // Return name or ID if not found
+  };
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 p-4 sticky top-20 h-[calc(100vh-5rem)]">
