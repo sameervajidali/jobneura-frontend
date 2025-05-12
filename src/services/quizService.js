@@ -413,16 +413,19 @@ export function bulkUploadQuizzes(file) {
  * Fetch distinct categories and levels for filters
  * @returns {Object} categories, levels
  */
+// src/services/quizService.js
+
+// Fetch distinct categories and levels for filters
 export const fetchSidebarFilters = async () => {
   try {
     const [categoriesRes, levelsRes] = await Promise.all([
-      API.get('/quizzes/distinct/category'),  // Categories API endpoint
-      API.get('/quizzes/distinct/level')     // Levels API endpoint
+      API.get('/quizzes/distinct/category'),  // Endpoint for categories (ID and name)
+      API.get('/quizzes/distinct/level')     // Endpoint for levels (e.g., Beginner, Intermediate)
     ]);
 
     return {
-      categories: categoriesRes.data,  // Categories array [{_id: '...', name: 'Programming'}, ...]
-      levels: levelsRes.data           // Levels array ['Beginner', 'Intermediate', 'Advanced']
+      categories: categoriesRes.data,  // Example: [{ _id: '...', name: 'Programming' }, ...]
+      levels: levelsRes.data           // Example: ['Beginner', 'Intermediate', 'Advanced']
     };
   } catch (error) {
     console.error("Error fetching sidebar filters:", error);
@@ -431,36 +434,35 @@ export const fetchSidebarFilters = async () => {
 };
 
 /**
- * Fetch grouped topics by category, along with the category name
- * @returns {Array} groups containing category and their respective topics
+ * Fetch grouped topics by category.
+ * The result will be an array where each object contains a category and its associated topics.
+ * Example: [{ category: 'Programming', topics: ['Java', 'Python', ...]}, ...]
  */
-// src/services/quizService.js
-
-// Fetch grouped topics by category
 export const fetchGroupedTopics = async () => {
   try {
-    const res = await API.get('/quizzes/grouped-topics');  // Make sure this endpoint returns grouped topics
+    const res = await API.get('/quizzes/grouped-topics');  // Endpoint to fetch grouped topics by category
     return res.data;  // [{ category: 'Programming', topics: ['Java', 'Python', ...]}, ...]
   } catch (error) {
     console.error("Error fetching grouped topics:", error);
-    return [];  // Return empty array in case of error
+    return [];  // Return empty array in case of an error
   }
 };
 
-
 /**
- * Fetch distinct topics for filtering
- * @returns {Array} distinct topic names
+ * Fetch distinct topics (for filtering).
+ * This returns an array of unique topics that are not grouped by category.
+ * Example: ['Java', 'Python', 'Go', ...]
  */
 export const fetchDistinctTopics = async () => {
   try {
-    const res = await API.get('/quizzes/distinct/topic');
-    return res.data;  // ["Java", "Python", ...]
+    const res = await API.get('/quizzes/distinct/topic');  // Endpoint for distinct topics
+    return res.data;  // Example: ["Java", "Python", "Go", ...]
   } catch (error) {
     console.error("Error fetching distinct topics:", error);
-    return [];
+    return [];  // Return empty array in case of an error
   }
 };
+
 // ─────────────────────────────────────────────────────────────
 // Default export of all quiz service functions
 // ─────────────────────────────────────────────────────────────
