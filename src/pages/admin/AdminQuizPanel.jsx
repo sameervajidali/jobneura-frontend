@@ -303,7 +303,7 @@ export default function AdminQuizPanel() {
               <tr>
                 <th />
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sr</th>
-                {[,"Select","Topic","Category","Title","Level","Questions","Active","Edit","Delete","Bulk","Assign"].map(col => (
+                {["Topic","Category","Title","Level","Questions","Active","Edit","Delete","Bulk","Assign"].map(col => (
                   <th
                     key={col}
                     className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -325,10 +325,10 @@ export default function AdminQuizPanel() {
                   <td className="px-6 py-4 text-center text-sm text-gray-600">{(currentPage-1)*pageSize + idx + 1}</td>
                   <td className="px-6 py-4 text-center whitespace-normal text-sm text-indigo-600">
                     <Link to={`/admin/quizzes/${q._id}/questions`} className="hover:underline">
-                      {q.topic?.name ?? "—"}                      
+                      {q.topic?.name || q.topic}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category?.name ?? "—"}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category?.name || q.category}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.title}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.level}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.questions?.length ?? 0}</td>
