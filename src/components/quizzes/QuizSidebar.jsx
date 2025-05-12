@@ -148,7 +148,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react';
 import quizService from '../../services/quizService';
 import {
@@ -162,38 +161,36 @@ import {
 } from 'lucide-react';
 
 export default function QuizSidebar({ filters = {}, onChange }) {
-  const [groups, setGroups] = useState([]);
-  const [levels, setLevels] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [topics, setTopics] = useState([]);
-  const [openCat, setOpenCat] = useState(null);
-  const [error, setError] = useState('');
+  const [groups, setGroups] = useState([]);  // Groups for categories and topics
+  const [levels, setLevels] = useState([]);  // Available levels
+  const [categories, setCategories] = useState([]);  // Category names
+  const [topics, setTopics] = useState([]);  // Topic names
+  const [openCat, setOpenCat] = useState(null);  // Which category is open
+  const [error, setError] = useState('');  // Error state
 
   useEffect(() => {
     let mounted = true;
     Promise.all([
-      quizService.fetchSidebarFilters(),
-      quizService.fetchGroupedTopics(),
-      quizService.fetchCategories(), // Fetch categories with name and ID
-      quizService.fetchTopics(),     // Fetch topics with name and ID
+      quizService.fetchSidebarFilters(),  // Fetch categories and levels
+      quizService.fetchGroupedTopics(),   // Fetch grouped topics
     ])
-      .then(([{ levels }, grouped, categoriesData, topicsData]) => {
+      .then(([{ categories: categoriesData, levels: levelsData }, groupedTopics]) => {
         if (!mounted) return;
-        setGroups(grouped);
-        setLevels(levels);
-        setCategories(categoriesData);
-        setTopics(topicsData);
+        setGroups(groupedTopics);  // Set grouped topics (categories + topics)
+        setLevels(levelsData);     // Set levels
+        setCategories(categoriesData); // Set categories
       })
       .catch((err) => {
         console.error(err);
         if (mounted) setError('Failed to load filters.');
       });
+
     return () => {
       mounted = false;
     };
   }, []);
 
-  const toggle = (cat) => setOpenCat(openCat === cat ? null : cat);
+  const toggle = (cat) => setOpenCat(openCat === cat ? null : cat);  // Toggle category visibility
 
   const pickCat = (cat) => {
     onChange({ ...filters, category: cat, topic: '', page: 1 });
@@ -205,21 +202,19 @@ export default function QuizSidebar({ filters = {}, onChange }) {
 
   const IconFor = (name) => {
     switch (name) {
-      case 'Programming':
-        return <Code className="w-4 h-4" />;
-      case 'Software Development':
-        return <Layout className="w-4 h-4" />;
-      case 'Design':
-        return <Brush className="w-4 h-4" />;
-      case 'AI':
-        return <Cpu className="w-4 h-4" />;
-      default:
-        return <BookOpen className="w-4 h-4" />;
+      case 'Programming': return <Code className="w-4 h-4" />;
+      case 'Software Development': return <Layout className="w-4 h-4" />;
+      case 'Design': return <Brush className="w-4 h-4" />;
+      case 'AI': return <Cpu className="w-4 h-4" />;
+      default: return <BookOpen className="w-4 h-4" />;
     }
   };
 
+  // Find category name by ID
   const getCategoryName = (categoryId) =>
     categories.find((cat) => cat._id === categoryId)?.name || categoryId;
+
+  // Find topic name by ID
   const getTopicName = (topicId) =>
     topics.find((topic) => topic._id === topicId)?.name || topicId;
 

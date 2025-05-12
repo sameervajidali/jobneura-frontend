@@ -415,19 +415,18 @@ export function bulkUploadQuizzes(file) {
  */
 export const fetchSidebarFilters = async () => {
   try {
-    const [categories, levels] = await Promise.all([
-      API.get('/quizzes/distinct/category'),
-      API.get('/quizzes/distinct/level'),
+    const [categoriesRes, levelsRes] = await Promise.all([
+      API.get('/quizzes/distinct/category'),  // Categories API endpoint
+      API.get('/quizzes/distinct/level')     // Levels API endpoint
     ]);
-    
-    // Assuming 'categories' contains { _id, name } and 'levels' contains just names.
+
     return {
-      categories: categories.data,  // Category data will now contain names along with IDs
-      levels: levels.data,          // Levels data will be used directly
+      categories: categoriesRes.data,  // Categories array [{_id: '...', name: 'Programming'}, ...]
+      levels: levelsRes.data           // Levels array ['Beginner', 'Intermediate', 'Advanced']
     };
   } catch (error) {
     console.error("Error fetching sidebar filters:", error);
-    return { categories: [], levels: [] };
+    return { categories: [], levels: [] };  // Return empty arrays in case of an error
   }
 };
 
@@ -435,15 +434,19 @@ export const fetchSidebarFilters = async () => {
  * Fetch grouped topics by category, along with the category name
  * @returns {Array} groups containing category and their respective topics
  */
+// src/services/quizService.js
+
+// Fetch grouped topics by category
 export const fetchGroupedTopics = async () => {
   try {
-    const res = await API.get('/quizzes/grouped-topics');
-    return res.data;  // [{ category: 'Programming', topics: [...] }, ...]
+    const res = await API.get('/quizzes/grouped-topics');  // Make sure this endpoint returns grouped topics
+    return res.data;  // [{ category: 'Programming', topics: ['Java', 'Python', ...]}, ...]
   } catch (error) {
     console.error("Error fetching grouped topics:", error);
-    return [];
+    return [];  // Return empty array in case of error
   }
 };
+
 
 /**
  * Fetch distinct topics for filtering
