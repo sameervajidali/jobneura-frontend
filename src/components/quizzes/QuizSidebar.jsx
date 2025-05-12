@@ -147,7 +147,6 @@
 // }
 
 
-
 import React, { useState, useEffect } from 'react';
 import quizService from '../../services/quizService';
 import {
@@ -168,6 +167,7 @@ export default function QuizSidebar({ filters = {}, onChange }) {
   const [openCat, setOpenCat] = useState(null);  // Which category is open
   const [error, setError] = useState('');  // Error state
 
+  // Fetch the categories and grouped topics
   useEffect(() => {
     let mounted = true;
     Promise.all([
@@ -194,16 +194,22 @@ export default function QuizSidebar({ filters = {}, onChange }) {
     };
   }, []);
 
+  // Toggle the category visibility
   const toggle = (cat) => setOpenCat(openCat === cat ? null : cat);  // Toggle category visibility
 
+  // Set category and reset topic
   const pickCat = (cat) => {
     onChange({ ...filters, category: cat, topic: '', page: 1 });
     setOpenCat(cat);
   };
 
+  // Set topic
   const pickTopic = (t) => onChange({ ...filters, topic: t, page: 1 });
+
+  // Set level
   const pickLevel = (e) => onChange({ ...filters, level: e.target.value, page: 1 });
 
+  // Get category icon based on name
   const IconFor = (name) => {
     switch (name) {
       case 'Programming': return <Code className="w-4 h-4" />;
@@ -217,15 +223,21 @@ export default function QuizSidebar({ filters = {}, onChange }) {
   // Find category name by ID (if populated correctly, it will have a name field)
   const getCategoryName = (categoryId) => {
     const category = categories.find((cat) => cat._id === categoryId);
-    console.log(`Category Name for ${categoryId}:`, category); // Debugging line to see category data
-    return category ? category.name : categoryId; // Return name or ID if not found
+    if (!category) {
+      console.error(`Category with ID ${categoryId} not found.`);
+      return categoryId; // Return the ID if the category is not found
+    }
+    return category.name || categoryId; // Safeguard if name is missing
   };
 
   // Find topic name by ID (if populated correctly, it will have a name field)
   const getTopicName = (topicId) => {
     const topic = topics.find((t) => t._id === topicId);
-    console.log(`Topic Name for ${topicId}:`, topic); // Debugging line to see topic data
-    return topic ? topic.name : topicId; // Return name or ID if not found
+    if (!topic) {
+      console.error(`Topic with ID ${topicId} not found.`);
+      return topicId; // Return the ID if the topic is not found
+    }
+    return topic.name || topicId; // Safeguard if name is missing
   };
 
   return (
