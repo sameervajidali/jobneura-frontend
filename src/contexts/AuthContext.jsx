@@ -1,5 +1,4 @@
 
-// // src/contexts/AuthContext.jsx
 // import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 // import API from '../services/axios';
 
@@ -33,6 +32,7 @@
 //     } catch (err) {
 //       console.error('🔁 Refresh token failed:', err);
 //       setUser(null);
+//       window.location.href = '/login';
 //     } finally {
 //       isRefreshing.current = false;
 //     }
@@ -42,7 +42,7 @@
 //     if (refreshTimer.current) clearTimeout(refreshTimer.current);
 //     refreshTimer.current = setTimeout(() => {
 //       refreshSession();
-//     }, 13 * 60 * 1000); // refresh at 13 mins
+//     }, 13 * 60 * 1000); // Refresh every 13 minutes
 //   }, [refreshSession]);
 
 //   const login = useCallback(async (loginResponse) => {
@@ -59,9 +59,20 @@
 //     } finally {
 //       clearTimeout(refreshTimer.current);
 //       setUser(null);
-//       window.location.href = '/login'; // ⬅️ Force redirect
+//       window.location.href = '/login';
 //     }
 //   }, []);
+
+//   // Listen to token refreshes triggered from Axios
+//   useEffect(() => {
+//     const handleRefresh = (e) => {
+//       setUser(e.detail);
+//       scheduleAutoRefresh();
+//     };
+  
+//     window.addEventListener('session-refresh', handleRefresh);
+//     return () => window.removeEventListener('session-refresh', handleRefresh);
+//   }, [scheduleAutoRefresh]);
 
 //   useEffect(() => {
 //     loadUserFromSession().then(() => scheduleAutoRefresh());
@@ -78,7 +89,15 @@
 // export const useAuth = () => useContext(AuthContext);
 
 
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+// src/contexts/AuthContext.jsx
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
 import API from '../services/axios';
 
 const AuthContext = createContext();
@@ -93,9 +112,11 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await API.get('/auth/me');
       setUser(data.user ?? data);
+      window.localStorage.setItem('hasSession', 'true');
     } catch (err) {
       console.warn('❌ Session invalid:', err?.response?.status);
       setUser(null);
+      window.localStorage.removeItem('hasSession');
     } finally {
       setLoading(false);
     }
@@ -107,10 +128,12 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await API.post('/auth/refresh-token');
       setUser(data.user ?? null);
+      window.localStorage.setItem('hasSession', 'true');
       scheduleAutoRefresh();
     } catch (err) {
       console.error('🔁 Refresh token failed:', err);
       setUser(null);
+      window.localStorage.removeItem('hasSession');
       window.location.href = '/login';
     } finally {
       isRefreshing.current = false;
@@ -127,6 +150,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (loginResponse) => {
     const userData = loginResponse.user ?? loginResponse;
     setUser(userData);
+    window.localStorage.setItem('hasSession', 'true');
     scheduleAutoRefresh();
   }, [scheduleAutoRefresh]);
 
@@ -138,23 +162,30 @@ export function AuthProvider({ children }) {
     } finally {
       clearTimeout(refreshTimer.current);
       setUser(null);
+      window.localStorage.removeItem('hasSession');
       window.location.href = '/login';
     }
   }, []);
 
-  // Listen to token refreshes triggered from Axios
+  // Allow external token refresh via event (from Axios)
   useEffect(() => {
     const handleRefresh = (e) => {
       setUser(e.detail);
       scheduleAutoRefresh();
     };
-
     window.addEventListener('session-refresh', handleRefresh);
     return () => window.removeEventListener('session-refresh', handleRefresh);
   }, [scheduleAutoRefresh]);
 
+  // Initial load
   useEffect(() => {
-    loadUserFromSession().then(() => scheduleAutoRefresh());
+    const hasSession = window.localStorage.getItem('hasSession');
+    if (hasSession) {
+      loadUserFromSession().then(() => scheduleAutoRefresh());
+    } else {
+      setLoading(false);
+    }
+
     return () => clearTimeout(refreshTimer.current);
   }, [loadUserFromSession, scheduleAutoRefresh]);
 
