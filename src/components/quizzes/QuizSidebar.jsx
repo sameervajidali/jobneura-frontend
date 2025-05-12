@@ -148,7 +148,6 @@
 
 
 
-
 import React, { useState, useEffect } from 'react';
 import quizService from '../../services/quizService';
 import {
@@ -181,6 +180,7 @@ export default function QuizSidebar({ filters = {}, onChange }) {
         setLevels(levelsData);     // Set levels
         setCategories(categoriesData); // Set categories
 
+        // Log to verify data
         console.log("Categories Data:", categoriesData); // Log categories to check if names are populated
         console.log("Grouped Topics Data:", groupedTopics); // Log topics to check if names are populated
       })
