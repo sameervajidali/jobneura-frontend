@@ -179,15 +179,20 @@ export function AuthProvider({ children }) {
 
   // Initial load
   useEffect(() => {
-    const hasSession = window.localStorage.getItem('hasSession');
-    if (hasSession) {
-      loadUserFromSession().then(() => scheduleAutoRefresh());
-    } else {
-      setLoading(false);
-    }
+  const hasSession = window.localStorage.getItem('hasSession');
+  if (hasSession) {
+    loadUserFromSession().then(() => {
+      window.dispatchEvent(new Event('session-checked')); // ✅ Notify axios
+      scheduleAutoRefresh();
+    });
+  } else {
+    setLoading(false);
+    window.dispatchEvent(new Event('session-checked')); // ✅ Notify axios anyway
+  }
 
-    return () => clearTimeout(refreshTimer.current);
-  }, [loadUserFromSession, scheduleAutoRefresh]);
+  return () => clearTimeout(refreshTimer.current);
+}, [loadUserFromSession, scheduleAutoRefresh]);
+
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, refreshSession }}>
