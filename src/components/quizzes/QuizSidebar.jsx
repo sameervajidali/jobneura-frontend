@@ -181,8 +181,8 @@ export default function QuizSidebar({ filters = {}, onChange }) {
         setCategories(categoriesData); // Set categories
 
         // Log to verify data
-        console.log("Categories Data:", categoriesData?.name); // Log categories to check if names are populated
-        console.log("Grouped Topics Data:", groupedTopics?.name); // Log topics to check if names are populated
+        console.log("Categories Data:", categoriesData); // Log categories to check if names are populated
+        console.log("Grouped Topics Data:", groupedTopics); // Log topics to check if names are populated
       })
       .catch((err) => {
         console.error(err);
@@ -215,12 +215,18 @@ export default function QuizSidebar({ filters = {}, onChange }) {
   };
 
   // Find category name by ID (if populated correctly, it will have a name field)
-  const getCategoryName = (categoryId) =>
-    categories.find((cat) => cat._id === categoryId)?.name || categoryId;
+  const getCategoryName = (categoryId) => {
+    const category = categories.find((cat) => cat._id === categoryId);
+    console.log(`Category Name for ${categoryId}:`, category); // Debugging line to see category data
+    return category ? category.name : categoryId; // Return name or ID if not found
+  };
 
   // Find topic name by ID (if populated correctly, it will have a name field)
-  const getTopicName = (topicId) =>
-    topics.find((topic) => topic._id === topicId)?.name || topicId;
+  const getTopicName = (topicId) => {
+    const topic = topics.find((topic) => topic._id === topicId);
+    console.log(`Topic Name for ${topicId}:`, topic); // Debugging line to see topic data
+    return topic ? topic.name : topicId; // Return name or ID if not found
+  };
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 p-4 sticky top-20 h-[calc(100vh-5rem)]">
