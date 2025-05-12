@@ -326,6 +326,7 @@ export default function AdminQuizPanel() {
                   <td className="px-6 py-4 text-center whitespace-normal text-sm text-indigo-600">
                     <Link to={`/admin/quizzes/${q._id}/questions`} className="hover:underline">
                       {q.topic?.name}
+                      {console.log(q.topic?.name)}
                     </Link>
                   </td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category?.name}</td>
