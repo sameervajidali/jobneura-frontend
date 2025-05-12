@@ -180,6 +180,9 @@ export default function QuizSidebar({ filters = {}, onChange }) {
         setGroups(groupedTopics);  // Set grouped topics (categories + topics)
         setLevels(levelsData);     // Set levels
         setCategories(categoriesData); // Set categories
+
+        console.log("Categories Data:", categoriesData); // Log categories to check if names are populated
+        console.log("Grouped Topics Data:", groupedTopics); // Log topics to check if names are populated
       })
       .catch((err) => {
         console.error(err);
