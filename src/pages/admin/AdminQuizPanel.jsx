@@ -328,8 +328,8 @@ export default function AdminQuizPanel() {
                       {q.topic}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category}</td>
-                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.title}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category?.name || q.category}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.topic?.name    || q.topic}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.level}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.questions?.length ?? 0}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm">
