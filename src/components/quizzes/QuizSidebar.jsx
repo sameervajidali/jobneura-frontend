@@ -211,11 +211,11 @@ export default function QuizSidebar({ filters = {}, onChange }) {
     }
   };
 
-  // Find category name by ID
+  // Find category name by ID (if populated correctly, it will have a name field)
   const getCategoryName = (categoryId) =>
     categories.find((cat) => cat._id === categoryId)?.name || categoryId;
 
-  // Find topic name by ID
+  // Find topic name by ID (if populated correctly, it will have a name field)
   const getTopicName = (topicId) =>
     topics.find((topic) => topic._id === topicId)?.name || topicId;
 
