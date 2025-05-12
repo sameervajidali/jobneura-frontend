@@ -71,6 +71,20 @@ export default function useQuizList(rawFilters = {}) {
     setLoading(true);
     setError('');
 
+
+    const getCategoryName = (categoryId) => {
+  const category = categories.find((cat) => cat._id === categoryId);
+  console.log(`Category Name for ${categoryId}:`, category);  // Debugging line
+  return category ? category.name : categoryId;  // Safeguard if name is missing
+};
+
+const getTopicName = (topicId) => {
+  const topic = topics.find((t) => t._id === topicId);
+  console.log(`Topic Name for ${topicId}:`, topic);  // Debugging line
+  return topic ? topic.name : topicId;  // Safeguard if name is missing
+};
+
+
     // Build params: fixed limit + page + only non-empty filters
     const params = { page, limit };
     for (const [key, value] of Object.entries(otherFilters)) {
