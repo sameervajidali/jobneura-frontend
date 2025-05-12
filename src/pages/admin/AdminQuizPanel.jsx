@@ -325,10 +325,10 @@ export default function AdminQuizPanel() {
                   <td className="px-6 py-4 text-center text-sm text-gray-600">{(currentPage-1)*pageSize + idx + 1}</td>
                   <td className="px-6 py-4 text-center whitespace-normal text-sm text-indigo-600">
                     <Link to={`/admin/quizzes/${q._id}/questions`} className="hover:underline">
-                      {q.topic?.name || q.topic}
+                      {q.topic?.name}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category?.name || q.category}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.category?.name}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.title}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.level}</td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-700">{q.questions?.length ?? 0}</td>
