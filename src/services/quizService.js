@@ -256,7 +256,7 @@ export function getLeaderboard(params = {}) {
   return API.get('/quizzes/leaderboard', { params })
     .then(res => {
       const d = res.data;
-      console.log("📊 Raw leaderboard response:", d);
+     
       return {
         items: Array.isArray(d.items) ? d.items : [],
         total: typeof d.total === 'number' ? d.total : 0,
@@ -409,44 +409,6 @@ export function bulkUploadQuizzes(file) {
 // Endpoints: /api/quizzes/distinct/... and /api/quizzes/grouped-topics
 // ─────────────────────────────────────────────────────────────
 
-/**
- * Fetch distinct categories and levels for filters
- * @returns {Object} categories, levels
- */
-// src/services/quizService.js
-
-// Fetch distinct categories and levels for filters
-export const fetchSidebarFilters = async () => {
-  try {
-    const [categoriesRes, levelsRes] = await Promise.all([
-      API.get('/quizzes/distinct/category'),  // Endpoint for categories (ID and name)
-      API.get('/quizzes/distinct/level')     // Endpoint for levels (e.g., Beginner, Intermediate)
-    ]);
-
-    return {
-      categories: categoriesRes.data,  // Example: [{ _id: '...', name: 'Programming' }, ...]
-      levels: levelsRes.data           // Example: ['Beginner', 'Intermediate', 'Advanced']
-    };
-  } catch (error) {
-    console.error("Error fetching sidebar filters:", error);
-    return { categories: [], levels: [] };  // Return empty arrays in case of an error
-  }
-};
-
-/**
- * Fetch grouped topics by category.
- * The result will be an array where each object contains a category and its associated topics.
- * Example: [{ category: 'Programming', topics: ['Java', 'Python', ...]}, ...]
- */
-export const fetchGroupedTopics = async () => {
-  try {
-    const res = await API.get('/quizzes/grouped-topics');  // Endpoint to fetch grouped topics by category
-    return res.data;  // [{ category: 'Programming', topics: ['Java', 'Python', ...]}, ...]
-  } catch (error) {
-    console.error("Error fetching grouped topics:", error);
-    return [];  // Return empty array in case of an error
-  }
-};
 
 /**
  * Fetch distinct topics (for filtering).
@@ -458,15 +420,72 @@ export const fetchDistinctTopics = async () => {
     const res = await API.get('/quizzes/distinct/topic');  // Endpoint for distinct topics
     return res.data;  // Example: ["Java", "Python", "Go", ...]
   } catch (error) {
-    console.error("Error fetching distinct topics:", error);
+   
     return [];  // Return empty array in case of an error
   }
 };
+
+
+
+// ── Highlights ───────────────────────────────────────────────────────────
+export function fetchJustAdded(limit = 3) {
+  return API.get('/quizzes/highlight/just-added', { params: { limit } })
+    .then(res => res.data);
+}
+
+export function fetchTrending(limit = 5) {
+  return API.get('/quizzes/highlight/trending', { params: { limit } })
+    .then(res => res.data);
+}
+
+export function fetchDailySpotlight() {
+  return API.get('/quizzes/highlight/daily-spotlight')
+    .then(res => res.data);
+}
+
+
+
+/**
+ * Fetch exactly the 3 arrays your sidebar needs:
+ *  - categories: [{ _id, name }, …]
+ *  - topics:     [{ _id, name }, …]
+ *  - levels:     ['Beginner','…']
+ */
+// after
+// after
+// src/services/quizService.js
+export const fetchSidebarFilters = async () => {
+  const [catsRes, topsRes, lvlsRes] = await Promise.all([
+    API.get('/quizzes/distinct/category'),
+    API.get('/quizzes/distinct/topic'),
+    API.get('/quizzes/distinct/level')
+  ]);
+  return {
+    categories: catsRes.data,  // [{_id,name},…]
+    topics:     topsRes.data,  // [{_id,name},…]
+    levels:     lvlsRes.data   // ['Beginner','Intermediate',…]
+  };
+};
+
+
+/**
+ * Fetch grouping of topics under each category:
+ *   [{ category: 'Programming', topics: ['JavaScript', …] }, …]
+ */
+export async function fetchGroupedTopics() {
+  const res = await API.get('/quizzes/grouped-topics');
+  // expects [{ category: 'Programming', topics: ['JavaScript','Python',…] }, …]
+  return res.data;
+}
+
+
 
 // ─────────────────────────────────────────────────────────────
 // Default export of all quiz service functions
 // ─────────────────────────────────────────────────────────────
 const quizService = {
+   fetchSidebarFilters,
+  fetchGroupedTopics,
   getAllQuizzes,
   createQuiz,
   getQuizById,
@@ -487,6 +506,9 @@ const quizService = {
   fetchSidebarFilters,
   fetchGroupedTopics,
   fetchDistinctTopics,
+   fetchJustAdded,
+  fetchTrending,
+  fetchDailySpotlight,
 };
 
 export default quizService;

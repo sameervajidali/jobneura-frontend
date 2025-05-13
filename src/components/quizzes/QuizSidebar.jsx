@@ -1,327 +1,202 @@
-
-// // src/components/quizzes/QuizSidebar.jsx
-// import React, { useState, useEffect } from 'react';
-// import quizService from '../../services/quizService';
-// import {
-//   ChevronDown,
-//   ChevronRight,
-//   Code,
-//   Layout,
-//   Brush,
-//   Cpu,
-//   BookOpen,
-// } from 'lucide-react'; // all icons same style
-
-// export default function QuizSidebar({ filters = {}, onChange }) {
-//   const [groups, setGroups]   = useState([]);
-//   const [levels, setLevels]   = useState([]);
-//   const [openCat, setOpenCat] = useState(null);
-//   const [error, setError]     = useState('');
-
-//   useEffect(() => {
-//     let mounted = true;
-//     Promise.all([
-//       quizService.fetchSidebarFilters(),
-//       quizService.fetchGroupedTopics()
-//     ])
-//     .then(([{ levels }, grouped]) => {
-//       if (!mounted) return;
-//       setGroups(grouped);
-//       setLevels(levels);
-//     })
-//     .catch(err => {
-//       console.error(err);
-//       if (mounted) setError('Failed to load filters.');
-//     });
-//     return () => { mounted = false; };
-//   }, []);
-
-//   const toggle = (cat) => setOpenCat(openCat === cat ? null : cat);
-//   const pickCat = (cat) => {
-//     onChange({ ...filters, category: cat, topic: '', page: 1 });
-//     setOpenCat(cat);
-//   };
-//   const pickTopic = (t) =>
-//     onChange({ ...filters, topic: t, page: 1 });
-//   const pickLevel = (e) =>
-//     onChange({ ...filters, level: e.target.value, page: 1 });
-
-//   const IconFor = (name) => {
-//     switch (name) {
-//       case 'Programming': return <Code className="w-4 h-4" />;
-//       case 'Software Development': return <Layout className="w-4 h-4" />;
-//       case 'Design': return <Brush className="w-4 h-4" />;
-//       case 'AI': return <Cpu className="w-4 h-4" />;
-//       default: return <BookOpen className="w-4 h-4" />;
-//     }
-//   };
-
-//   return (
-//     <aside className="w-64 bg-white border-r border-gray-200 p-4 sticky top-20 h-[calc(100vh-5rem)]">
-//       {error && (
-//         <div role="alert" className="text-red-600 text-sm mb-3">
-//           {error}
-//         </div>
-//       )}
-
-//       <nav aria-label="Quiz categories" className="space-y-2">
-//         {groups.map(({ category, topics }) => {
-//           const isOpen = openCat === category;
-//           const isActive = filters.category === category;
-//           return (
-//             <div key={category}>
-//               <button
-//                 onClick={() => pickCat(category)}
-//                 className={`
-//                   flex items-center justify-between w-full px-3 py-2
-//                   text-sm font-medium rounded
-//                   ${isActive ? 'bg-indigo-100 border-l-4 border-indigo-600' : 'hover:bg-gray-100'}
-//                   focus:outline-none focus:ring-2 focus:ring-indigo-400
-//                 `}
-//                 aria-expanded={isOpen}
-//                 aria-controls={`cat-${category}`}
-//               >
-//                 <span className="inline-flex items-center gap-2">
-//                   {IconFor(category)}
-//                   {category}
-//                 </span>
-//                 {isOpen
-//                   ? <ChevronDown className="w-4 h-4 text-gray-500" />
-//                   : <ChevronRight className="w-4 h-4 text-gray-400" />
-//                 }
-//               </button>
-
-//               {isOpen && (
-//                 <ul
-//                   id={`cat-${category}`}
-//                   role="menu"
-//                   className="mt-1 ml-5 space-y-1"
-//                 >
-//                   {topics.map((t) => {
-//                     const isTopicActive = filters.topic === t;
-//                     return (
-//                       <li key={t}>
-//                         <button
-//                           onClick={() => pickTopic(t)}
-//                           className={`
-//                             flex items-center w-full px-2 py-1 text-sm rounded
-//                             ${isTopicActive ? 'bg-indigo-200 text-indigo-800' : 'hover:bg-gray-100'}
-//                             focus:outline-none focus:ring-2 focus:ring-indigo-400
-//                           `}
-//                           role="menuitem"
-//                         >
-//                           {/* you could map some topics to specific icons if you like */}
-//                           <BookOpen className="w-4 h-4 opacity-60" />
-//                           <span className="ml-2">{t}</span>
-//                         </button>
-//                       </li>
-//                     );
-//                   })}
-//                 </ul>
-//               )}
-//             </div>
-//           );
-//         })}
-//       </nav>
-
-//       <div className="mt-6">
-//         <label htmlFor="level-select" className="block text-sm font-medium mb-1">
-//           Level
-//         </label>
-//         <select
-//           id="level-select"
-//           value={filters.level || ''}
-//           onChange={pickLevel}
-//           className="block w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
-//         >
-//           <option value="">All Levels</option>
-//           {levels.map((l) => (
-//             <option key={l} value={l}>
-//               {l}
-//             </option>
-//           ))}
-//         </select>
-//       </div>
-//     </aside>
-//   );
-// }
-
-
-import React, { useState, useEffect } from 'react';
+// src/components/quizzes/QuizSidebar.jsx
+import React, { useState, useEffect, useMemo } from 'react';
+import { FiFolder, FiFolderPlus, FiBookOpen, FiSearch, FiX } from 'react-icons/fi';
+import { Code, Layout, Brush, Cpu, BookOpen } from 'lucide-react';
 import quizService from '../../services/quizService';
-import {
-  ChevronDown,
-  ChevronRight,
-  Code,
-  Layout,
-  Brush,
-  Cpu,
-  BookOpen,
-} from 'lucide-react';
 
-export default function QuizSidebar({ filters = {}, onChange }) {
-  const [groups, setGroups] = useState([]);  // Groups for categories and topics
-  const [levels, setLevels] = useState([]);  // Available levels
-  const [categories, setCategories] = useState([]);  // Category names
-  const [topics, setTopics] = useState([]);  // Topic names
-  const [openCat, setOpenCat] = useState(null);  // Which category is open
-  const [error, setError] = useState('');  // Error state
+const IconFor = name => {
+  switch (name) {
+    case 'Programming':          return <Code    className="w-5 h-5" />;
+    case 'Software Development': return <Layout  className="w-5 h-5" />;
+    case 'Design':               return <Brush   className="w-5 h-5" />;
+    case 'AI':                   return <Cpu     className="w-5 h-5" />;
+    default:                     return <BookOpen className="w-5 h-5" />;
+  }
+};
 
-  // Fetch the categories and grouped topics
+export default function QuizSidebar({ filters, onChange }) {
+  const [open,    setOpen]    = useState(false);
+  const [cats,    setCats]    = useState([]);
+  const [tops,    setTops]    = useState([]);
+  const [levels,  setLevels]  = useState([]);
+  const [groups,  setGroups]  = useState([]);
+  const [openCat, setOpenCat] = useState(null);
+  const [q,       setQ]       = useState('');
+
+  // 1) fetch flat lists
   useEffect(() => {
-    let mounted = true;
-    Promise.all([
-      quizService.fetchSidebarFilters(),  // Fetch categories and levels
-      quizService.fetchGroupedTopics(),   // Fetch grouped topics
-    ])
-      .then(([{ categories: categoriesData, levels: levelsData }, groupedTopics]) => {
-        if (!mounted) return;
-        setGroups(groupedTopics);  // Set grouped topics (categories + topics)
-        setLevels(levelsData);     // Set levels
-        setCategories(categoriesData); // Set categories
-
-        // Log to verify data
-        console.log("Categories Data:", categoriesData); // Log categories to check if names are populated
-        console.log("Grouped Topics Data:", groupedTopics); // Log topics to check if names are populated
+    quizService.fetchSidebarFilters()
+      .then(({ categories, topics, levels }) => {
+        setCats(categories);
+        setTops(topics);
+        setLevels(levels);
       })
-      .catch((err) => {
-        console.error(err);
-        if (mounted) setError('Failed to load filters.');
-      });
-
-    return () => {
-      mounted = false;
-    };
+      .catch(console.error);
   }, []);
 
-  // Toggle the category visibility
-  const toggle = (cat) => setOpenCat(openCat === cat ? null : cat);  // Toggle category visibility
+  // 2) build grouped tree
+  useEffect(() => {
+    if (!cats.length || !tops.length) return;
+    quizService.fetchGroupedTopics()
+      .then(raw => {
+        const catMap = Object.fromEntries(cats.map(c => [c._id, c.name]));
+        const topMap = Object.fromEntries(tops.map(t => [t._id, t.name]));
+        setGroups(raw.map(({ category, topics }) => ({
+          id:      category,
+          name:    catMap[category] || 'Unknown',
+          topics:  topics.map(tid => ({
+            id:   tid,
+            name: topMap[tid] || 'Unknown'
+          }))
+        })));
+      })
+      .catch(console.error);
+  }, [cats, tops]);
 
-  // Set category and reset topic
-  const pickCat = (cat) => {
-    onChange({ ...filters, category: cat, topic: '', page: 1 });
-    setOpenCat(cat);
+  // 3) client-side search
+  const filtered = useMemo(() => {
+    if (!q) return groups;
+    const lc = q.toLowerCase();
+    return groups
+      .map(g => ({ 
+        ...g, 
+        topics: g.topics.filter(t => t.name.toLowerCase().includes(lc)) 
+      }))
+      .filter(g => g.name.toLowerCase().includes(lc) || g.topics.length);
+  }, [groups, q]);
+
+  // 4) pick handlers
+  const pickCat   = cid => {
+    onChange({ ...filters, category: cid, topic:'', page:1 });
+    setOpenCat(openCat===cid ? null : cid);
   };
-
-  // Set topic
-  const pickTopic = (t) => onChange({ ...filters, topic: t, page: 1 });
-
-  // Set level
-  const pickLevel = (e) => onChange({ ...filters, level: e.target.value, page: 1 });
-
-  // Get category icon based on name
-  const IconFor = (name) => {
-    switch (name) {
-      case 'Programming': return <Code className="w-4 h-4" />;
-      case 'Software Development': return <Layout className="w-4 h-4" />;
-      case 'Design': return <Brush className="w-4 h-4" />;
-      case 'AI': return <Cpu className="w-4 h-4" />;
-      default: return <BookOpen className="w-4 h-4" />;
-    }
-  };
-
-  // Find category name by ID (if populated correctly, it will have a name field)
-  const getCategoryName = (categoryId) => {
-    const category = categories.find((cat) => cat._id === categoryId);
-    if (!category) {
-      console.error(`Category with ID ${categoryId} not found.`);
-      return categoryId; // Return the ID if the category is not found
-    }
-    return category.name || categoryId; // Safeguard if name is missing
-  };
-
-  // Find topic name by ID (if populated correctly, it will have a name field)
-  const getTopicName = (topicId) => {
-    const topic = topics.find((t) => t._id === topicId);
-    if (!topic) {
-      console.error(`Topic with ID ${topicId} not found.`);
-      return topicId; // Return the ID if the topic is not found
-    }
-    return topic.name || topicId; // Safeguard if name is missing
-  };
+  const pickTopic = tid =>
+    onChange({ ...filters, topic: tid, page:1 });
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 p-4 sticky top-20 h-[calc(100vh-5rem)]">
-      {error && (
-        <div role="alert" className="text-red-600 text-sm mb-3">
-          {error}
+    <>
+      {/* Mobile open button */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-full shadow-lg"
+        onClick={()=>setOpen(true)}
+        aria-label="Open categories"
+      >
+        <FiSearch className="w-6 h-6"/>
+      </button>
+
+      {/* backdrop */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-40 z-40 transition-opacity ${
+          open ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={()=>setOpen(false)}
+      />
+
+      <aside
+        className={`
+          fixed inset-y-0 left-0  b-t w-60 bg-white border-r  z-50
+          transform transition-transform duration-200 ease-in-out
+          ${open ? 'translate-x-0' : '-translate-x-full'}
+          md:relative md:translate-x-0
+          md:sticky md:top-16      /* push below a 64px header */
+          h-full pt-4             /* give top padding so it never overlaps */
+        `}
+      >
+        {/* Mobile close */}
+        <div className="md:hidden flex justify-end pr-4 pb-2">
+          <button onClick={()=>setOpen(false)} aria-label="Close sidebar">
+            <FiX className="w-6 h-6"/>
+          </button>
         </div>
-      )}
 
-      <nav aria-label="Quiz categories" className="space-y-2">
-        {groups.map(({ category, topics }) => {
-          const isOpen = openCat === category;
-          const isActive = filters.category === category;
-          return (
-            <div key={category}>
-              <button
-                onClick={() => pickCat(category)}
-                className={`
-                  flex items-center justify-between w-full px-3 py-2 
-                  text-sm font-medium rounded
-                  ${isActive ? 'bg-indigo-100 border-l-4 border-indigo-600' : 'hover:bg-gray-100'}
-                  focus:outline-none focus:ring-2 focus:ring-indigo-400
-                `}
-                aria-expanded={isOpen}
-                aria-controls={`cat-${category}`}
-              >
-                <span className="inline-flex items-center gap-2">
-                  {IconFor(getCategoryName(category))} {/* Display category icon */}
-                  {getCategoryName(category)} {/* Display category name */}
-                </span>
-                {isOpen ? (
-                  <ChevronDown className="w-4 h-4 text-gray-500" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
+        {/* Search */}
+        <div className="relative px-4 pb-4">
+          <FiSearch className="absolute top-3 left-6 text-gray-400"/>
+          <input
+            type="text"
+            value={q}
+            onChange={e=>setQ(e.target.value)}
+            placeholder="Search…"
+            className="pl-10 pr-4 py-2 w-full border rounded focus:ring-indigo-300 focus:border-indigo-300"
+          />
+        </div>
+
+        {/* Category → Topic tree */}
+        <nav className="px-2 space-y-2">
+          {filtered.map(group => {
+            const isOpen   = openCat===group.id;
+            const isActive = filters.category===group.id;
+            return (
+              <div key={group.id}>
+                <button
+                  onClick={()=>pickCat(group.id)}
+                  className={`
+                    flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded
+                    ${isActive
+                      ? 'bg-indigo-100 border-l-4 border-indigo-600'
+                      : 'hover:bg-gray-100'}
+                    focus:outline-none focus:ring-2 focus:ring-indigo-400
+                    transition
+                  `}
+                >
+                  <span className="flex items-center gap-2">
+                    {isOpen
+                      ? <FiFolderPlus className="w-5 h-5 text-indigo-600"/>
+                      : <FiFolder     className="w-5 h-5 text-gray-600"/>}
+                    {IconFor(group.name)}
+                    <span>{group.name}</span>
+                  </span>
+                  <span className="text-gray-500">{isOpen ? '▾' : '▸'}</span>
+                </button>
+
+                {isOpen && group.topics.length > 0 && (
+                  <ul className="mt-1 ml-8 space-y-1">
+                    {group.topics.map(t => {
+                      const act = filters.topic===t.id;
+                      return (
+                        <li key={t.id}>
+                          <button
+                            onClick={()=>pickTopic(t.id)}
+                            className={`
+                              flex items-center w-full px-2 py-1 text-sm rounded
+                              ${act
+                                ? 'bg-indigo-200 text-indigo-800'
+                                : 'hover:bg-gray-100'}
+                              focus:outline-none focus:ring-2 focus:ring-indigo-400
+                              transition
+                            `}
+                          >
+                            <FiBookOpen className="w-4 h-4 text-gray-500"/>
+                            <span className="ml-2">{t.name}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 )}
-              </button>
+              </div>
+            );
+          })}
+        </nav>
 
-              {isOpen && (
-                <ul id={`cat-${category}`} role="menu" className="mt-1 ml-5 space-y-1">
-                  {topics.map((t) => {
-                    const isTopicActive = filters.topic === t;
-                    return (
-                      <li key={t}>
-                        <button
-                          onClick={() => pickTopic(t)}
-                          className={`
-                            flex items-center w-full px-2 py-1 text-sm rounded
-                            ${isTopicActive ? 'bg-indigo-200 text-indigo-800' : 'hover:bg-gray-100'}
-                            focus:outline-none focus:ring-2 focus:ring-indigo-400
-                          `}
-                          role="menuitem"
-                        >
-                          <BookOpen className="w-4 h-4 opacity-60" />
-                          <span className="ml-2">{getTopicName(t)}</span> {/* Display topic name */}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          );
-        })}
-      </nav>
-
-      <div className="mt-6">
-        <label htmlFor="level-select" className="block text-sm font-medium mb-1">
-          Level
-        </label>
-        <select
-          id="level-select"
-          value={filters.level || ''}
-          onChange={pickLevel}
-          className="block w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-indigo-400 focus:border-indigo-400"
-        >
-          <option value="">All Levels</option>
-          {levels.map((l) => (
-            <option key={l} value={l}>
-              {l}
-            </option>
-          ))}
-        </select>
-      </div>
-    </aside>
+        {/* Level dropdown */}
+        <div className="px-4 mt-6 mb-4">
+          <label htmlFor="level" className="block text-sm font-medium mb-1">
+            Level
+          </label>
+          <select
+            id="level"
+            value={filters.level||''}
+            onChange={e=>onChange({...filters, level: e.target.value, page:1})}
+            className="w-full border rounded px-3 py-2 text-sm focus:ring-indigo-300 focus:border-indigo-300"
+          >
+            <option value="">All Levels</option>
+            {levels.map(l => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
+        </div>
+      </aside>
+    </>
   );
 }
