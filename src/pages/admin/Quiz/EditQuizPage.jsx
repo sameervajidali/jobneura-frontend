@@ -18,28 +18,32 @@ export default function EditQuizPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [categoryName, setCategoryName] = useState('');
+const [topicName,    setTopicName]    = useState('');
 
-  useEffect(() => {
-    async function fetchQuiz() {
-      try {
-        const data = await quizService.getQuizById(quizId);
-        setForm({
-          title: data.title,
-          category: data.category,
-          topic: data.topic,
-          level: data.level,
-          duration: data.duration,
-          totalMarks: data.totalMarks,
-          isActive: data.isActive,
-        });
-      } catch (err) {
-        setError(err.response?.data?.message || err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchQuiz();
-  }, [quizId]);
+
+useEffect(() => {
+  async function fetchQuiz() {
+    try {
+      // your service should return { quiz }
+      const { quiz } = await quizService.getQuizById(quizId);
+      setForm({
+        title:      quiz.title,
+        category:   quiz.category._id,  // save the ID
+        topic:      quiz.topic._id,     // save the ID
+        level:      quiz.level,
+        duration:   quiz.duration,
+        totalMarks: quiz.totalMarks,
+        isActive:   quiz.isActive,
+      });
+      // also store the names so you can display them
+      setCategoryName(quiz.category.name);
+      setTopicName(quiz.topic.name);
+    } catch (err) {}
+  }
+  fetchQuiz();
+}, [quizId]);
+
 
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
@@ -87,26 +91,17 @@ export default function EditQuizPage() {
           />
         </div>
         <div>
-          <label className="block mb-1">Category</label>
-          <input
-            name="category"
-            value={form.category?.name}
-            onChange={handleChange}
-            type="text"
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Topic</label><input
-            name="topic"
-            value={form.topic?.name}
-            onChange={handleChange}
-            type="text"
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
+  <label>Category</label>
+  <p className="w-full border rounded px-3 py-2 bg-gray-100">
+    {categoryName || '—'}
+  </p>
+</div>
+       <div>
+  <label>Topic</label>
+  <p className="w-full border rounded px-3 py-2 bg-gray-100">
+    {topicName || '—'}
+  </p>
+</div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block mb-1">Level</label>
