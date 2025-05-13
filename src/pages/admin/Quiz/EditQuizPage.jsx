@@ -1,23 +1,15 @@
-
 // src/pages/admin/Quiz/EditQuizPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import quizService from '../../../services/quizService';
+import categoryService from '../../../services/categoryService';
+import topicService    from '../../../services/topicService';
 
 export default function EditQuizPage() {
-   // load all categories & topics for display
-  const [cats, setCats]     = useState([]);
-  const [topics, setTopics] = useState([]);
-
-  useEffect(() => {
-    import('../../../services/categoryService').then(m => m.getAllCategories()).then(setCats);
-    import('../../../services/topicService').then(m => m.getAllTopics()).then(setTopics);
-  }, []);
-
-
   const { quizId } = useParams();
-  const navigate = useNavigate();
+  const navigate   = useNavigate();
 
+  // form holds the raw IDs + other mutable fields
   const [form, setForm] = useState({
     title:      '',
     category:   '',
@@ -27,48 +19,55 @@ export default function EditQuizPage() {
     totalMarks: 0,
     isActive:   true,
   });
-  const [categoryName, setCategoryName] = useState('');
-  const [topicName, setTopicName] = useState('');
+
+  // for dropdown labels
+  const [categories, setCategories] = useState([]);
+  const [topics,     setTopics]     = useState([]);
+
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [saving,  setSaving]  = useState(false);
+  const [error,   setError]   = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const quiz = await quizService.getQuizById(quizId);
-        console.log('Loaded quiz:', quiz);
-
-        setForm({
-          title:      quiz.title,
-          category:   quiz.category._id,
-          topic:      quiz.topic._id,
-          level:      quiz.level,
-          duration:   quiz.duration,
-          totalMarks: quiz.totalMarks,
-          isActive:   quiz.isActive,
-        });
-        setCategoryName(quiz.category?.name || '—');
-        setTopicName(quiz.topic?.name || '—');
-      } catch (err) {
-        setError(err.response?.data?.message || err.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    // load quiz + cats + topics in parallel
+    Promise.all([
+      quizService.getQuizById(quizId),
+      categoryService.getAllCategories(),
+      topicService.getAllTopics()
+    ])
+    .then(([quiz, cats, tops]) => {
+      // quiz may be wrapped in { quiz } or raw
+      const q = quiz.quiz || quiz;
+      setForm({
+        title:      q.title,
+        category:   q.category._id,
+        topic:      q.topic._id,
+        level:      q.level,
+        duration:   q.duration,
+        totalMarks: q.totalMarks,
+        isActive:   q.isActive,
+      });
+      setCategories(cats);
+      setTopics(tops);
+    })
+    .catch(err => {
+      setError(err.response?.data?.message || err.message);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
   }, [quizId]);
 
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({
-      ...prev,
+    setForm(f => ({
+      ...f,
       [name]: type === 'checkbox'
         ? checked
         : type === 'number'
           ? +value
-          : value,
+          : value
     }));
   };
 
@@ -94,7 +93,7 @@ export default function EditQuizPage() {
   return (
     <div className="p-6 max-w-lg mx-auto bg-white rounded shadow">
       <h2 className="text-2xl font-semibold mb-4">Edit Quiz</h2>
-      {error && <p className="text-red-500 mb-3">{error}</p>}
+      {error   && <p className="text-red-600 mb-3">{error}</p>}
       {message && <p className="text-green-600 mb-3">{message}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -111,20 +110,36 @@ export default function EditQuizPage() {
           />
         </div>
 
-        {/* Category (read-only) */}
+        {/* Category (read-only dropdown) */}
         <div>
           <label className="block mb-1 font-medium">Category</label>
-          <p className="w-full border rounded px-3 py-2 bg-gray-100">
-            {categoryName}
-          </p>
+          <select
+            name="category"
+            value={form.category}
+            disabled
+            className="w-full border rounded px-3 py-2 bg-gray-100"
+          >
+            {categories.map(c => (
+              <option key={c._id} value={c._id}>{c.name}</option>
+            ))}
+          </select>
         </div>
 
-        {/* Topic (read-only) */}
+        {/* Topic (read-only dropdown) */}
         <div>
           <label className="block mb-1 font-medium">Topic</label>
-          <p className="w-full border rounded px-3 py-2 bg-gray-100">
-            {topicName}
-          </p>
+          <select
+            name="topic"
+            value={form.topic}
+            disabled
+            className="w-full border rounded px-3 py-2 bg-gray-100"
+          >
+            {topics
+              .filter(t => t.category._id === form.category)
+              .map(t => (
+                <option key={t._id} value={t._id}>{t.name}</option>
+              ))}
+          </select>
         </div>
 
         {/* Level & Duration */}
@@ -171,17 +186,16 @@ export default function EditQuizPage() {
         {/* Active */}
         <div className="flex items-center">
           <input
-            type="checkbox"
             name="isActive"
-            id="isActive"
+            type="checkbox"
             checked={form.isActive}
             onChange={handleChange}
             className="mr-2"
           />
-          <label htmlFor="isActive" className="font-medium">Active</label>
+          <label className="font-medium">Active</label>
         </div>
 
-        {/* Actions */}
+        {/* Submit */}
         <div className="flex space-x-2">
           <button
             type="submit"
