@@ -31,7 +31,7 @@ export function getAllTickets(params = {}) {
  * GET /admin/tickets/:ticketId
  */
 export function getTicketById(ticketId) {
-  return API.get(`/admin/tickets/${ticketId}`).then(res => res.data.ticket || res.data);
+  return API.get(`/ticket/admin/tickets/${ticketId}`).then(res => res.data.ticket || res.data);
 }
 
 /**
@@ -50,7 +50,7 @@ export function createTicket(payload) {
  * { status }
  */
 export function updateTicketStatus(ticketId, status) {
-  return API.patch(`/admin/tickets/${ticketId}`, { status }).then(res => res.data.ticket || res.data);
+  return API.patch(`/ticket/admin/tickets/${ticketId}`, { status }).then(res => res.data.ticket || res.data);
 }
 
 /**
