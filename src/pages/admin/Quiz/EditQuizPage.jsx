@@ -90,7 +90,7 @@ export default function EditQuizPage() {
           <label className="block mb-1">Category</label>
           <input
             name="category"
-            value={form.category}
+            value={form.category?.name}
             onChange={handleChange}
             type="text"
             className="w-full border rounded px-3 py-2"
@@ -100,7 +100,7 @@ export default function EditQuizPage() {
         <div>
           <label className="block mb-1">Topic</label><input
             name="topic"
-            value={form.topic}
+            value={form.topic?.name}
             onChange={handleChange}
             type="text"
             className="w-full border rounded px-3 py-2"
