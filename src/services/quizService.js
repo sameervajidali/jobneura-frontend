@@ -208,7 +208,7 @@ export function createQuiz(payload) {
  */
 export function getQuizById(quizId) {
   return API.get(`/quizzes/admin/quizzes/${quizId}`)
-    .then(res => res.data);
+    .then(res => res.data.quiz || res.data);
 }
 
 /**
