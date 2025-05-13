@@ -352,7 +352,7 @@ function ContactSupportForm() {
     name: "",
     email: "",
     subject: "",
-    description: "",
+    message: "",
   });
   const [status, setStatus] = useState({ loading: false, message: "" });
 
