@@ -387,24 +387,27 @@ export default function CreateQuizForm() {
           </div>
 
           {/* Topic */}
-          <div>
-            <label className="block mb-1 font-medium">Topic</label>
-            <select
-              name="topic"
-              value={form.topic}
-              onChange={handleChange}
-              required
-              disabled={loading}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select a topic</option>
-              {topics
-                .filter(t => t.category._id === form.category)
-                .map(t => (
-                  <option key={t._id} value={t._id}>{t.name}</option>
-                ))}
-            </select>
-          </div>
+         <div>
+  <label className="block mb-1 font-medium">Topic</label>
+  <select
+    name="topic"
+    value={form.topic}
+    onChange={handleChange}
+    required
+    disabled={loading}             // ◀️ no longer tied to category presence
+    className="w-full border rounded px-3 py-2"
+  >
+    <option value="">Select a topic</option>
+    {topics
+      .filter(t =>
+        String(t.category._id) === String(form.category)  // ◀️ cast both to string
+      )
+      .map(t => (
+        <option key={t._id} value={t._id}>{t.name}</option>
+      ))
+    }
+  </select>
+</div>
 
           {/* Level & Duration */}
           <div className="grid grid-cols-2 gap-4">
