@@ -41,7 +41,7 @@ export function getTicketById(ticketId) {
  */
 export function createTicket(payload) {
   // choose endpoint based on auth context if needed
-  return API.post('/ticket', payload).then(res => res.data.ticket || res.data);
+  return API.post('/ticket/ticket', payload).then(res => res.data.ticket || res.data);
 }
 
 /**
