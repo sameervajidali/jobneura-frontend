@@ -1,9 +1,35 @@
+// src/services/quizService.js
+import API from "./axios";
+
+export function getQuizById(id) {
+  return API.get(`/quizzes/admin/quizzes/${id}`)
+    .then(res => {
+      // expect { quiz: {...} }
+      if (res.data.quiz) return res.data.quiz;
+      // else maybe raw quiz
+      return res.data;
+    });
+}
+
 // src/pages/admin/Quiz/EditQuizPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import quizService from '../../../services/quizService';
 
 export default function EditQuizPage() {
+  const { quizId } = useParams();
+  const navigate = useNavigate();
+
+  // load all categories & topics for display
+  const [cats, setCats]     = useState([]);
+  const [topics, setTopics] = useState([]);
+
+  useEffect(() => {
+    import('../../services/categoryService').then(m => m.getAllCategories()).then(setCats);
+    import('../../services/topicService').then(m => m.getAllTopics()).then(setTopics);
+  }, []);
+
+
   const { quizId } = useParams();
   const navigate = useNavigate();
 
