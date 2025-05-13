@@ -1,38 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import quizService     from '../../../services/quizService';
-import categoryService from '../../../services/categoryService';
-import topicService    from '../../../services/topicService';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import quizService from "../../../services/quizService";
+import categoryService from "../../../services/categoryService";
+import topicService from "../../../services/topicService";
 
 export default function EditQuizPage() {
   const { quizId } = useParams();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
 
   // lists
-  const [cats, setCats]     = useState([]);
+  const [cats, setCats] = useState([]);
   const [topics, setTopics] = useState([]);
 
   // form holds just primitive values (IDs for category/topic)
   const [form, setForm] = useState({
-    title:      '',
-    category:   '',  
-    topic:      '',
-    level:      'Beginner',
-    duration:   0,
+    title: "",
+    category: "",
+    topic: "",
+    level: "Beginner",
+    duration: 0,
     totalMarks: 0,
-    isActive:   true,
+    isActive: true,
   });
 
   const [loading, setLoading] = useState(true);
-  const [saving,  setSaving]  = useState(false);
-  const [error,   setError]   = useState('');
-  const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   // load quiz, cats & topics
   useEffect(() => {
     (async () => {
       try {
-        const [ { quiz }, cats, topics ] = await Promise.all([
+        const [{ quiz }, cats, topics] = await Promise.all([
           quizService.getQuizById(quizId),
           categoryService.getAllCategories(),
           topicService.getAllTopics(),
@@ -42,13 +42,13 @@ export default function EditQuizPage() {
         setTopics(topics);
         // seed form using _id values
         setForm({
-          title:      quiz.title,
-          category:   quiz.category._id,
-          topic:      quiz.topic._id,
-          level:      quiz.level,
-          duration:   quiz.duration,
+          title: quiz.title,
+          category: quiz.category._id,
+          topic: quiz.topic._id,
+          level: quiz.level,
+          duration: quiz.duration,
           totalMarks: quiz.totalMarks,
-          isActive:   quiz.isActive,
+          isActive: quiz.isActive,
         });
       } catch (err) {
         setError(err.response?.data?.message || err.message);
@@ -58,25 +58,23 @@ export default function EditQuizPage() {
     })();
   }, [quizId]);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(f => ({
+    setForm((f) => ({
       ...f,
-      [name]: type === 'checkbox'
-        ? checked
-        : type === 'number'
-          ? +value
-          : value
+      [name]:
+        type === "checkbox" ? checked : type === "number" ? +value : value,
     }));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setError(''); setMessage('');
+    setError("");
+    setMessage("");
     try {
       await quizService.updateQuiz(quizId, form);
-      setMessage('Quiz updated successfully.');
+      setMessage("Quiz updated successfully.");
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -89,7 +87,7 @@ export default function EditQuizPage() {
   return (
     <div className="p-6 max-w-lg mx-auto">
       <h2 className="text-xl font-semibold mb-4">Edit Quiz</h2>
-      {error   && <p className="text-red-500 mb-2">{error}</p>}
+      {error && <p className="text-red-500 mb-2">{error}</p>}
       {message && <p className="text-green-600 mb-2">{message}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -107,39 +105,19 @@ export default function EditQuizPage() {
 
         {/* Category */}
         <div>
-          <label>Category</label>
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          >
-            <option value="">Select a category</option>
-            {cats.map(c => (
-              <option key={c._id} value={c._id}>{c.name}</option>
-            ))}
-          </select>
+          <label className="block mb-1 font-medium">Category</label>
+          <p className="w-full border rounded px-3 py-2 bg-gray-100">
+            {/* assuming you fetched `cats` and seeded form.category as the ID */}
+            {cats.find((c) => c._id === form.category)?.name || "—"}
+          </p>
         </div>
 
         {/* Topic */}
         <div>
-          <label>Topic</label>
-          <select
-            name="topic"
-            value={form.topic}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          >
-            <option value="">Select a topic</option>
-            {topics
-              .filter(t => String(t.category._id) === String(form.category))
-              .map(t => (
-                <option key={t._id} value={t._id}>{t.name}</option>
-              ))
-            }
-          </select>
+          <label className="block mb-1 font-medium">Topic</label>
+          <p className="w-full border rounded px-3 py-2 bg-gray-100">
+            {topics.find((t) => t._id === form.topic)?.name || "—"}
+          </p>
         </div>
 
         {/* Level, Duration, etc. */}
@@ -201,7 +179,7 @@ export default function EditQuizPage() {
             disabled={saving}
             className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {saving ? 'Saving…' : 'Save Changes'}
+            {saving ? "Saving…" : "Save Changes"}
           </button>
           <Link
             to={`/admin/quizzes/${quizId}/bulk-upload`}
