@@ -1,29 +1,39 @@
-// src/pages/admin/Quiz/EditQuizPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import quizService from '../../../services/quizService';
 
 export default function EditQuizPage() {
   const { quizId } = useParams();
-  const navigate    = useNavigate();
+  const navigate = useNavigate();
 
-  const [form, setForm]               = useState({/* … */});
-  const [loading, setLoading]         = useState(true);
-  const [saving, setSaving]           = useState(false);
-  const [error, setError]             = useState('');
-  const [message, setMessage]         = useState('');
+  // Form state holds primitive values for submission
+  const [form, setForm] = useState({
+    title:      '',
+    category:   '',
+    topic:      '',
+    level:      'Beginner',
+    duration:   0,
+    totalMarks: 0,
+    isActive:   true,
+  });
+
+  // UI state
+  const [loading, setLoading]   = useState(true);
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState('');
+  const [message, setMessage]   = useState('');
   const [categoryName, setCategoryName] = useState('');
   const [topicName, setTopicName]       = useState('');
 
+  // Fetch quiz data on mount
   useEffect(() => {
     async function fetchQuiz() {
       try {
-        // 1) call service
+        // fetch either raw quiz or { quiz }
         const data = await quizService.getQuizById(quizId);
-        // 2) handle both shapes: raw-quiz or { quiz }
         const quiz = data.quiz || data;
 
-        // 3) seed your form state
+        // seed form values
         setForm({
           title:      quiz.title,
           category:   quiz.category._id,
@@ -33,29 +43,67 @@ export default function EditQuizPage() {
           totalMarks: quiz.totalMarks,
           isActive:   quiz.isActive,
         });
-        // 4) store the display names
+        // store names for display
         setCategoryName(quiz.category.name);
         setTopicName(quiz.topic.name);
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
-        // 5) turn off the spinner
         setLoading(false);
       }
     }
     fetchQuiz();
   }, [quizId]);
 
+  // handle simple form changes
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : (type === 'number' ? +value : value),
+    }));
+  };
+
+  // submit updated quiz
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    setMessage('');
+    try {
+      await quizService.updateQuiz(quizId, form);
+      setMessage('Quiz updated successfully.');
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (loading) {
-    return <p className="p-6">Loading quiz data…</p>;
+    return <p className="p-6 text-center">Loading quiz data…</p>;
   }
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      {/* … your form header, error/message … */}
+    <div className="p-6 max-w-lg mx-auto bg-white rounded shadow">
+      <h2 className="text-2xl font-semibold mb-4">Edit Quiz</h2>
+
+      {error && <p className="text-red-500 mb-3">{error}</p>}
+      {message && <p className="text-green-600 mb-3">{message}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title, Level, etc. */}
+        {/* Title */}
+        <div>
+          <label className="block mb-1 font-medium">Title</label>
+          <input
+            name="title"
+            type="text"
+            value={form.title}
+            onChange={handleChange}
+            required
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
 
         {/* Category (read-only) */}
         <div>
@@ -72,9 +120,11 @@ export default function EditQuizPage() {
             {topicName || '—'}
           </p>
         </div>
+
+        {/* Level & Duration */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block mb-1">Level</label>
+            <label className="block mb-1 font-medium">Level</label>
             <select
               name="level"
               value={form.level}
@@ -86,40 +136,47 @@ export default function EditQuizPage() {
               <option>Expert</option>
             </select>
           </div>
+
           <div>
-            <label className="block mb-1">Duration (min)</label>
+            <label className="block mb-1 font-medium">Duration (min)</label>
             <input
               name="duration"
-              value={form.duration}
-              onChange={handleChange}
               type="number"
               min="1"
+              value={form.duration}
+              onChange={handleChange}
               className="w-full border rounded px-3 py-2"
             />
           </div>
         </div>
+
+        {/* Total Marks */}
         <div>
-          <label className="block mb-1">Total Marks</label>
+          <label className="block mb-1 font-medium">Total Marks</label>
           <input
             name="totalMarks"
-            value={form.totalMarks}
-            onChange={handleChange}
             type="number"
             min="0"
+            value={form.totalMarks}
+            onChange={handleChange}
             className="w-full border rounded px-3 py-2"
           />
         </div>
+
+        {/* Active */}
         <div className="flex items-center">
           <input
+            type="checkbox"
             name="isActive"
             id="isActive"
             checked={form.isActive}
             onChange={handleChange}
-            type="checkbox"
             className="mr-2"
           />
-          <label htmlFor="isActive">Active</label>
+          <label htmlFor="isActive" className="font-medium">Active</label>
         </div>
+
+        {/* Actions */}
         <div className="flex space-x-2">
           <button
             type="submit"
@@ -136,6 +193,7 @@ export default function EditQuizPage() {
           </Link>
         </div>
       </form>
+
       <button
         onClick={() => navigate(-1)}
         className="mt-4 text-sm text-gray-600 hover:underline"
