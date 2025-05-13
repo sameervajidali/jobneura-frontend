@@ -18,8 +18,9 @@ export default function TicketDetailsPage() {
     (async () => {
       setLoading(true);
       try {
-        const data = await getTicketById(ticketId);
-        setTicket(data);
+        const resp = await getTicketById(ticketId);
+        const t = resp.ticket || resp;
+        setTicket(t);
       } catch (err) {
         console.error(err);
       } finally {
@@ -29,10 +30,10 @@ export default function TicketDetailsPage() {
   }, [ticketId]);
 
   const handleStatusChange = async (e) => {
-    const newStatus = e.target.value;
     setSaving(true);
     try {
-      const updated = await updateTicketStatus(ticketId, newStatus);
+      const resp = await updateTicketStatus(ticketId, e.target.value);
+      const updated = resp.ticket || resp;
       setTicket(updated);
     } catch (err) {
       console.error(err);
@@ -45,7 +46,8 @@ export default function TicketDetailsPage() {
     if (!commentText.trim()) return;
     setSaving(true);
     try {
-      const updated = await addComment(ticketId, commentText);
+      const resp = await addComment(ticketId, commentText);
+      const updated = resp.ticket || resp;
       setTicket(updated);
       setCommentText('');
     } catch (err) {
@@ -84,10 +86,10 @@ export default function TicketDetailsPage() {
           </p>
 
           <div className="mb-6">
-            <h2 className="text-lg font-medium text-gray-700 mb-1">Description</h2>
+            <h2 className="text-lg font-medium text-gray-700 mb-1">Message</h2>
             <div className="bg-gray-50 p-4 rounded border border-gray-200">
               <p className="text-gray-700 whitespace-pre-line">
-                {ticket.description || 'No description provided.'}
+                {ticket.message || 'No message provided.'}
               </p>
             </div>
           </div>
@@ -100,9 +102,9 @@ export default function TicketDetailsPage() {
               disabled={saving}
               className="w-full sm:w-auto border border-gray-300 rounded px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              {['open', 'pending', 'resolved', 'closed'].map((s) => (
+              {['open', 'in_progress', 'closed'].map((s) => (
                 <option key={s} value={s}>
-                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                  {s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')}
                 </option>
               ))}
             </select>
@@ -120,7 +122,7 @@ export default function TicketDetailsPage() {
                   <li key={c._id} className="bg-gray-50 p-4 rounded border">
                     <p className="text-sm text-gray-600 mb-1">
                       <strong>{c.by.name}</strong> •{' '}
-                      {new Date(c.createdAt).toLocaleString()}
+                      {c.at ? new Date(c.at).toLocaleString() : 'Unknown date'}
                     </p>
                     <p className="text-gray-700 whitespace-pre-line">
                       {c.text}
