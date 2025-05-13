@@ -86,27 +86,18 @@ export default function EditQuizPage() {
             required
           />
         </div>
-        <div>
-          <label className="block mb-1">Category</label>
-          <input
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            type="text"
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Topic</label><input
-            name="topic"
-            value={form.topic}
-            onChange={handleChange}
-            type="text"
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
+       <div>
+  <label className="block mb-1 text-gray-700 font-medium">Category</label>
+  <p className="w-full border rounded px-3 py-2 bg-gray-100">
+    {form.category?.name || '—'}
+  </p>
+</div>
+       <div>
+  <label className="block mb-1 text-gray-700 font-medium">Topic</label>
+  <p className="w-full border rounded px-3 py-2 bg-gray-100">
+    {form.topic?.name || '—'}
+  </p>
+</div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block mb-1">Level</label>
