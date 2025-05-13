@@ -30,8 +30,18 @@ export function createTicket(payload) {
   return API.post('/ticket/ticket', payload).then(res => res.data.ticket || res.data);
 }
 
+// At the top, after your existing imports
+export function addReply(ticketId, parentId, text) {
+  // Calls your existing PUT /admin/tickets/:id route with both text and parentId
+  return API.put(
+    `/admin/tickets/${ticketId}`,
+    { text, parentId }
+  ).then(res => res.data.ticket || res.data);
+}
+
 export default {
   getAllTickets,
+  addReply,
   getTicketById,
   updateTicketStatus,
   addComment,
