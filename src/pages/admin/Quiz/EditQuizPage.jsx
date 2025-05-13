@@ -1,3 +1,16 @@
+// src/services/quizService.js
+import API from "./axios";
+
+export function getQuizById(id) {
+  return API.get(`/quizzes/admin/quizzes/${id}`)
+    .then(res => {
+      // expect { quiz: {...} }
+      if (res.data.quiz) return res.data.quiz;
+      // else maybe raw quiz
+      return res.data;
+    });
+}
+
 // src/pages/admin/Quiz/EditQuizPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -5,9 +18,8 @@ import quizService from '../../../services/quizService';
 
 export default function EditQuizPage() {
   const { quizId } = useParams();
-  const navigate    = useNavigate();
+  const navigate = useNavigate();
 
-  // form holds primitive values for update
   const [form, setForm] = useState({
     title:      '',
     category:   '',
@@ -17,23 +29,20 @@ export default function EditQuizPage() {
     totalMarks: 0,
     isActive:   true,
   });
-
-  // UI state
-  const [loading, setLoading]           = useState(true);
-  const [saving, setSaving]             = useState(false);
-  const [error, setError]               = useState('');
-  const [message, setMessage]           = useState('');
   const [categoryName, setCategoryName] = useState('');
-  const [topicName, setTopicName]       = useState('');
+  const [topicName, setTopicName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
-  // fetch quiz on mount
   useEffect(() => {
-    async function fetchQuiz() {
+    (async () => {
+      setLoading(true);
       try {
-        // call service (returns raw quiz object)
         const quiz = await quizService.getQuizById(quizId);
+        console.log('Loaded quiz:', quiz);
 
-        // seed form state and display names
         setForm({
           title:      quiz.title,
           category:   quiz.category._id,
@@ -43,22 +52,20 @@ export default function EditQuizPage() {
           totalMarks: quiz.totalMarks,
           isActive:   quiz.isActive,
         });
-        setCategoryName(quiz.category.name);
-        setTopicName(quiz.topic.name);
+        setCategoryName(quiz.category?.name || '—');
+        setTopicName(quiz.topic?.name || '—');
       } catch (err) {
         setError(err.response?.data?.message || err.message);
       } finally {
         setLoading(false);
       }
-    }
-    fetchQuiz();
+    })();
   }, [quizId]);
 
-  // handle input changes
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
-    setForm(f => ({
-      ...f,
+    setForm(prev => ({
+      ...prev,
       [name]: type === 'checkbox'
         ? checked
         : type === 'number'
@@ -67,7 +74,6 @@ export default function EditQuizPage() {
     }));
   };
 
-  // handle form submit
   const handleSubmit = async e => {
     e.preventDefault();
     setSaving(true);
@@ -111,7 +117,7 @@ export default function EditQuizPage() {
         <div>
           <label className="block mb-1 font-medium">Category</label>
           <p className="w-full border rounded px-3 py-2 bg-gray-100">
-            {categoryName || '—'}
+            {categoryName}
           </p>
         </div>
 
@@ -119,7 +125,7 @@ export default function EditQuizPage() {
         <div>
           <label className="block mb-1 font-medium">Topic</label>
           <p className="w-full border rounded px-3 py-2 bg-gray-100">
-            {topicName || '—'}
+            {topicName}
           </p>
         </div>
 
@@ -164,7 +170,7 @@ export default function EditQuizPage() {
           />
         </div>
 
-        {/* Active Toggle */}
+        {/* Active */}
         <div className="flex items-center">
           <input
             type="checkbox"
