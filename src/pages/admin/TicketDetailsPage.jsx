@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   getTicketById,
   updateTicketStatus,
-  addComment
+  addComment,
+  addReply
 } from '../../services/ticketService';
 
 export default function TicketDetailsPage() {
@@ -13,6 +14,8 @@ export default function TicketDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -50,6 +53,22 @@ export default function TicketDetailsPage() {
       const updated = resp.ticket || resp;
       setTicket(updated);
       setCommentText('');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReplySubmit = async (parentId) => {
+    if (!replyText.trim()) return;
+    setSaving(true);
+    try {
+      const resp = await addReply(ticketId, parentId, replyText);
+      const updated = resp.ticket || resp;
+      setTicket(updated);
+      setReplyingTo(null);
+      setReplyText('');
     } catch (err) {
       console.error(err);
     } finally {
@@ -117,16 +136,61 @@ export default function TicketDetailsPage() {
             </h2>
 
             {ticket.comments && ticket.comments.length > 0 ? (
-              <ul className="space-y-4 mb-6">
+              <ul className="space-y-6 mb-6">
                 {ticket.comments.map((c) => (
                   <li key={c._id} className="bg-gray-50 p-4 rounded border">
                     <p className="text-sm text-gray-600 mb-1">
                       <strong>{c.by.name}</strong> •{' '}
                       {c.at ? new Date(c.at).toLocaleString() : 'Unknown date'}
                     </p>
-                    <p className="text-gray-700 whitespace-pre-line">
+                    <p className="text-gray-700 whitespace-pre-line mb-3">
                       {c.text}
                     </p>
+
+                    {/* Render replies */}
+                    {c.replies && c.replies.length > 0 && (
+                      <ul className="ml-6 space-y-4 mb-3">
+                        {c.replies.map((r) => (
+                          <li key={r._id} className="bg-gray-100 p-3 rounded border">
+                            <p className="text-sm text-gray-600 mb-1">
+                              <strong>{r.by.name}</strong> •{' '}
+                              {r.at ? new Date(r.at).toLocaleString() : 'Unknown date'}
+                            </p>
+                            <p className="text-gray-700 whitespace-pre-line">
+                              {r.text}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {/* Reply form trigger */}
+                    <button
+                      onClick={() => setReplyingTo(c._id)}
+                      className="text-indigo-600 hover:text-indigo-800 text-sm"
+                    >
+                      Reply
+                    </button>
+
+                    {/* Reply textarea */}
+                    {replyingTo === c._id && (
+                      <div className="mt-2">
+                        <textarea
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          rows={3}
+                          placeholder="Write a reply..."
+                          className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2"
+                        />
+                        <button
+                          onClick={() => handleReplySubmit(c._id)}
+                          disabled={saving}
+                          className="px-4 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
+                        >
+                          {saving ? 'Submitting…' : 'Submit Reply'}
+                        </button>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
