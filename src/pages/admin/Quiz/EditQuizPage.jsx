@@ -1,16 +1,3 @@
-// src/services/quizService.js
-import API from "./axios";
-
-export function getQuizById(id) {
-  return API.get(`/quizzes/admin/quizzes/${id}`)
-    .then(res => {
-      // expect { quiz: {...} }
-      if (res.data.quiz) return res.data.quiz;
-      // else maybe raw quiz
-      return res.data;
-    });
-}
-
 // src/pages/admin/Quiz/EditQuizPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';

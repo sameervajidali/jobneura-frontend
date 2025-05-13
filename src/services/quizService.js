@@ -205,11 +205,15 @@ export function createQuiz(payload) {
 /**
  * Fetch a single quiz by ID (Admin view)
  * GET /api/quizzes/admin/quizzes/:quizId
- */
-export function getQuizById(quizId) {
-  return API.get(`/quizzes/admin/quizzes/${quizId}`)
-    .then(res => res.data.quiz || res.data);
-}
+ */export function getQuizById(id) {
+   return API.get(`/quizzes/admin/quizzes/${id}`)
+     .then(res => {
+       // expect { quiz: {...} }
+       if (res.data.quiz) return res.data.quiz;
+       // else maybe raw quiz
+       return res.data;
+     });
+ }
 
 /**
  * Update quiz metadata
