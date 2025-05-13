@@ -151,11 +151,13 @@ useEffect(() => {
                 value={form.level}
                 onChange={handleChange}
                 disabled={loading}
+                required
                 className="w-full border rounded px-3 py-2"
               >
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Expert">Expert</option>
+                <option value="" disabled>Select level...</option>
+  <option value="Beginner">Beginner</option>
+  <option value="Intermediate">Intermediate</option>
+  <option value="Expert">Expert</option>
                 
               </select>
             </div>
