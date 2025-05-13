@@ -1,62 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import quizService from '../../../services/quizService';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import quizService from "../../../services/quizService";
 
 export default function EditQuizPage() {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    title: '',
-    category: '',
-    topic: '',
-    level: 'Beginner',
+    title: "",
+    category: "",
+    topic: "",
+    level: "Beginner",
     duration: 0,
     totalMarks: 0,
     isActive: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [categoryName, setCategoryName] = useState('');
+const [topicName,    setTopicName]    = useState('');
 
-  useEffect(() => {
-    async function fetchQuiz() {
-      try {
-        const data = await quizService.getQuizById(quizId);
-        setForm({
-          title: data.title,
-          category: data.category,
-          topic: data.topic,
-          level: data.level,
-          duration: data.duration,
-          totalMarks: data.totalMarks,
-          isActive: data.isActive,
-        });
-      } catch (err) {
-        setError(err.response?.data?.message || err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchQuiz();
-  }, [quizId]);
 
-  const handleChange = e => {
+useEffect(() => {
+  async function fetchQuiz() {
+    try {
+      // your service should return { quiz }
+      const { quiz } = await quizService.getQuizById(quizId);
+      setForm({
+        title:      quiz.title,
+        category:   quiz.category._id,  // save the ID
+        topic:      quiz.topic._id,     // save the ID
+        level:      quiz.level,
+        duration:   quiz.duration,
+        totalMarks: quiz.totalMarks,
+        isActive:   quiz.isActive,
+      });
+      // also store the names so you can display them
+      setCategoryName(quiz.category.name);
+      setTopicName(quiz.topic.name);
+    } catch (err) {}
+  }
+  fetchQuiz();
+}, [quizId]);
+
+
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : (type === 'number' ? +value : value),
+      [name]:
+        type === "checkbox" ? checked : type === "number" ? +value : value,
     }));
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
     try {
       const updated = await quizService.updateQuiz(quizId, form);
-      setMessage('Quiz updated successfully.');
+      setMessage("Quiz updated successfully.");
       // Optionally navigate or just refresh
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -86,18 +91,19 @@ export default function EditQuizPage() {
             required
           />
         </div>
-       <div>
-  <label className="block mb-1 text-gray-700 font-medium">Category</label>
+        <div>
+  <label>Category</label>
   <p className="w-full border rounded px-3 py-2 bg-gray-100">
-    {form.category?.name || '—'}
+    {categoryName || '—'}
   </p>
 </div>
-       <div>
-  <label className="block mb-1 text-gray-700 font-medium">Topic</label>
+        <div>
+  <label>Topic</label>
   <p className="w-full border rounded px-3 py-2 bg-gray-100">
-    {form.topic?.name || '—'}
+    {topicName || '—'}
   </p>
 </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block mb-1">Level</label>
@@ -152,7 +158,7 @@ export default function EditQuizPage() {
             disabled={saving}
             className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {saving ? 'Saving…' : 'Save Changes'}
+            {saving ? "Saving…" : "Save Changes"}
           </button>
           <Link
             to={`/admin/quizzes/${quizId}/bulk-upload`}
