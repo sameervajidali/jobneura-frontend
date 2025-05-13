@@ -1,73 +1,50 @@
+// src/pages/admin/Quiz/EditQuizPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import quizService from '../../../services/quizService';
 
 export default function EditQuizPage() {
   const { quizId } = useParams();
-  const navigate = useNavigate();
-  const [form, setForm] = useState({
-    title: '',
-    category: '',
-    topic: '',
-    level: 'Beginner',
-    duration: 0,
-    totalMarks: 0,
-    isActive: true,
-  });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
+  const navigate    = useNavigate();
+
+  const [form, setForm]               = useState({/* … */});
+  const [loading, setLoading]         = useState(true);
+  const [saving, setSaving]           = useState(false);
+  const [error, setError]             = useState('');
+  const [message, setMessage]         = useState('');
   const [categoryName, setCategoryName] = useState('');
-const [topicName,    setTopicName]    = useState('');
+  const [topicName, setTopicName]       = useState('');
 
+  useEffect(() => {
+    async function fetchQuiz() {
+      try {
+        // 1) call service
+        const data = await quizService.getQuizById(quizId);
+        // 2) handle both shapes: raw-quiz or { quiz }
+        const quiz = data.quiz || data;
 
-useEffect(() => {
-  async function fetchQuiz() {
-    try {
-      // your service should return { quiz }
-      const { quiz } = await quizService.getQuizById(quizId);
-      setForm({
-        title:      quiz.title,
-        category:   quiz.category._id,  // save the ID
-        topic:      quiz.topic._id,     // save the ID
-        level:      quiz.level,
-        duration:   quiz.duration,
-        totalMarks: quiz.totalMarks,
-        isActive:   quiz.isActive,
-      });
-      // also store the names so you can display them
-      setCategoryName(quiz.category.name);
-      setTopicName(quiz.topic.name);
-    } catch (err) {}
-  }
-  fetchQuiz();
-}, [quizId]);
-
-
-  const handleChange = e => {
-    const { name, value, type, checked } = e.target;
-    setForm(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : (type === 'number' ? +value : value),
-    }));
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setSaving(true);
-    setError('');
-    setMessage('');
-    try {
-      const updated = await quizService.updateQuiz(quizId, form);
-      setMessage('Quiz updated successfully.');
-      // Optionally navigate or just refresh
-    } catch (err) {
-      setError(err.response?.data?.message || err.message);
-    } finally {
-      setSaving(false);
+        // 3) seed your form state
+        setForm({
+          title:      quiz.title,
+          category:   quiz.category._id,
+          topic:      quiz.topic._id,
+          level:      quiz.level,
+          duration:   quiz.duration,
+          totalMarks: quiz.totalMarks,
+          isActive:   quiz.isActive,
+        });
+        // 4) store the display names
+        setCategoryName(quiz.category.name);
+        setTopicName(quiz.topic.name);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        // 5) turn off the spinner
+        setLoading(false);
+      }
     }
-  };
+    fetchQuiz();
+  }, [quizId]);
 
   if (loading) {
     return <p className="p-6">Loading quiz data…</p>;
@@ -75,33 +52,26 @@ useEffect(() => {
 
   return (
     <div className="p-6 max-w-lg mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Edit Quiz</h2>
-      {error && <p className="text-red-500 mb-2">{error}</p>}
-      {message && <p className="text-green-600 mb-2">{message}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* … your form header, error/message … */}
+
+      <form onSubmit={/*…*/} className="space-y-4">
+        {/* Title, Level, etc. */}
+
+        {/* Category (read-only) */}
         <div>
-          <label className="block mb-1">Title</label>
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            type="text"
-            className="w-full border rounded px-3 py-2"
-            required
-          />
+          <label className="block mb-1 font-medium">Category</label>
+          <p className="w-full border rounded px-3 py-2 bg-gray-100">
+            {categoryName || '—'}
+          </p>
         </div>
+
+        {/* Topic (read-only) */}
         <div>
-  <label>Category</label>
-  <p className="w-full border rounded px-3 py-2 bg-gray-100">
-    {categoryName || '—'}
-  </p>
-</div>
-       <div>
-  <label>Topic</label>
-  <p className="w-full border rounded px-3 py-2 bg-gray-100">
-    {topicName || '—'}
-  </p>
-</div>
+          <label className="block mb-1 font-medium">Topic</label>
+          <p className="w-full border rounded px-3 py-2 bg-gray-100">
+            {topicName || '—'}
+          </p>
+        </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block mb-1">Level</label>
