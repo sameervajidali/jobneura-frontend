@@ -53,11 +53,20 @@ export function updateTicketStatus(ticketId, status) {
   return API.patch(`/ticket/admin/tickets/${ticketId}`, { status }).then(res => res.data.ticket || res.data);
 }
 
+
+// src/services/ticketService.js
+export function addComment(ticketId, text) {
+  return API.post(`/ticket/admin/tickets/${ticketId}/comments`, { text })
+            .then(res => res.data.ticket || res.data);
+}
+
+
 /**
  * Export all service functions as default
  */
 const ticketService = {
   getAllTickets,
+  addComment,
   getTicketById,
   createTicket,
   updateTicketStatus,

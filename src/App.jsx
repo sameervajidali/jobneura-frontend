@@ -103,33 +103,33 @@ function AppInitializer({ children }) {
   //   }
   // }, [loading, user, location.pathname]);
 
-useEffect(() => {
-  if (!loading && user) {
-    const path = location.pathname;
+  useEffect(() => {
+    if (!loading && user) {
+      const path = location.pathname;
 
-    // 🔍 Debug logging
-    console.group('🔐 redirectUser debug');
-    console.log('Full user object:', user);
-    console.log('user.role:', user.role);
-    console.log('user.role?.name:', user.role?.name);
-    console.log('Type of user.role?.name:', typeof user.role?.name);
-    const rawName = user.role?.name;
-    const role    = typeof rawName === 'string'
-      ? rawName.toUpperCase()
-      : `<INVALID: ${typeof rawName}>`;
-    console.log('Computed role string:', role);
-    console.groupEnd();
+      // 🔍 Debug logging
+      console.group("🔐 redirectUser debug");
+      console.log("Full user object:", user);
+      console.log("user.role:", user.role);
+      console.log("user.role?.name:", user.role?.name);
+      console.log("Type of user.role?.name:", typeof user.role?.name);
+      const rawName = user.role?.name;
+      const role =
+        typeof rawName === "string"
+          ? rawName.toUpperCase()
+          : `<INVALID: ${typeof rawName}>`;
+      console.log("Computed role string:", role);
+      console.groupEnd();
 
-    // your redirect logic
-    if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
-      navigate('/dashboard', { replace: true });
+      // your redirect logic
+      if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
+        navigate("/dashboard", { replace: true });
+      }
+      if (path.startsWith("/dashboard") && ADMIN_ROLES.includes(role)) {
+        navigate("/admin/users", { replace: true });
+      }
     }
-    if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
-      navigate('/admin/users', { replace: true });
-    }
-  }
-}, [loading, user, location.pathname, navigate]);
-
+  }, [loading, user, location.pathname, navigate]);
 
   if (loading) {
     return (
@@ -215,14 +215,11 @@ function LayoutWrapper() {
               <Route path="tickets" element={<TicketListPage />} />
               <Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
               <Route path="categories" element={<CategoriesPage />} />
-<Route path="categories/new" element={<CategoryForm />} />
-<Route path="categories/:id/edit" element={<CategoryForm />} />
-
-<Route path="topics" element={<TopicsPage />} />
-<Route path="topics/new" element={<TopicForm />} />
-<Route path="topics/:id/edit" element={<TopicForm />} />
-
-
+              <Route path="categories/new" element={<CategoryForm />} />
+              <Route path="categories/:id/edit" element={<CategoryForm />} />
+              <Route path="topics" element={<TopicsPage />} />
+              <Route path="topics/new" element={<TopicForm />} />
+              <Route path="topics/:id/edit" element={<TopicForm />} />
               <Route path="roles/new" element={<RoleForm />} />
               <Route path="roles/:id/edit" element={<RoleForm />} />
               <Route path="users/new" element={<UserForm />} />
