@@ -10,8 +10,8 @@ export default function EditQuizPage() {
   const [topics, setTopics] = useState([]);
 
   useEffect(() => {
-    import('../../services/categoryService').then(m => m.getAllCategories()).then(setCats);
-    import('../../services/topicService').then(m => m.getAllTopics()).then(setTopics);
+    import('../../../services/categoryService').then(m => m.getAllCategories()).then(setCats);
+    import('../../../services/topicService').then(m => m.getAllTopics()).then(setTopics);
   }, []);
 
 
