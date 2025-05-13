@@ -15,7 +15,7 @@ export function getTicketById(ticketId) {
 
 export function updateTicketStatus(ticketId, status) {
   // PATCH /api/ticket/admin/tickets/:id
-  return API.patch(`/ticket/admin/tickets/${ticketId}`, { status })
+  return API.put(`/ticket/admin/tickets/${ticketId}`, { status })
             .then(res => res.data.ticket || res.data);
 }
 
