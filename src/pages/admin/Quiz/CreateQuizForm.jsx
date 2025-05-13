@@ -394,7 +394,7 @@ export default function CreateQuizForm() {
               value={form.topic}
               onChange={handleChange}
               required
-              disabled={loading || !form.category}
+              disabled={loading}
               className="w-full border rounded px-3 py-2"
             >
               <option value="">Select a topic</option>
