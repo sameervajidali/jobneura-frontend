@@ -365,7 +365,7 @@ function ContactSupportForm() {
     try {
       await createTicket(form); // e.g. POST /admin/tickets
       setStatus({ loading: false, message: "Ticket submitted successfully!" });
-      setForm({ name: "", email: "", subject: "", description: "" });
+      setForm({ name: "", email: "", subject: "", message: "" });
     } catch (err) {
       setStatus({
         loading: false,
