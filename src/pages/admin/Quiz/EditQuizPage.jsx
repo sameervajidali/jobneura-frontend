@@ -54,7 +54,7 @@ export default function EditQuizPage() {
     <div className="p-6 max-w-lg mx-auto">
       {/* … your form header, error/message … */}
 
-      <form onSubmit={/*…*/} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title, Level, etc. */}
 
         {/* Category (read-only) */}
