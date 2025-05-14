@@ -56,49 +56,49 @@ export default function JobAdminPanel() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h2 className="text-xl font-semibold">Job Listings (Admin)</h2>
-        <Button variant="outline" onClick={() => setFilters({ search: "", jobType: "", workType: "", status: "" })}>
-          Reset Filters
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Input
-          placeholder="Search by title or company"
-          value={filters.search}
-          onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
-        />
-        <Select
-          value={filters.jobType || "all"}
-          onValueChange={(val) => setFilters(f => ({ ...f, jobType: val === "all" ? "" : val }))}
-        >
-          <SelectTrigger>Job Type</SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Job Types</SelectItem>
-            {JOB_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select
-          value={filters.workType || "all"}
-          onValueChange={(val) => setFilters(f => ({ ...f, workType: val === "all" ? "" : val }))}
-        >
-          <SelectTrigger>Work Type</SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Work Types</SelectItem>
-            {WORK_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select
-          value={filters.status || "all"}
-          onValueChange={(val) => setFilters(f => ({ ...f, status: val === "all" ? "" : val }))}
-        >
-          <SelectTrigger>Status</SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            {STATUS_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap gap-2">
+          <Input
+            className="w-64"
+            placeholder="Search by title or company"
+            value={filters.search}
+            onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
+          />
+          <Select
+            value={filters.jobType || "all"}
+            onValueChange={(val) => setFilters(f => ({ ...f, jobType: val === "all" ? "" : val }))}
+          >
+            <SelectTrigger className="w-[160px]">Job Type</SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {JOB_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.workType || "all"}
+            onValueChange={(val) => setFilters(f => ({ ...f, workType: val === "all" ? "" : val }))}
+          >
+            <SelectTrigger className="w-[160px]">Work Type</SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {WORK_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.status || "all"}
+            onValueChange={(val) => setFilters(f => ({ ...f, status: val === "all" ? "" : val }))}
+          >
+            <SelectTrigger className="w-[160px]">Status</SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {STATUS_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" onClick={() => setFilters({ search: "", jobType: "", workType: "", status: "" })}>
+            Reset Filters
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded border bg-white shadow">
