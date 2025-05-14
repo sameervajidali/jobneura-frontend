@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import jobService from "@/services/jobService";
 
 export default function JobForm({ open, onClose, initialData, onSuccess }) {
@@ -13,41 +18,83 @@ export default function JobForm({ open, onClose, initialData, onSuccess }) {
   });
 
   useEffect(() => {
-    setForm(initialData ? {
-      ...initialData,
-      skills: initialData.skills?.join(", ") || ""
-    } : {
-      title: "", company: "", location: "",
-      workType: "Remote", jobType: "Full-time",
-      skills: "", salaryRange: "", applyLink: "", source: ""
-    });
+    if (initialData) {
+      setForm({
+        ...initialData,
+        skills: initialData.skills?.join(", ") || ""
+      });
+    } else {
+      setForm({
+        title: "", company: "", location: "",
+        workType: "Remote", jobType: "Full-time",
+        skills: "", salaryRange: "", applyLink: "", source: ""
+      });
+    }
   }, [initialData]);
 
-  const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  };
 
-  const handleSubmit = async () => {
-    const payload = { ...form, skills: form.skills.split(",").map(s => s.trim()) };
-    initialData ? await jobService.update(initialData._id, payload) : await jobService.create(payload);
-    onSuccess();
-    onClose();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...form,
+        skills: form.skills.split(",").map((s) => s.trim())
+      };
+      if (initialData) {
+        await jobService.update(initialData._id, payload);
+      } else {
+        await jobService.create(payload);
+      }
+      onSuccess();
+      onClose();
+    } catch (err) {
+      console.error("Job save failed:", err);
+      alert("Failed to save job. Check console.");
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader><DialogTitle>{initialData ? "Edit" : "Add"} Job</DialogTitle></DialogHeader>
-        <div className="grid gap-3">
-          <Input name="title" value={form.title} onChange={handleChange} placeholder="Job Title" />
-          <Input name="company" value={form.company} onChange={handleChange} placeholder="Company" />
-          <Input name="location" value={form.location} onChange={handleChange} placeholder="Location" />
-          <Input name="workType" value={form.workType} onChange={handleChange} />
-          <Input name="jobType" value={form.jobType} onChange={handleChange} />
-          <Input name="skills" value={form.skills} onChange={handleChange} placeholder="React, Node.js" />
-          <Input name="salaryRange" value={form.salaryRange} onChange={handleChange} placeholder="e.g. ₹8–10L" />
-          <Input name="applyLink" value={form.applyLink} onChange={handleChange} placeholder="External Apply Link" />
-          <Input name="source" value={form.source} onChange={handleChange} placeholder="LinkedIn / Manual / Indeed" />
-          <Button onClick={handleSubmit}>Save</Button>
-        </div>
+        <DialogHeader>
+          <DialogTitle>{initialData ? "Edit Job" : "Add Job"}</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="grid gap-4 py-2">
+          {[
+            { label: "Job Title", name: "title" },
+            { label: "Company", name: "company" },
+            { label: "Location", name: "location" },
+            { label: "Work Type", name: "workType" },
+            { label: "Job Type", name: "jobType" },
+            { label: "Skills (comma-separated)", name: "skills" },
+            { label: "Salary Range", name: "salaryRange" },
+            { label: "Apply Link", name: "applyLink" },
+            { label: "Source", name: "source" },
+          ].map(({ label, name }) => (
+            <div key={name}>
+              <Label htmlFor={name} className="block text-sm font-medium mb-1">
+                {label}
+              </Label>
+              <Input
+                id={name}
+                name={name}
+                value={form[name]}
+                onChange={handleChange}
+                placeholder={label}
+              />
+            </div>
+          ))}
+
+          <div className="flex justify-end mt-4">
+            <Button type="submit" className="w-fit">
+              {initialData ? "Update Job" : "Create Job"}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
