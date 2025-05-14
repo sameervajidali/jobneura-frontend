@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/table";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, PlusCircle, Trash2, Upload } from "lucide-react";
 import jobService from "@/services/jobService";
 import { format } from "date-fns";
 
@@ -26,6 +26,7 @@ export default function JobAdminPanel() {
   const limit = 10;
   const [selected, setSelected] = useState(null);
   const [openForm, setOpenForm] = useState(false);
+  const [openUpload, setOpenUpload] = useState(false);
 
   const fetchJobs = async () => {
     try {
@@ -41,10 +42,7 @@ export default function JobAdminPanel() {
   };
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      fetchJobs();
-    }, 300);
-    return () => clearTimeout(timeout);
+    fetchJobs();
   }, [filters, page]);
 
   const handleDelete = async (id) => {
@@ -54,52 +52,64 @@ export default function JobAdminPanel() {
     }
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchJobs();
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h2 className="text-xl font-semibold">Job Listings (Admin)</h2>
         <div className="flex flex-wrap gap-2">
-          <Input
-            className="w-64"
-            placeholder="Search by title or company"
-            value={filters.search}
-            onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
-          />
-          <Select
-            value={filters.jobType || "all"}
-            onValueChange={(val) => setFilters(f => ({ ...f, jobType: val === "all" ? "" : val }))}
-          >
-            <SelectTrigger className="w-[160px]">Job Type</SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {JOB_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select
-            value={filters.workType || "all"}
-            onValueChange={(val) => setFilters(f => ({ ...f, workType: val === "all" ? "" : val }))}
-          >
-            <SelectTrigger className="w-[160px]">Work Type</SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {WORK_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select
-            value={filters.status || "all"}
-            onValueChange={(val) => setFilters(f => ({ ...f, status: val === "all" ? "" : val }))}
-          >
-            <SelectTrigger className="w-[160px]">Status</SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {STATUS_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={() => setFilters({ search: "", jobType: "", workType: "", status: "" })}>
-            Reset Filters
+          <Button onClick={() => { setSelected(null); setOpenForm(true); }}>
+            <PlusCircle className="w-4 h-4 mr-2" /> Add Job
+          </Button>
+          <Button variant="secondary" onClick={() => setOpenUpload(true)}>
+            <Upload className="w-4 h-4 mr-2" /> Bulk Upload
           </Button>
         </div>
       </div>
+
+      <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <Input
+          className="w-full"
+          placeholder="Search by title or company"
+          value={filters.search}
+          onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
+        />
+        <Select
+          value={filters.jobType || "all"}
+          onValueChange={(val) => setFilters(f => ({ ...f, jobType: val === "all" ? "" : val }))}
+        >
+          <SelectTrigger className="w-full">Job Type</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {JOB_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select
+          value={filters.workType || "all"}
+          onValueChange={(val) => setFilters(f => ({ ...f, workType: val === "all" ? "" : val }))}
+        >
+          <SelectTrigger className="w-full">Work Type</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {WORK_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select
+          value={filters.status || "all"}
+          onValueChange={(val) => setFilters(f => ({ ...f, status: val === "all" ? "" : val }))}
+        >
+          <SelectTrigger className="w-full">Status</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {STATUS_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Button type="submit">Search</Button>
+      </form>
 
       <div className="overflow-x-auto rounded border bg-white shadow">
         <Table>
