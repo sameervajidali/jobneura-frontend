@@ -135,10 +135,10 @@ const navItems = [
   { path: "/admin/blogs",       label: "Blogs",         icon: <FaBook />,        roles: ["superadmin", "creator", "moderator"] },
   { path: "/admin/tickets",     label: "Tickets",       icon: <FaComments />,    roles: ["superadmin", "admin", "support"] },
   { path: "/admin/reports",     label: "Reports",       icon: <FaFileAlt />,     roles: ["superadmin", "admin"] },
-  { path: "/admin/roles",       label: "Roles",         icon: <FaShieldAlt />,   roles: ["superadmin"] },
-  { path: "/admin/settings",    label: "Settings",      icon: <FaCogs />,        roles: ["superadmin"] },
+  { path: "/admin/roles",       label: "Roles",         icon: <FaShieldAlt />,   roles: ["superadmin"] }, 
   { path: "/admin/jobs",        label: "Jobs",          icon: <FaBriefcase />,   roles: ["superadmin", "admin"] },
   { path: "/admin/seo-manager", label: "SEO Manager",   icon: <FaSearch />,      roles: ["superadmin", "admin"] },
+  { path: "/admin/settings",    label: "Settings",      icon: <FaCogs />,        roles: ["superadmin"] },
 ];
 
 export default function SidebarNav() {
