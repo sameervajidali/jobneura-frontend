@@ -6,7 +6,10 @@ export default function AdminJobsPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">Job Listings (Admin)</h1>
-      <JobAdminPanel />
+      <ErrorBoundary fallback={<p>Something went wrong!</p>}>
+  <JobAdminPanel />
+</ErrorBoundary>
+
     </div>
   );
 }
