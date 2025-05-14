@@ -39,19 +39,23 @@ export default function LoginForm() {
 
 const redirectUser = (user) => {
   console.group('🔐 redirectUser');
+
   const rawName = user?.role?.name;
   const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
   const from = location.state?.from?.pathname;
 
   let target;
+
   if (from && from !== '/login') {
     target = from;
   } else if (role === 'USER') {
     target = '/user/dashboard';
   } else {
+    // Anything other than 'USER'
     target = '/admin/dashboard';
   }
 
+  console.log('User role:', role);
   console.log('Redirecting to:', target);
   console.groupEnd();
 
