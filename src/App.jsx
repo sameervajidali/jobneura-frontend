@@ -231,7 +231,7 @@ function LayoutWrapper() {
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
-              <Route path="jobs/admin" element={<AdminJobsPage />} />
+              <Route path="jobs" element={<AdminJobsPage />} />
               <Route path="seo-manager" element={<SeoManager />} />
               <Route
                 path="quizzes/:quizId/bulk-upload"
