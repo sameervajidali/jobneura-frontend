@@ -12,9 +12,11 @@ export default function AdminJobsPage() {
   const [openForm, setOpenForm] = useState(false);
   const [openUpload, setOpenUpload] = useState(false);
 
-  const loadJobs = () => jobService.getAll().then(setJobs).catch(console.error);
+  const loadJobs = () => jobService.getAllAdmin().then(setJobs).catch(console.error);
 
-  useEffect(() => { loadJobs(); }, []);
+  useEffect(() => {
+    loadJobs();
+  }, []);
 
   return (
     <div className="p-6">

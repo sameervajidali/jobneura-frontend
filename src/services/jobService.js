@@ -4,6 +4,10 @@ import API from "./axios";
 const getAllPublic = () =>
   API.get("/jobs/public").then(res => res.data.jobs);
 
+const getAllAdmin = () =>
+  API.get("/jobs/admin/jobs").then(res => res.data.jobs);
+
+
 // PUBLIC: Get a single job by ID
 const getById = (id) =>
   API.get(`/jobs/${id}`).then(res => res.data);
@@ -28,6 +32,7 @@ const bulkUpload = (formData) =>
 
 export default {
   getAllPublic,
+  getAllAdmin,
   getById,
   create,
   update,
