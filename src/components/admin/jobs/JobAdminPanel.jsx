@@ -26,15 +26,23 @@ export default function JobAdminPanel() {
     workType: "",
     status: ""
   });
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const fetchJobs = async () => {
-    const res = await jobService.getAllAdmin(filters);
+    setLoading(true);
+    const res = await jobService.getAllAdmin({ ...filters, page, limit });
     setJobs(res);
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchJobs();
-  }, [filters]);
+    const timeout = setTimeout(() => {
+      fetchJobs();
+    }, 300); // debounce search
+    return () => clearTimeout(timeout);
+  }, [filters, page]);
 
   return (
     <div className="p-6 space-y-6">
@@ -101,34 +109,62 @@ export default function JobAdminPanel() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {jobs.map((job) => (
-              <TableRow key={job._id} className="hover:bg-muted/50">
-                <TableCell className="font-medium max-w-[200px] truncate">{job.title}</TableCell>
-                <TableCell>{job.company}</TableCell>
-                <TableCell>{job.location}</TableCell>
-                <TableCell>
-                  <Badge variant="outline">{job.jobType}</Badge>
-                  <Badge variant="outline" className="ml-1">{job.workType}</Badge>
-                </TableCell>
-                <TableCell className="flex flex-wrap gap-1 max-w-[150px]">
-                  {(job.skills || []).map(skill => (
-                    <Badge key={skill} variant="secondary">{skill}</Badge>
-                  ))}
-                </TableCell>
-                <TableCell>
-                  <Badge variant={job.status === "published" ? "default" : "outline"}>{job.status || "-"}</Badge>
-                </TableCell>
-                <TableCell>{format(new Date(job.createdAt), 'dd MMM yyyy')}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button size="icon" variant="outline"><Pencil className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="destructive"><Trash2 className="w-4 h-4" /></Button>
-                  </div>
-                </TableCell>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">Loading...</TableCell>
               </TableRow>
-            ))}
+            ) : jobs.length > 0 ? (
+              jobs.map((job) => (
+                <TableRow key={job._id} className="hover:bg-muted/50">
+                  <TableCell className="font-medium max-w-[200px] truncate">{job.title}</TableCell>
+                  <TableCell>{job.company}</TableCell>
+                  <TableCell>{job.location}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{job.jobType}</Badge>
+                    <Badge variant="outline" className="ml-1">{job.workType}</Badge>
+                  </TableCell>
+                  <TableCell className="flex flex-wrap gap-1 max-w-[150px]">
+                    {(job.skills || []).map(skill => (
+                      <Badge key={skill} variant="secondary">{skill}</Badge>
+                    ))}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={job.status === "published" ? "default" : "outline"}>{job.status || "-"}</Badge>
+                  </TableCell>
+                  <TableCell>{format(new Date(job.createdAt), 'dd MMM yyyy')}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button size="icon" variant="outline"><Pencil className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="destructive"><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-6">No jobs found.</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex justify-between items-center pt-4">
+        <Button
+          variant="ghost"
+          disabled={page === 1}
+          onClick={() => setPage(p => Math.max(1, p - 1))}
+        >
+          Previous
+        </Button>
+        <span className="text-sm">Page {page}</span>
+        <Button
+          variant="ghost"
+          disabled={jobs.length < limit}
+          onClick={() => setPage(p => p + 1)}
+        >
+          Next
+        </Button>
       </div>
     </div>
   );

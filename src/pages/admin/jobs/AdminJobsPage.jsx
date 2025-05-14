@@ -5,8 +5,7 @@ import JobAdminPanel from "@/components/admin/jobs/JobAdminPanel";
 export default function AdminJobsPage() {
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Job Listings (Admin)</h1>
-      <p>✅ AdminJobsPage Loaded</p>
+      <h1 className="text-2xl font-bold mb-4"></h1>
       <JobAdminPanel />
     </div>
   );
