@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import SeoMetaTable from "@/components/admin/seo/SeoMetaTable.jsx";
-import SeoMetaForm from "@/components/admin/seo/SeoMetaForm.jsx";
+// ✅ Correct (match casing exactly)
+import SeoMetaForm from "@/components/admin/Seo/SeoMetaForm.jsx";
+import SeoMetaTable from "@/components/admin/Seo/SeoMetaTable.jsx";
 import seoService from "@/services/seoService.js";
 
 export default function SeoManager() {
