@@ -20,29 +20,39 @@ const STATUS_TYPES = ["published", "draft", "archived"];
 
 export default function JobAdminPanel() {
   const [jobs, setJobs] = useState([]);
-  const [filters, setFilters] = useState({
-    search: "",
-    jobType: "",
-    workType: "",
-    status: ""
-  });
+  const [filters, setFilters] = useState({ search: "", jobType: "", workType: "", status: "" });
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 10;
+  const [selected, setSelected] = useState(null);
+  const [openForm, setOpenForm] = useState(false);
 
   const fetchJobs = async () => {
-    setLoading(true);
-    const res = await jobService.getAllAdmin({ ...filters, page, limit });
-    setJobs(res);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const res = await jobService.getAllAdmin({ ...filters, page, limit });
+      setJobs(res);
+    } catch (err) {
+      console.error("Failed to load jobs:", err);
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       fetchJobs();
-    }, 300); // debounce search
+    }, 300);
     return () => clearTimeout(timeout);
   }, [filters, page]);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      await jobService.remove(id);
+      fetchJobs();
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -59,7 +69,6 @@ export default function JobAdminPanel() {
           value={filters.search}
           onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
         />
-
         <Select
           value={filters.jobType || "all"}
           onValueChange={(val) => setFilters(f => ({ ...f, jobType: val === "all" ? "" : val }))}
@@ -70,7 +79,6 @@ export default function JobAdminPanel() {
             {JOB_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
           </SelectContent>
         </Select>
-
         <Select
           value={filters.workType || "all"}
           onValueChange={(val) => setFilters(f => ({ ...f, workType: val === "all" ? "" : val }))}
@@ -81,7 +89,6 @@ export default function JobAdminPanel() {
             {WORK_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
           </SelectContent>
         </Select>
-
         <Select
           value={filters.status || "all"}
           onValueChange={(val) => setFilters(f => ({ ...f, status: val === "all" ? "" : val }))}
@@ -98,14 +105,14 @@ export default function JobAdminPanel() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableCell className="font-semibold text-sm">Title</TableCell>
-              <TableCell className="font-semibold text-sm">Company</TableCell>
-              <TableCell className="font-semibold text-sm">Location</TableCell>
-              <TableCell className="font-semibold text-sm">Type</TableCell>
-              <TableCell className="font-semibold text-sm">Skills</TableCell>
-              <TableCell className="font-semibold text-sm">Status</TableCell>
-              <TableCell className="font-semibold text-sm">Posted</TableCell>
-              <TableCell className="font-semibold text-sm">Actions</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>Company</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Type</TableCell>
+              <TableCell>Skills</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Posted</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -113,7 +120,7 @@ export default function JobAdminPanel() {
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-6">Loading...</TableCell>
               </TableRow>
-            ) : jobs.length > 0 ? (
+            ) : jobs?.length > 0 ? (
               jobs.map((job) => (
                 <TableRow key={job._id} className="hover:bg-muted/50">
                   <TableCell className="font-medium max-w-[200px] truncate">{job.title}</TableCell>
@@ -134,8 +141,12 @@ export default function JobAdminPanel() {
                   <TableCell>{format(new Date(job.createdAt), 'dd MMM yyyy')}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="icon" variant="outline"><Pencil className="w-4 h-4" /></Button>
-                      <Button size="icon" variant="destructive"><Trash2 className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="outline" onClick={() => { setSelected(job); setOpenForm(true); }}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="icon" variant="destructive" onClick={() => handleDelete(job._id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -150,21 +161,9 @@ export default function JobAdminPanel() {
       </div>
 
       <div className="flex justify-between items-center pt-4">
-        <Button
-          variant="ghost"
-          disabled={page === 1}
-          onClick={() => setPage(p => Math.max(1, p - 1))}
-        >
-          Previous
-        </Button>
+        <Button variant="ghost" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>Previous</Button>
         <span className="text-sm">Page {page}</span>
-        <Button
-          variant="ghost"
-          disabled={jobs.length < limit}
-          onClick={() => setPage(p => p + 1)}
-        >
-          Next
-        </Button>
+        <Button variant="ghost" disabled={jobs.length < limit} onClick={() => setPage(p => p + 1)}>Next</Button>
       </div>
     </div>
   );

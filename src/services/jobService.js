@@ -5,7 +5,7 @@ const getAllPublic = () =>
   API.get("/jobs/public").then(res => res.data.jobs);
 
 const getAllAdmin = () =>
-  API.get("/jobs/admin/jobs").then(res => res.data.jobs);
+  API.get("/jobs/admin").then(res => res.data.jobs);
 
 
 // PUBLIC: Get a single job by ID
