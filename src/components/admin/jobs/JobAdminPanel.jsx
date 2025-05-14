@@ -37,11 +37,17 @@ export default function JobAdminPanel() {
   }, [filters]);
 
   return (
-    <div className="p-4 space-y-6">
-      <div className="flex flex-wrap gap-4 items-end">
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Job Listings (Admin)</h2>
+        <Button variant="outline" onClick={() => setFilters({ search: "", jobType: "", workType: "", status: "" })}>
+          Reset Filters
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Input
           placeholder="Search by title or company"
-          className="w-64"
           value={filters.search}
           onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
         />
@@ -50,12 +56,10 @@ export default function JobAdminPanel() {
           value={filters.jobType || "all"}
           onValueChange={(val) => setFilters(f => ({ ...f, jobType: val === "all" ? "" : val }))}
         >
-          <SelectTrigger className="w-48">Job Type</SelectTrigger>
+          <SelectTrigger>Job Type</SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Job Types</SelectItem>
-            {JOB_TYPES.map(type => (
-              <SelectItem key={type} value={type}>{type}</SelectItem>
-            ))}
+            {JOB_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
           </SelectContent>
         </Select>
 
@@ -63,12 +67,10 @@ export default function JobAdminPanel() {
           value={filters.workType || "all"}
           onValueChange={(val) => setFilters(f => ({ ...f, workType: val === "all" ? "" : val }))}
         >
-          <SelectTrigger className="w-48">Work Type</SelectTrigger>
+          <SelectTrigger>Work Type</SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Work Types</SelectItem>
-            {WORK_TYPES.map(type => (
-              <SelectItem key={type} value={type}>{type}</SelectItem>
-            ))}
+            {WORK_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
           </SelectContent>
         </Select>
 
@@ -76,33 +78,31 @@ export default function JobAdminPanel() {
           value={filters.status || "all"}
           onValueChange={(val) => setFilters(f => ({ ...f, status: val === "all" ? "" : val }))}
         >
-          <SelectTrigger className="w-48">Status</SelectTrigger>
+          <SelectTrigger>Status</SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            {STATUS_TYPES.map(type => (
-              <SelectItem key={type} value={type}>{type}</SelectItem>
-            ))}
+            {STATUS_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
 
-      <div className="overflow-auto rounded-lg border">
-        <Table className="min-w-[900px]">
+      <div className="overflow-x-auto rounded border bg-white shadow">
+        <Table>
           <TableHeader>
             <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Company</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Skills</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Posted</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell className="font-semibold text-sm">Title</TableCell>
+              <TableCell className="font-semibold text-sm">Company</TableCell>
+              <TableCell className="font-semibold text-sm">Location</TableCell>
+              <TableCell className="font-semibold text-sm">Type</TableCell>
+              <TableCell className="font-semibold text-sm">Skills</TableCell>
+              <TableCell className="font-semibold text-sm">Status</TableCell>
+              <TableCell className="font-semibold text-sm">Posted</TableCell>
+              <TableCell className="font-semibold text-sm">Actions</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {jobs.map((job) => (
-              <TableRow key={job._id}>
+              <TableRow key={job._id} className="hover:bg-muted/50">
                 <TableCell className="font-medium max-w-[200px] truncate">{job.title}</TableCell>
                 <TableCell>{job.company}</TableCell>
                 <TableCell>{job.location}</TableCell>
@@ -116,7 +116,7 @@ export default function JobAdminPanel() {
                   ))}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={job.status === "published" ? "default" : "outline"}>{job.status}</Badge>
+                  <Badge variant={job.status === "published" ? "default" : "outline"}>{job.status || "-"}</Badge>
                 </TableCell>
                 <TableCell>{format(new Date(job.createdAt), 'dd MMM yyyy')}</TableCell>
                 <TableCell>
