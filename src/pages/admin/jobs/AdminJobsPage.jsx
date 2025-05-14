@@ -1,6 +1,6 @@
 // src/pages/admin/jobs/AdminJobsPage.jsx
 import React from "react";
-import JobAdminPanel from "@/components/admin/jobs/JobAdminPanel";
+import JobAdminPanel from "@/components/admin/jobs/JobAdminPanel.jsx";
 
 export default function AdminJobsPage() {
   return (
