@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import SeoMetaTable from "@/components/admin/seo/SeoMetaTable";
-import SeoMetaForm from "@/components/admin/seo/SeoMetaForm";
-import seoService from "@/services/seoService";
+import SeoMetaTable from "@/components/admin/seo/SeoMetaTable.jsx";
+import SeoMetaForm from "@/components/admin/seo/SeoMetaForm.jsx";
+import seoService from "@/services/seoService.js";
 
 export default function SeoManager() {
   const [entries, setEntries] = useState([]);
