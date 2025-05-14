@@ -37,18 +37,16 @@ export default function AdminJobsPage() {
   const fetchJobs = async () => {
     setLoading(true);
     try {
-      const { jobs: data, total: count } = await jobService.getAllAdmin({
-        search,
-        jobType,
-        workType,
-        status,
-        page,
-        limit
-      });
+      // Fetch admin jobs with pagination and filters
+      const result = await jobService.getAllAdmin({ search, jobType, workType, status, page, limit });
+      const data = result?.jobs || [];
+      const count = result?.total || 0;
       setJobs(data);
       setTotal(count);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load jobs:", err);
+      setJobs([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
