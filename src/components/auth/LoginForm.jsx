@@ -37,22 +37,27 @@ export default function LoginForm() {
     );
   };
 
-  const redirectUser = (user) => {
-    console.group('🔐 redirectUser');
-    const rawName = user?.role?.name;
-    const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
-    const from = location.state?.from?.pathname;
-    console.log('Redirecting to:', from || (ADMIN_ROLES.includes(role) ? '/admin/users' : '/'));
-    console.groupEnd();
+const redirectUser = (user) => {
+  console.group('🔐 redirectUser');
+  const rawName = user?.role?.name;
+  const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
+  const from = location.state?.from?.pathname;
 
-    if (from && from !== '/login') {
-      navigate(from, { replace: true });
-    } else if (ADMIN_ROLES.includes(role)) {
-      navigate('/admin/users', { replace: true });
-    } else {
-      navigate('/', { replace: true });
-    }
-  };
+  let target;
+  if (from && from !== '/login') {
+    target = from;
+  } else if (role === 'USER') {
+    target = '/user/dashboard';
+  } else {
+    target = '/admin/dashboard';
+  }
+
+  console.log('Redirecting to:', target);
+  console.groupEnd();
+
+  navigate(target, { replace: true });
+};
+
 
   const handleGoogleCallback = async (response) => {
     setLoading(true);
