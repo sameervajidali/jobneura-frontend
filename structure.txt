@@ -1,0 +1,216 @@
+Folder PATH listing
+Volume serial number is 00000197 EC7E:7D96
+D:\FUTURE\JOBNEURA-TECH\FRONTEND\SRC
+|   App.css
+|   App.jsx
+|   index.css
+|   main.jsx
+|   
++---assets
+|   |   google .png
+|   |   react.svg
+|   |   
+|   \---illustrations
+|           auth_bg.jpg
+|           
++---components
+|   |   FileUploader.jsx
+|   |   PrivateRoute.jsx
+|   |   ProtectedRoute.jsx
+|   |   
+|   +---about
+|   |       AboutCTA.jsx
+|   |       AboutHero.jsx
+|   |       OurStory.jsx
+|   |       OurValues.jsx
+|   |       StatsSection.jsx
+|   |       
+|   +---admin
+|   |   |   SidebarNav.jsx
+|   |   |   Topbar.jsx
+|   |   |   UserDetailsCard.jsx
+|   |   |   
+|   |   +---jobs
+|   |   |       JobForm.jsx
+|   |   |       JobTable.jsx
+|   |   |       JobUploadModal.jsx
+|   |   |       
+|   |   \---Seo
+|   |           SeoMetaForm.jsx
+|   |           SeoMetaTable.jsx
+|   |           
+|   +---auth
+|   |       AuthLayout.jsx
+|   |       LoginForm.jsx
+|   |       RegisterForm.jsx
+|   |       RequireRole.jsx
+|   |       SocialLoginButtons.jsx
+|   |       
+|   +---common
+|   |       WeeklyLeaders.jsx
+|   |       
+|   +---dashboard
+|   |       CareerSnapshot.jsx
+|   |       QuickStats.jsx
+|   |       StatsCards.jsx
+|   |       WelcomePanel.jsx
+|   |       
+|   +---landing
+|   |       CTABanner.jsx
+|   |       FeaturesSection.jsx
+|   |       HeroSection.jsx
+|   |       JobsPreview.jsx
+|   |       QuizzesPreview.jsx
+|   |       
+|   +---layouts
+|   |       AdminLayout.jsx
+|   |       Footer.jsx
+|   |       MainLayout.jsx
+|   |       Navbar.jsx
+|   |       
+|   +---navigation
+|   |       Sidebar.jsx
+|   |       Topbar.jsx
+|   |       
+|   +---profile
+|   |       ChangePassword.jsx
+|   |       ChangePasswordForm.jsx
+|   |       ProfileForm.jsx
+|   |       
+|   +---quizzes
+|   |       QuizHero.jsx
+|   |       QuizHighlights.jsx
+|   |       QuizLeaderboard.jsx
+|   |       QuizList.jsx
+|   |       QuizSidebar.jsx
+|   |       QuizTitleLeaderboard.jsx
+|   |       
+|   \---ui
+|           button.jsx
+|           button.tsx
+|           dialog.tsx
+|           form.tsx
+|           input.tsx
+|           label.tsx
+|           textarea.tsx
+|           
++---constants
+|       roles.js
+|       
++---contexts
+|       AuthContext.jsx
+|       ThemeContext.jsx
+|       ToastContext.jsx
+|       
++---firebase
+|       config.js
+|       
++---hooks
+|       useAuth.js
+|       useAuthGuard.js
+|       useDebounce.js
+|       useFetch.js
+|       useQuizList.jsx
+|       useToast.jsx
+|       
++---layouts
+|       AdminDashboardLayout.jsx
+|       DashboardLayout.jsx
+|       
++---lib
+|       utils.ts
+|       
++---pages
+|   |   AboutPage.jsx
+|   |   AccountActivation.jsx
+|   |   AccountActivationInfo.jsx
+|   |   AdminDashboard.jsx
+|   |   ContactPage.jsx
+|   |   DashboardHome.jsx
+|   |   FeaturesPage.jsx
+|   |   ForgotPasswordPage.jsx
+|   |   HelpCenterPage.jsx
+|   |   HomePage.jsx
+|   |   LeaderboardPage.jsx
+|   |   LoginPage.jsx
+|   |   LoginPageWrapper.jsx
+|   |   NotFoundPage.jsx
+|   |   PricingPage.jsx
+|   |   PrivacyPolicyPage.jsx
+|   |   Profile.jsx
+|   |   QuizExplorerPage.jsx
+|   |   QuizLandingPage.jsx
+|   |   QuizPage.jsx
+|   |   QuizResultPage.jsx
+|   |   QuizStartPage.jsx
+|   |   RegisterPage.jsx
+|   |   ResetPasswordPage.jsx
+|   |   Resumepage.jsx
+|   |   TermsPage.jsx
+|   |   
+|   \---admin
+|       |   AdminDashboardHome.jsx
+|       |   AdminLeaderboardPage.jsx
+|       |   AdminQuizPanel.jsx
+|       |   CategoriesPage.jsx
+|       |   CategoryForm.jsx
+|       |   ChangePasswordPage.jsx
+|       |   EditQuizPage.jsx
+|       |   ProfilePage.jsx
+|       |   SeoManager.jsx
+|       |   SettingsPage.jsx
+|       |   TicketDetailsPage.jsx
+|       |   TicketListPage.jsx
+|       |   TopicForm.jsx
+|       |   TopicsPage.jsx
+|       |   
+|       +---jobs
+|       |       AdminJobsPage.jsx
+|       |       
+|       +---Quiz
+|       |       AssignQuizPage.jsx
+|       |       BulkUploadQuestionsPage.jsx
+|       |       BulkUploadQuizzesPage.jsx
+|       |       CreateQuizForm.jsx
+|       |       EditQuizPage.jsx
+|       |       QuestionForm.jsx
+|       |       QuestionListPage.jsx
+|       |       QuizDetailsForm.jsx
+|       |       
+|       +---Reports
+|       |       AdminReportsPage.jsx
+|       |       ReportsPage.jsx
+|       |       
+|       +---Roles
+|       |       AdminRolesPage.jsx
+|       |       RoleForm.jsx
+|       |       
+|       \---Users
+|               index.jsx
+|               UserDetails.jsx
+|               UserForm.jsx
+|               UserHistoryPage.jsx
+|               UserList.jsx
+|               
++---services
+|       auth.js
+|       axios.js
+|       categoryService.js
+|       jobService.js
+|       questionService.js
+|       quizService.js
+|       seoService.js
+|       ticketService.js
+|       topicService.js
+|       userService.js
+|       
++---styles
+|       global.css
+|       tailwind.css
+|       
+\---utils
+        constants.js
+        getAvatarUrl.js
+        helpers.js
+        validators.js
+        
