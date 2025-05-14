@@ -80,6 +80,8 @@ import CategoryForm from "./pages/admin/CategoryForm";
 import TopicsPage from "./pages/admin/TopicsPage";
 import TopicForm from "./pages/admin/TopicForm";
 import CategoriesPage from "./pages/admin/CategoriesPage";
+import AdminJobsPage from "./pages/admin/jobs/AdminJobsPage";
+import SeoManager from "./pages/admin/SeoManager";
 
 // 🌟 AppInit: handles session wait
 function AppInitializer({ children }) {
@@ -229,6 +231,8 @@ function LayoutWrapper() {
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
+              <Route path="jobs" element={<AdminJobsPage />} />
+              <Route path="seo-manager" element={<SeoManager />} />
               <Route
                 path="quizzes/:quizId/bulk-upload"
                 element={<BulkUploadQuestionsPage />}

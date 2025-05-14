@@ -120,23 +120,25 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  FaUser, FaBook, FaChartBar, FaCogs, FaShieldAlt,
+  FaUser, FaBook, FaChartBar,FaSearch,FaBriefcase, FaCogs, FaShieldAlt,
   FaComments, FaTags, FaList, FaFileAlt, FaBars, FaTimes
 } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 
 const navItems = [
-  { path: "/admin",           label: "Dashboard",  icon:<FaChartBar/>, roles:["superadmin","admin","creator","moderator","support"] },
-  { path: "/admin/users",     label: "Users",      icon:<FaUser/>,     roles:["superadmin","admin"] },
-  { path: "/admin/quizzes",   label: "Quizzes",    icon:<FaBook/>,     roles:["creator","admin","superadmin"] },
-  { path: "/admin/categories",label: "Categories", icon:<FaTags/>,     roles:["admin","superadmin"] },
-  { path: "/admin/topics",    label: "Topics",     icon:<FaList/>,     roles:["admin","superadmin"] },
-  { path: "/admin/leaderboard",label:"Leaderboard",icon:<FaChartBar/>, roles:["admin","superadmin"] },
-  { path: "/admin/blogs",     label: "Blogs",      icon:<FaBook/>,     roles:["creator","moderator","superadmin"] },
-  { path: "/admin/tickets",   label: "Tickets",    icon:<FaComments/>, roles:["support","admin","superadmin"] },
-  { path: "/admin/reports",   label: "Reports",    icon:<FaFileAlt/>,  roles:["admin","superadmin"] },
-  { path: "/admin/roles",     label: "Roles",      icon:<FaShieldAlt/>,roles:["superadmin"] },
-  { path: "/admin/settings",  label: "Settings",   icon:<FaCogs/>,     roles:["superadmin"] },
+  { path: "/admin",             label: "Dashboard",     icon: <FaChartBar />,    roles: ["superadmin", "admin", "creator", "moderator", "support"] },
+  { path: "/admin/users",       label: "Users",         icon: <FaUser />,        roles: ["superadmin", "admin"] },
+  { path: "/admin/quizzes",     label: "Quizzes",       icon: <FaBook />,        roles: ["superadmin", "admin", "creator"] },
+  { path: "/admin/categories",  label: "Categories",    icon: <FaTags />,        roles: ["superadmin", "admin"] },
+  { path: "/admin/topics",      label: "Topics",        icon: <FaList />,        roles: ["superadmin", "admin"] },
+  { path: "/admin/leaderboard", label: "Leaderboard",   icon: <FaChartBar />,    roles: ["superadmin", "admin"] },
+  { path: "/admin/blogs",       label: "Blogs",         icon: <FaBook />,        roles: ["superadmin", "creator", "moderator"] },
+  { path: "/admin/tickets",     label: "Tickets",       icon: <FaComments />,    roles: ["superadmin", "admin", "support"] },
+  { path: "/admin/reports",     label: "Reports",       icon: <FaFileAlt />,     roles: ["superadmin", "admin"] },
+  { path: "/admin/roles",       label: "Roles",         icon: <FaShieldAlt />,   roles: ["superadmin"] },
+  { path: "/admin/settings",    label: "Settings",      icon: <FaCogs />,        roles: ["superadmin"] },
+  { path: "/admin/jobs",        label: "Jobs",          icon: <FaBriefcase />,   roles: ["superadmin", "admin"] },
+  { path: "/admin/seo-manager", label: "SEO Manager",   icon: <FaSearch />,      roles: ["superadmin", "admin"] },
 ];
 
 export default function SidebarNav() {
