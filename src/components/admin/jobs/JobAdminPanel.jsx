@@ -1,7 +1,12 @@
 // src/components/admin/jobs/JobAdminPanel.jsx
 import React, { useEffect, useState } from "react";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Select, SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/table";
@@ -40,26 +45,44 @@ export default function JobAdminPanel() {
           value={filters.search}
           onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
         />
+
         <Select
           value={filters.jobType}
           onValueChange={(val) => setFilters(f => ({ ...f, jobType: val }))}
         >
-          <SelectItem value="">All Job Types</SelectItem>
-          {JOB_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+          <SelectTrigger className="w-48">Job Type</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Job Types</SelectItem>
+            {JOB_TYPES.map(type => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
         </Select>
+
         <Select
           value={filters.workType}
           onValueChange={(val) => setFilters(f => ({ ...f, workType: val }))}
         >
-          <SelectItem value="">All Work Types</SelectItem>
-          {WORK_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+          <SelectTrigger className="w-48">Work Type</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Work Types</SelectItem>
+            {WORK_TYPES.map(type => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
         </Select>
+
         <Select
           value={filters.status}
           onValueChange={(val) => setFilters(f => ({ ...f, status: val }))}
         >
-          <SelectItem value="">All Status</SelectItem>
-          {STATUS_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+          <SelectTrigger className="w-48">Status</SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Status</SelectItem>
+            {STATUS_TYPES.map(type => (
+              <SelectItem key={type} value={type}>{type}</SelectItem>
+            ))}
+          </SelectContent>
         </Select>
       </div>
 
