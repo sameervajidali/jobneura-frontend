@@ -85,7 +85,7 @@ export default function TicketListPage() {
                 <tr key={t._id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{(page - 1) * limit + i + 1}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{t.subject}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{t.user.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{t.user?.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       t.status === 'open' ? 'bg-green-100 text-green-800' :
