@@ -268,11 +268,13 @@ function LayoutWrapper() {
 export default function App() {
   return (
     <ThemeProvider>
+      <Router>
       <AuthProvider>
         <AppInitializer>
           <LayoutWrapper />
         </AppInitializer>
-      </AuthProvider>
+        </AuthProvider>
+        </Router>
     </ThemeProvider>
   );
 }
