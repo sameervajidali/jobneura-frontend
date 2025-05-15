@@ -318,6 +318,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ADMIN_ROLES } from "./constants/roles";
+import { LoginPageWrapper } from "./pages/LoginPageWrapper";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
