@@ -25,110 +25,122 @@ export default function CategoriesPage() {
   const [pageSize, setPageSize] = useState(10);
 
   // Sorting state
-  const [sortConfig, setSortConfig] = useState({
-    key: "name",
-    direction: "asc",
-  });
+  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
 
   useEffect(() => {
-    categoryService
-      .getAllCategories()
-      .then((data) => setCats(data))
-      .finally(() => setLoading(false));
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await categoryService.getAllCategories();
+        setCats(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  // Filtered → Sorted → Paginated
+  // Filter + Sort + Paginate
   const processed = useMemo(() => {
-    let filtered = cats.filter(
-      (c) =>
-        c.name.toLowerCase().includes(search.toLowerCase()) ||
-        (c.description || "").toLowerCase().includes(search.toLowerCase())
-    );
+    // Filter
+    let filtered = cats.filter((c) => {
+      const term = search.toLowerCase();
+      return (
+        c.name.toLowerCase().includes(term) ||
+        (c.description || "").toLowerCase().includes(term)
+      );
+    });
 
-    // sorting
-    if (sortConfig.key) {
-      filtered.sort((a, b) => {
-        const aVal = a[sortConfig.key] || "";
-        const bVal = b[sortConfig.key] || "";
-        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
+    // Sort
+    const { key, direction } = sortConfig;
+    filtered.sort((a, b) => {
+      const aVal = (a[key] || "").toLowerCase();
+      const bVal = (b[key] || "").toLowerCase();
+      if (aVal < bVal) return direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
 
-    // pagination
+    // Paginate
     const start = (currentPage - 1) * pageSize;
     return filtered.slice(start, start + pageSize);
   }, [cats, search, sortConfig, currentPage, pageSize]);
 
   const totalCount = useMemo(
     () =>
-      cats.filter(
-        (c) =>
-          c.name.toLowerCase().includes(search.toLowerCase()) ||
-          (c.description || "").toLowerCase().includes(search.toLowerCase())
+      cats.filter((c) =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        (c.description || "").toLowerCase().includes(search.toLowerCase())
       ).length,
     [cats, search]
   );
 
+  const totalPages = Math.ceil(totalCount / pageSize) || 1;
+
+  // Sorting handler
   function handleSort(key) {
     setSortConfig((cfg) => {
       if (cfg.key === key) {
-        // toggle direction
-        return {
-          key,
-          direction: cfg.direction === "asc" ? "desc" : "asc",
-        };
-      } else {
-        return { key, direction: "asc" };
+        return { key, direction: cfg.direction === "asc" ? "desc" : "asc" };
       }
+      return { key, direction: "asc" };
     });
   }
 
-  function toggleSelect(id) {
-    setSelectedIds((s) => {
-      const next = new Set(s);
+  // Select handlers
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  }
-
-  function toggleSelectAll(e) {
+  };
+  const toggleSelectAll = (e) => {
     if (e.target.checked) {
       setSelectedIds(new Set(processed.map((c) => c._id)));
     } else {
       setSelectedIds(new Set());
     }
-  }
+  };
 
+  // Delete handlers
   async function handleDelete(id) {
     if (!window.confirm("Delete this category?")) return;
-    await categoryService.deleteCategory(id);
-    setCats((cs) => cs.filter((c) => c._id !== id));
-    setSelectedIds((s) => {
-      s.delete(id);
-      return new Set(s);
-    });
+    try {
+      await categoryService.deleteCategory(id);
+      setCats((cs) => cs.filter((c) => c._id !== id));
+      setSelectedIds((s) => {
+        const next = new Set(s);
+        next.delete(id);
+        return next;
+      });
+    } catch (err) {
+      alert("Delete failed: " + (err.response?.data?.message || err.message));
+    }
   }
 
   async function handleDeleteSelected() {
+    if (selectedIds.size === 0) return;
     if (!window.confirm(`Delete ${selectedIds.size} categories?`)) return;
-    await Promise.all(
-      Array.from(selectedIds).map((id) => categoryService.deleteCategory(id))
-    );
-    setCats((cs) => cs.filter((c) => !selectedIds.has(c._id)));
-    setSelectedIds(new Set());
+    try {
+      await Promise.all(
+        Array.from(selectedIds).map((id) => categoryService.deleteCategory(id))
+      );
+      setCats((cs) => cs.filter((c) => !selectedIds.has(c._id)));
+      setSelectedIds(new Set());
+    } catch (err) {
+      alert("Bulk delete failed: " + err.message);
+    }
   }
 
-  const totalPages = Math.ceil(totalCount / pageSize);
-
   return (
-    <div className="p-6 space-y-6">
-      {/* Header + Actions */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      {/* Header & Actions */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Categories</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <div className="relative flex-1 md:flex-none">
             <input
               type="text"
               value={search}
@@ -136,127 +148,130 @@ export default function CategoriesPage() {
                 setSearch(e.target.value);
                 setCurrentPage(1);
               }}
-              placeholder="Search…"
-              className="pl-10 pr-4 py-2 border rounded w-full sm:w-64"
+              placeholder="Search categories..."
+              className="w-full md:w-64 border border-gray-300 rounded pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
           <Link
             to="new"
-            className="bg-indigo-600 text-white px-3 py-2 rounded flex items-center gap-2 whitespace-nowrap"
+            className="inline-flex items-center px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
           >
-            <FaPlus /> New Category
+            <FaPlus className="mr-1" /> New Category
           </Link>
           {selectedIds.size > 0 && (
             <button
+              type="button"
               onClick={handleDeleteSelected}
-              className="bg-red-600 text-white px-3 py-2 rounded flex items-center gap-2 whitespace-nowrap"
+              className="inline-flex items-center px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
-              <FaTrash /> Delete Selected ({selectedIds.size})
+              <FaTrash className="mr-1" /> Delete ({selectedIds.size})
             </button>
           )}
         </div>
       </div>
 
       {/* Table */}
-      {loading ? (
-        <p>Loading…</p>
-      ) : (
-        <div className="overflow-x-auto bg-white rounded shadow">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+      <div className="overflow-x-auto bg-white rounded shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2">
+                <input
+                  type="checkbox"
+                  onChange={toggleSelectAll}
+                  checked={
+                    processed.length > 0 &&
+                    processed.every((c) => selectedIds.has(c._id))
+                  }
+                />
+              </th>
+              <th
+                className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                onClick={() => handleSort("sr")}
+              >
+                <SortIcon label="#" sortKey="sr" sortConfig={sortConfig} />
+              </th>
+              <th
+                className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                onClick={() => handleSort("name")}
+              >
+                <SortIcon label="Name" sortKey="name" sortConfig={sortConfig} />
+              </th>
+              <th
+                className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
+                onClick={() => handleSort("description")}
+              >
+                <SortIcon
+                  label="Description"
+                  sortKey="description"
+                  sortConfig={sortConfig}
+                />
+              </th>
+              <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {loading ? (
               <tr>
-                <th className="px-4 py-2 text-left">
-                  <input
-                    type="checkbox"
-                    onChange={toggleSelectAll}
-                    checked={
-                      processed.length > 0 &&
-                      processed.every((c) => selectedIds.has(c._id))
-                    }
-                  />
-                </th>
-                <th
-                  className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                  onClick={() => handleSort("sr")}
-                >
-                  <SortIcon label="SR" sortKey="sr" sortConfig={sortConfig} />
-                </th>
-                {["name", "description"].map((col) => (
-                  <th
-                    key={col}
-                    className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                    onClick={() => handleSort(col)}
-                  >
-                    <SortIcon
-                      label={col.charAt(0).toUpperCase() + col.slice(1)}
-                      sortKey={col}
-                      sortConfig={sortConfig}
-                    />
-                  </th>
-                ))}
-                <th className="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase">
-                  Actions
-                </th>
+                <td colSpan={5} className="py-8 text-center text-gray-500">
+                  Loading…
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y bg-white">
-              {processed.map((cat, idx) => (
-                <tr key={cat._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
+            ) : processed.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-gray-500">
+                  No categories found.
+                </td>
+              </tr>
+            ) : (
+              processed.map((cat, idx) => (
+                <tr
+                  key={cat._id}
+                  className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                >
+                  <td className="px-4 py-2">
                     <input
                       type="checkbox"
                       checked={selectedIds.has(cat._id)}
                       onChange={() => toggleSelect(cat._id)}
+                      className="h-4 w-4"
                     />
                   </td>
-                  <td className="px-6 py-3 text-sm text-gray-900">
+                  <td className="px-6 py-2 whitespace-nowrap text-sm text-gray-700">
                     {(currentPage - 1) * pageSize + idx + 1}
                   </td>
-                  <td className="px-6 py-3 text-sm text-gray-900">
-                    {cat.name}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-gray-700">
-                    {cat.description || "—"}
-                  </td>
-                  <td className="px-6 py-3 text-sm">
-                    <div className="flex items-center space-x-3">
-                      <Link
-                        to={`${cat._id}/edit`}
-                        className="text-yellow-600 hover:text-yellow-800"
-                      >
-                        <FaEdit />
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(cat._id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
+                  <td className="px-6 py-2 text-sm text-gray-900">{cat.name}</td>
+                  <td className="px-6 py-2 text-sm text-gray-700">{cat.description || '—'}</td>
+                  <td className="px-6 py-2 whitespace-nowrap text-sm font-medium">
+                    <Link
+                      to={`/${cat._id}/edit`}
+                      className="text-yellow-600 hover:text-yellow-800 mr-4"
+                    >
+                      <FaEdit />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(cat._id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <FaTrash />
+                    </button>
                   </td>
                 </tr>
-              ))}
-              {processed.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
-                    No categories found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between mt-4 gap-2">
           <div className="flex items-center gap-2">
-            <label>Rows per page:</label>
+            <label className="text-sm">Rows per page:</label>
             <select
               value={pageSize}
               onChange={(e) => {
@@ -274,6 +289,7 @@ export default function CategoriesPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
               className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
@@ -284,6 +300,7 @@ export default function CategoriesPage() {
               Page {currentPage} of {totalPages}
             </span>
             <button
+              type="button"
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
               className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
