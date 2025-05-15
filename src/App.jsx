@@ -285,7 +285,6 @@
 
 import React, { useEffect, useRef } from 'react';
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
@@ -461,8 +460,7 @@ function LayoutWrapper() {
 
 // App: top-level bootstrap
 export default function App() {
-  return (
-    <Router>
+  return ( 
       <ThemeProvider>
         <AuthProvider>
           <AppInitializer>
@@ -470,6 +468,5 @@ export default function App() {
           </AppInitializer>
         </AuthProvider>
       </ThemeProvider>
-    </Router>
-  );
+     );
 }
