@@ -144,9 +144,10 @@ function LayoutWrapper() {
   const location = useLocation();
 
   const isDashboard = location.pathname.startsWith("/dashboard");
+  const rawRoleName = user?.role?.name;
   const isAdmin =
-    user?.role.name &&
-    ADMIN_ROLES.includes(user.role.name.toUpperCase()) &&
+    typeof rawRoleName === "string" &&
+    ADMIN_ROLES.includes(rawRoleName.toUpperCase()) &&
     location.pathname.startsWith("/admin");
 
   return (
@@ -267,13 +268,11 @@ function LayoutWrapper() {
 export default function App() {
   return (
     <ThemeProvider>
-      <Router>
-        <AuthProvider>
-          <AppInitializer>
-            <LayoutWrapper />
-          </AppInitializer>
-        </AuthProvider>
-      </Router>
+      <AuthProvider>
+        <AppInitializer>
+          <LayoutWrapper />
+        </AppInitializer>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
