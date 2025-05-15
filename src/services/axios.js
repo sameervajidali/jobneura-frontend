@@ -1,44 +1,51 @@
-
+// src/services/axios.js
 import axios from 'axios';
 
+// ✅ Use Vercel proxy for same-origin requests (cookies will work)
 const API = axios.create({
-  baseURL: '/api', // ✅ now relative to frontend origin
-  withCredentials: true,
+  baseURL: '/api',
+  withCredentials: true, // ✅ Needed for sending HttpOnly cookies
 });
 
 let isRefreshing = false;
 let failedQueue = [];
-let initialSessionLoad = true; // 🆕 Flag
+let initialSessionLoad = true;
 
+/**
+ * 🔁 Process queued requests after refresh succeeds or fails
+ */
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
+  failedQueue.forEach(promise => {
+    if (error) promise.reject(error);
+    else promise.resolve(token);
   });
   failedQueue = [];
 };
 
+/**
+ * 🛡️ Axios response interceptor for handling 401 errors securely
+ */
 API.interceptors.response.use(
-  res => res,
-  async err => {
-    const originalRequest = err.config;
+  response => response,
+  async error => {
+    const originalRequest = error.config;
 
-    const isUnauthorized = err.response?.status === 401;
+    const isUnauthorized = error.response?.status === 401;
     const isRetryable =
       !originalRequest._retry &&
       !["/auth/login", "/auth/refresh-token", "/auth/me"].some(path =>
         originalRequest.url.includes(path)
       );
 
-    // 🚫 Don't refresh during initial session load
+    // 🧠 Skip refresh during initial session load
     if (isUnauthorized && isRetryable && !initialSessionLoad) {
       if (isRefreshing) {
+        // 🕒 Queue requests during token refresh
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(() => API(originalRequest));
+        }).then(() =>
+          new Promise(resolve => setTimeout(() => resolve(API(originalRequest)), 50))
+        );
       }
 
       originalRequest._retry = true;
@@ -47,25 +54,29 @@ API.interceptors.response.use(
       try {
         const { data } = await API.post('/auth/refresh-token');
         if (data?.user) {
-          window.dispatchEvent(new CustomEvent('session-refresh', { detail: data.user }));
+          window.dispatchEvent(
+            new CustomEvent('session-refresh', { detail: data.user })
+          );
         }
         processQueue(null);
         return API(originalRequest);
-      } catch (refreshErr) {
-        processQueue(refreshErr);
-        window.localStorage.removeItem('hasSession');
+      } catch (refreshError) {
+        processQueue(refreshError);
+        localStorage.removeItem('hasSession');
         window.location.href = '/login';
-        return Promise.reject(refreshErr);
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(err);
+    return Promise.reject(error);
   }
 );
 
-// 🔁 Allow AuthContext to update the flag once session check completes
+/**
+ * 🔁 Allow AuthContext to tell Axios when it's okay to retry requests
+ */
 window.addEventListener('session-checked', () => {
   initialSessionLoad = false;
 });
