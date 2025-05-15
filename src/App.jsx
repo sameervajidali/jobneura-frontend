@@ -276,7 +276,6 @@
 //   );
 // }
 
-
 // src/App.jsx
 import React, { useEffect, useRef } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
@@ -309,6 +308,63 @@ import AdminUsersPage from "./pages/admin/Users";
 import UserDetails from "./pages/admin/Users/UserDetails";
 import UserForm from "./pages/admin/Users/UserForm";
 import AdminQuizPanel from "./pages/admin/AdminQuizPanel";
+
+// Dashboard Pages
+import DashboardHome from "./pages/DashboardHome";
+import Profile from "./pages/Profile";
+import ChangePassword from "./components/profile/ChangePassword";
+
+// Admin Pages
+import AdminDashboardLayout from "./layouts/AdminDashboardLayout";
+import AdminDashboardHome from "./pages/admin/AdminDashboardHome";
+import AdminUsersPage from "./pages/admin/Users";
+import UserDetails from "./pages/admin/Users/UserDetails";
+import UserForm from "./pages/admin/Users/UserForm";
+
+// Layouts
+import DashboardLayout from "./layouts/DashboardLayout";
+import Navbar from "./components/layouts/Navbar";
+import Footer from "./components/layouts/Footer";
+
+// Context and Guards
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import PrivateRoute from "./components/PrivateRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ADMIN_ROLES } from "./constants/roles";
+
+// Admin Features
+import AdminQuizPanel from "./pages/admin/AdminQuizPanel";
+import CreateQuizForm from "./pages/admin/Quiz/CreateQuizForm";
+import EditQuizPage from "./pages/admin/Quiz/EditQuizPage";
+import BulkUploadQuestionsPage from "./pages/admin/Quiz/BulkUploadQuestionsPage";
+import QuestionListPage from "./pages/admin/Quiz/QuestionListPage";
+import QuestionForm from "./pages/admin/Quiz/QuestionForm";
+import AssignQuizPage from "./pages/admin/Quiz/AssignQuizPage";
+import AdminLeaderboardPage from "./pages/admin/AdminLeaderboardPage";
+import UserHistoryPage from "./pages/admin/Users/UserHistoryPage";
+import ProfilePage from "./pages/admin/ProfilePage";
+import ChangePasswordPage from "./pages/admin/ChangePasswordPage";
+import BulkUploadQuizzesPage from "./pages/admin/Quiz/BulkUploadQuizzesPage";
+
+// Quiz
+import QuizExplorerPage from "./pages/QuizExplorerPage";
+import QuizStartPage from "./pages/QuizStartPage";
+import QuizResultPage from "./pages/QuizResultPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import LoginPageWrapper from "./pages/LoginPageWrapper";
+import AdminRolesPage from "./pages/admin/Roles/AdminRolesPage";
+import RoleForm from "./pages/admin/Roles/RoleForm";
+import ReportsPage from "./pages/admin/Reports/ReportsPage";
+import SettingsPage from "./pages/admin/SettingsPage";
+import TicketListPage from "./pages/admin/TicketListPage";
+import TicketDetailsPage from "./pages/admin/TicketDetailsPage";
+import CategoryForm from "./pages/admin/CategoryForm";
+import TopicsPage from "./pages/admin/TopicsPage";
+import TopicForm from "./pages/admin/TopicForm";
+import CategoriesPage from "./pages/admin/CategoriesPage";
+import AdminJobsPage from "./pages/admin/jobs/AdminJobsPage";
+import SeoManager from "./pages/admin/SeoManager";
 // … import any other admin pages …
 
 import Navbar from "./components/layouts/Navbar";
@@ -318,7 +374,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ADMIN_ROLES } from "./constants/roles";
-import  LoginPageWrapper  from "./pages/LoginPageWrapper";
+import LoginPageWrapper from "./pages/LoginPageWrapper";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -373,7 +429,11 @@ function LayoutWrapper() {
       {/* only public navbar */}
       {!isUserDashboard && !isAdminRoute && <Navbar />}
 
-      <main className={`flex-grow ${!isUserDashboard && !isAdminRoute ? "pt-16" : ""}`}>
+      <main
+        className={`flex-grow ${
+          !isUserDashboard && !isAdminRoute ? "pt-16" : ""
+        }`}
+      >
         <Routes>
           {/* Public */}
           <Route path="/" element={<HomePage />} />
@@ -388,7 +448,18 @@ function LayoutWrapper() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/login" element={LoginPageWrapper} />
           <Route path="/activate" element={<AccountActivationPage />} />
-          <Route path="/account-activation-info" element={<AccountActivationInfo />} />
+          {/* Quizzes & Leaderboard */}
+          <Route path="/quizzes" element={<QuizExplorerPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/quiz/:quizId/start" element={<QuizStartPage />} />
+          <Route
+            path="/quiz/:quizId/result/:attemptId"
+            element={<QuizResultPage />}
+          />
+          <Route
+            path="/account-activation-info"
+            element={<AccountActivationInfo />}
+          />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/quizzes" element={<QuizLandingPage />} />
           {/* … other public quiz routes … */}
@@ -407,27 +478,62 @@ function LayoutWrapper() {
           >
             <Route path="" element={<AdminDashboardLayout />}>
               <Route index element={<AdminDashboardHome />} />
-              <Route path="profile" element={<ProfilePage />} />
-              <Route path="change-password" element={<ChangePasswordPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
-               <Route path="roles" element={<AdminRolesPage />} />
-              <Route path="reports" element={<ReportsPage />} />
-               <Route path="reports" element={<ReportsPage />} />
-               <Route path="settings" element={<SettingsPage />} />
-             <Route path="tickets" element={<TicketListPage />} />
-               <Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
-               <Route path="categories" element={<CategoriesPage />} />
-               <Route path="categories/new" element={<CategoryForm />} />
-               <Route path="categories/:id/edit" element={<CategoryForm />} />
-              <Route path="topics" element={<TopicsPage />} />
-               <Route path="topics/new" element={<TopicForm />} />
-               <Route path="topics/:id/edit" element={<TopicForm />} />
-               <Route path="roles/new" element={<RoleForm />} />
-               <Route path="roles/:id/edit" element={<RoleForm />} />
               {/* … other admin sub-routes … */}
               <Route path="quizzes" element={<AdminQuizPanel />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="change-password" element={<ChangePasswordPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="roles" element={<AdminRolesPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="tickets" element={<TicketListPage />} />
+              <Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
+              <Route path="categories" element={<CategoriesPage />} />
+              <Route path="categories/new" element={<CategoryForm />} />
+              <Route path="categories/:id/edit" element={<CategoryForm />} />
+              <Route path="topics" element={<TopicsPage />} />
+              <Route path="topics/new" element={<TopicForm />} />
+              <Route path="topics/:id/edit" element={<TopicForm />} />
+              <Route path="roles/new" element={<RoleForm />} />
+              <Route path="roles/:id/edit" element={<RoleForm />} />
+              <Route path="users/new" element={<UserForm />} />
+              <Route path="users/:id" element={<UserDetails />} />
+              <Route path="users/:id/edit" element={<UserForm />} />
+              <Route path="users/:id/history" element={<UserHistoryPage />} />
+              <Route path="quizzes" element={<AdminQuizPanel />} />
+              <Route path="quizzes/create" element={<CreateQuizForm />} />
+              <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
+              <Route path="jobs" element={<AdminJobsPage />} />
+              <Route path="seo-manager" element={<SeoManager />} />
+              <Route
+                path="quizzes/:quizId/bulk-upload"
+                element={<BulkUploadQuestionsPage />}
+              />
+              <Route
+                path="quizzes/bulk-upload"
+                element={<BulkUploadQuizzesPage />}
+              />
+              <Route
+                path="quizzes/:quizId/questions"
+                element={<QuestionListPage />}
+              />
+              <Route
+                path="quizzes/:quizId/questions/new"
+                element={<QuestionForm />}
+              />
+              <Route
+                path="quizzes/:quizId/questions/:questionId/edit"
+                element={<QuestionForm />}
+              />
+              <Route
+                path="quizzes/:quizId/assign"
+                element={<AssignQuizPage />}
+              />
+              <Route path="leaderboard" element={<AdminLeaderboardPage />} />
             </Route>
           </Route>
 
