@@ -49,7 +49,7 @@ const redirectUser = (user) => {
   if (from && from !== '/login') {
     target = from;
   } else if (role === 'USER') {
-    target = '/user/dashboard';
+    target = '/dashboard';
   } else {
     // Anything other than 'USER'
     target = '/admin/dashboard';

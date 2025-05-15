@@ -23,7 +23,7 @@ export default function LoginPageWrapper() {
         : fromState && fromState !== "/login"
         ? fromState
         : role === "USER"
-        ? "/user/dashboard"
+        ? "/dashboard"
         : "/admin/dashboard";
 
     localStorage.removeItem("loginRedirectFrom");
