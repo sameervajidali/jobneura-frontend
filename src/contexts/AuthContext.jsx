@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx
 import React, {
   createContext,
   useContext,
@@ -19,31 +18,29 @@ export function AuthProvider({ children }) {
   const isRefreshing = useRef(false);
 
   /**
-   * ✅ Load user from access token (/auth/me)
-   * Will fail if access token is expired or missing
+   * ✅ Try to get user from /auth/me using accessToken cookie
    */
   const loadUserFromSession = useCallback(async () => {
     try {
-      const { data } = await API.get('/auth/me', { withCredentials: true });
+      const { data } = await API.get('/auth/me');
       setUser(data.user ?? data);
       return true;
     } catch (err) {
-      console.warn('❌ Access token invalid:', err?.response?.status);
+      console.warn('❌ Access token invalid or expired:', err?.response?.status);
       return false;
     }
   }, []);
 
   /**
-   * 🔁 Refresh session using HttpOnly cookie
-   * If refresh token is valid, sets new access token and user
+   * 🔁 Refresh session from refreshToken cookie
    */
   const refreshSession = useCallback(async () => {
     if (isRefreshing.current) return;
     isRefreshing.current = true;
     try {
-      const { data } = await API.post('/auth/refresh-token', {}, { withCredentials: true });
+      const { data } = await API.post('/auth/refresh-token');
       setUser(data.user ?? null);
-      scheduleAutoRefresh(); // Restart refresh timer
+      scheduleAutoRefresh();
       return true;
     } catch (err) {
       console.error('🔁 Refresh failed:', err?.response?.status);
@@ -55,21 +52,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
-   * ⏱ Schedule token auto-refresh every 13 minutes
+   * ⏱ Schedule token refresh every 13 minutes
    */
   const scheduleAutoRefresh = useCallback(() => {
     if (refreshTimer.current) clearTimeout(refreshTimer.current);
-    refreshTimer.current = setTimeout(() => {
-      refreshSession();
-    }, 13 * 60 * 1000); // 13 minutes
+    refreshTimer.current = setTimeout(refreshSession, 13 * 60 * 1000);
   }, [refreshSession]);
 
   /**
-   * ✅ Call after successful login
-   * Sets user and starts refresh cycle
+   * ✅ Called after login to set user and begin refresh loop
    */
   const login = useCallback(
-    async (loginResponse) => {
+    (loginResponse) => {
       const userData = loginResponse.user ?? loginResponse;
       setUser(userData);
       scheduleAutoRefresh();
@@ -78,7 +72,7 @@ export function AuthProvider({ children }) {
   );
 
   /**
-   * ❌ Local logout logic (shared across tabs)
+   * ❌ Local logout: clear timers, state, cookies
    */
   const handleLogout = useCallback(() => {
     clearTimeout(refreshTimer.current);
@@ -88,11 +82,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
-   * 🚪 Logout API + sync across tabs
+   * 🚪 Full logout: call server + cleanup
    */
   const logout = useCallback(async () => {
     try {
-      await API.post('/auth/logout', {}, { withCredentials: true });
+      await API.post('/auth/logout');
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
@@ -101,7 +95,7 @@ export function AuthProvider({ children }) {
   }, [handleLogout]);
 
   /**
-   * 🧠 Handle manual session update (e.g., after refresh via Axios)
+   * 🔄 Handle session update event (from Axios refresh)
    */
   useEffect(() => {
     const handleRefresh = (e) => {
@@ -113,51 +107,44 @@ export function AuthProvider({ children }) {
   }, [scheduleAutoRefresh]);
 
   /**
-   * 🔁 Sync logout across tabs
+   * 🧹 Logout in all tabs
    */
   useEffect(() => {
     const handleStorage = (e) => {
-      if (e.key === 'logout-event') {
-        handleLogout();
-      }
+      if (e.key === 'logout-event') handleLogout();
     };
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
   }, [handleLogout]);
 
   /**
-   * 💤 Idle timeout: logout after 30 mins inactivity
+   * 💤 Auto logout after 30 minutes of user inactivity
    */
   useEffect(() => {
-    let idleTimer = null;
-    const resetIdleTimer = () => {
+    let idleTimer;
+    const reset = () => {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => logout(), 30 * 60 * 1000); // 30 minutes
+      idleTimer = setTimeout(logout, 30 * 60 * 1000);
     };
-
-    ['mousemove', 'keydown', 'click'].forEach((event) =>
-      window.addEventListener(event, resetIdleTimer)
+    ['mousemove', 'keydown', 'click'].forEach(event =>
+      window.addEventListener(event, reset)
     );
-
-    resetIdleTimer();
-
+    reset();
     return () => {
       clearTimeout(idleTimer);
-      ['mousemove', 'keydown', 'click'].forEach((event) =>
-        window.removeEventListener(event, resetIdleTimer)
+      ['mousemove', 'keydown', 'click'].forEach(event =>
+        window.removeEventListener(event, reset)
       );
     };
   }, [logout]);
 
   /**
-   * 🚀 On initial mount: try to restore session
-   * - If /me fails, attempt refresh-token
-   * - If both fail, consider session invalid
+   * 🚀 Try to restore session on first load
    */
   useEffect(() => {
-    const tryRestoreSession = async () => {
-      const hasSession = await loadUserFromSession();
-      if (!hasSession) {
+    const tryRestore = async () => {
+      const ok = await loadUserFromSession();
+      if (!ok) {
         const refreshed = await refreshSession();
         if (!refreshed) {
           setUser(null);
@@ -167,15 +154,12 @@ export function AuthProvider({ children }) {
       }
       setLoading(false);
     };
-
-    tryRestoreSession();
+    tryRestore();
     return () => clearTimeout(refreshTimer.current);
   }, [loadUserFromSession, refreshSession]);
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, logout, refreshSession }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );
