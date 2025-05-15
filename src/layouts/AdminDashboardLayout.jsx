@@ -46,9 +46,9 @@ export default function AdminDashboardLayout() {
         <Topbar />
 
         {/* main content area with its own padding */}
-       <main className="flex-1 overflow-auto p-6 ml-0 md:ml-56">
-         <Outlet />
-       </main>
+        <main className="flex-1 overflow-auto p-6">
+          <Outlet />
+        </main>
       </div>
     </div>
   );
