@@ -307,31 +307,9 @@ import AdminDashboardHome from "./pages/admin/AdminDashboardHome";
 import AdminUsersPage from "./pages/admin/Users";
 import UserDetails from "./pages/admin/Users/UserDetails";
 import UserForm from "./pages/admin/Users/UserForm";
-import AdminQuizPanel from "./pages/admin/AdminQuizPanel";
-
-// Dashboard Pages
-import DashboardHome from "./pages/DashboardHome";
-import Profile from "./pages/Profile";
-import ChangePassword from "./components/profile/ChangePassword";
 
 // Admin Pages
-import AdminDashboardLayout from "./layouts/AdminDashboardLayout";
-import AdminDashboardHome from "./pages/admin/AdminDashboardHome";
-import AdminUsersPage from "./pages/admin/Users";
-import UserDetails from "./pages/admin/Users/UserDetails";
-import UserForm from "./pages/admin/Users/UserForm";
 
-// Layouts
-import DashboardLayout from "./layouts/DashboardLayout";
-import Navbar from "./components/layouts/Navbar";
-import Footer from "./components/layouts/Footer";
-
-// Context and Guards
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import PrivateRoute from "./components/PrivateRoute";
-import ProtectedRoute from "./components/ProtectedRoute";
-import { ADMIN_ROLES } from "./constants/roles";
 
 // Admin Features
 import AdminQuizPanel from "./pages/admin/AdminQuizPanel";
@@ -374,7 +352,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ADMIN_ROLES } from "./constants/roles";
-import LoginPageWrapper from "./pages/LoginPageWrapper";
+
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
