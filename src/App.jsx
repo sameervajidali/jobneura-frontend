@@ -407,9 +407,25 @@ function LayoutWrapper() {
           >
             <Route path="" element={<AdminDashboardLayout />}>
               <Route index element={<AdminDashboardHome />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="change-password" element={<ChangePasswordPage />} />
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="users/new" element={<UserForm />} />
               <Route path="users/:id" element={<UserDetails />} />
+               <Route path="roles" element={<AdminRolesPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+               <Route path="reports" element={<ReportsPage />} />
+               <Route path="settings" element={<SettingsPage />} />
+             <Route path="tickets" element={<TicketListPage />} />
+               <Route path="tickets/:ticketId" element={<TicketDetailsPage />} />
+               <Route path="categories" element={<CategoriesPage />} />
+               <Route path="categories/new" element={<CategoryForm />} />
+               <Route path="categories/:id/edit" element={<CategoryForm />} />
+              <Route path="topics" element={<TopicsPage />} />
+               <Route path="topics/new" element={<TopicForm />} />
+               <Route path="topics/:id/edit" element={<TopicForm />} />
+               <Route path="roles/new" element={<RoleForm />} />
+               <Route path="roles/:id/edit" element={<RoleForm />} />
               {/* … other admin sub-routes … */}
               <Route path="quizzes" element={<AdminQuizPanel />} />
             </Route>
