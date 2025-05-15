@@ -1,66 +1,64 @@
+// src/contexts/AuthContext.jsx
 import React, {
   createContext,
   useContext,
   useState,
   useEffect,
   useRef,
-  useCallback,
-} from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../services/axios';
+  useCallback
+} from "react";
+import { useNavigate } from "react-router-dom";
+import API from "../services/axios";    // your configured axios instance
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshTimer = useRef(null);
+  // refs for our auto-refresh timer & concurrency guard
+  const refreshTimer = useRef();
   const isRefreshing = useRef(false);
-  const loginTimestamp = useRef(null);
+  const loginTime    = useRef();
 
-  // 1️⃣ Try /auth/me
-  const loadUserFromSession = useCallback(async () => {
+  // Helper: normalize whatever your API returns for role
+  const normalizeRole = (u) => {
+    if (!u) return "";
+    let r = u.role;
+    if (typeof r === "string") r = { name: r };
+    return (r.name || "").toUpperCase();
+  };
+
+  // 1️⃣ Bootstrap: try /auth/me → fallback to refresh-token
+  const bootstrapSession = useCallback(async () => {
     try {
-      const { data } = await API.get('/auth/me');
+      const { data } = await API.get("/auth/me");
       setUser(data.user ?? data);
-      return true;
     } catch {
-      return false;
+      // try refresh-token once (won’t log you out on failure)
+      await refreshSession({ logoutOnFailure: false });
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  // 5️⃣ Core logout — clear timers and redirect to login
-  const handleLogout = useCallback(() => {
-    clearTimeout(refreshTimer.current);
-    if (loginTimestamp.current) {
-      const elapsedMs = Date.now() - loginTimestamp.current;
-      const mins = Math.floor(elapsedMs / 60000);
-      const secs = Math.floor((elapsedMs % 60000) / 1000);
-      console.log(`🔒 Auto-logged out after ${mins}m ${secs}s`);
-    }
-    setUser(null);
-    setLoading(false);
-    window.localStorage.setItem('logout-event', Date.now());
-    navigate('/login', { replace: true });
-  }, [navigate]);
-
-  // 2️⃣ /auth/refresh-token + auto-schedule
+  // 2️⃣ Single refreshSession + self-scheduling
   const refreshSession = useCallback(
     async ({ logoutOnFailure = true } = {}) => {
       if (isRefreshing.current) return false;
       isRefreshing.current = true;
       try {
-        const { data } = await API.post('/auth/refresh-token');
+        const { data } = await API.post("/auth/refresh-token");
         setUser((prev) => {
-          const refreshed = data.user ?? {};
-          if (typeof refreshed.role === 'string') {
-            refreshed.role = { name: refreshed.role };
+          const updated = data.user ?? {};
+          // re-wrap flat role strings:
+          if (typeof updated.role === "string") {
+            updated.role = { name: updated.role };
           }
-          return { ...prev, ...refreshed };
+          return { ...prev, ...updated };
         });
-        // schedule next refresh in 10 minutes
+        // schedule next refresh in 10m
         clearTimeout(refreshTimer.current);
         refreshTimer.current = setTimeout(
           () => refreshSession({ logoutOnFailure }),
@@ -68,23 +66,22 @@ export function AuthProvider({ children }) {
         );
         return true;
       } catch (err) {
-        console.warn('🔁 refreshSession failed:', err?.response?.status);
-        if (logoutOnFailure) handleLogout();
+        if (logoutOnFailure) doLogout();
         return false;
       } finally {
         isRefreshing.current = false;
       }
     },
-    [handleLogout]
+    []
   );
 
-  // 4️⃣ login(): set user and start refresh cycle
-  const login = useCallback(
-    (loginResponse) => {
-      const u = loginResponse.user ?? loginResponse;
+  // 3️⃣ Login: seed user + start refresh loop
+  const doLogin = useCallback(
+    (payload) => {
+      const u = payload.user ?? payload;
       setUser(u);
-      loginTimestamp.current = Date.now();
-      // schedule first refresh in 10 minutes
+      loginTime.current = Date.now();
+      // first refresh in 10m
       clearTimeout(refreshTimer.current);
       refreshTimer.current = setTimeout(
         () => refreshSession({ logoutOnFailure: true }),
@@ -94,83 +91,60 @@ export function AuthProvider({ children }) {
     [refreshSession]
   );
 
-  // 6️⃣ logout(): notify server then cleanup
+  // 4️⃣ Logout cleanup
+  const doLogout = useCallback(() => {
+    clearTimeout(refreshTimer.current);
+    setUser(null);
+    setLoading(false);
+    navigate("/login", { replace: true });
+  }, [navigate]);
+
+  // 5️⃣ Public logout.Call server then local cleanup.
   const logout = useCallback(async () => {
     try {
-      await API.post('/auth/logout');
-    } catch (err) {
-      console.error('Logout API error:', err);
+      await API.post("/auth/logout");
+    } catch {
+      /* ignore */
     } finally {
-      handleLogout();
+      doLogout();
     }
-  }, [handleLogout]);
+  }, [doLogout]);
 
-  // Sync logout across tabs
+  // 6️⃣ Auto-retry 401s via Axios interceptor
   useEffect(() => {
-    const onStorage = (e) => {
-      if (e.key === 'logout-event') handleLogout();
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, [handleLogout]);
-
-  // Axios-triggered session refresh
-  useEffect(() => {
-    const onRefresh = (e) => {
-      setUser(e.detail);
-      clearTimeout(refreshTimer.current);
-      refreshTimer.current = setTimeout(
-        () => refreshSession({ logoutOnFailure: true }),
-        10 * 60 * 1000
-      );
-    };
-    window.addEventListener('session-refresh', onRefresh);
-    return () => window.removeEventListener('session-refresh', onRefresh);
-  }, [refreshSession]);
-
-  // Inactivity timeout (30 minutes)
-  useEffect(() => {
-    let idleTimer;
-    const reset = () => {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => logout(), 30 * 60 * 1000);
-    };
-    ['mousemove', 'keydown', 'click'].forEach((ev) =>
-      window.addEventListener(ev, reset)
-    );
-    reset();
-    return () =>
-      ['mousemove', 'keydown', 'click'].forEach((ev) =>
-        window.removeEventListener(ev, reset)
-      );
-  }, [logout]);
-
-  // Refresh on window focus (no logout on failure)
-  useEffect(() => {
-    const onFocus = () => {
-      refreshSession({ logoutOnFailure: false });
-    };
-    window.addEventListener('focus', onFocus);
-    return () => window.removeEventListener('focus', onFocus);
-  }, [refreshSession]);
-
-  // 🚀 Bootstrap on mount
-  useEffect(() => {
-    const bootstrap = async () => {
-      const ok = await loadUserFromSession();
-      if (!ok) {
-        await refreshSession({ logoutOnFailure: false });
+    const id = API.interceptors.response.use(
+      res => res,
+      async err => {
+        const original = err.config;
+        if (
+          err.response?.status === 401 &&
+          !original._retry
+        ) {
+          original._retry = true;
+          const ok = await refreshSession({ logoutOnFailure: false });
+          if (ok) return API(original);
+        }
+        return Promise.reject(err);
       }
-      setLoading(false);
-      window.dispatchEvent(new Event('session-checked'));
-    };
-    bootstrap();
+    );
+    return () => API.interceptors.response.eject(id);
+  }, [refreshSession]);
+
+  // 7️⃣ On mount, bootstrap session
+  useEffect(() => {
+    bootstrapSession();
     return () => clearTimeout(refreshTimer.current);
-  }, [loadUserFromSession, refreshSession]);
+  }, [bootstrapSession]);
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, logout, refreshSession }}
+      value={{
+        user,
+        loading,
+        login: doLogin,
+        logout,
+        refreshSession
+      }}
     >
       {children}
     </AuthContext.Provider>
