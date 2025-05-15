@@ -41,12 +41,12 @@ export default function AdminDashboardLayout() {
       <SidebarNav />
 
       {/* content column shifted right by sidebar width on md+ */}
-      <div className="flex-1 flex flex-col overflow-hidden ml-0 md:ml-56">
-        {/* topbar always across the top */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* full-width topbar */}
         <Topbar />
 
         {/* main content area with its own padding */}
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-6 ml-0 md:ml-56">
           <Outlet />
         </main>
       </div>
