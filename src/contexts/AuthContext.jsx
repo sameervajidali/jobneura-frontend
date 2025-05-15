@@ -1,3 +1,180 @@
+// // src/contexts/AuthContext.jsx
+// import React, {
+//   createContext,
+//   useContext,
+//   useState,
+//   useEffect,
+//   useRef,
+//   useCallback,
+// } from 'react';
+// import API from '../services/axios';
+
+// const AuthContext = createContext();
+
+// export function AuthProvider({ children }) {
+//   const [user, setUser]     = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   const refreshTimer = useRef(null);
+//   const isRefreshing = useRef(false);
+
+//   /**
+//    * Try fetching the current user using the accessToken cookie.
+//    * Returns true if /auth/me → 200, false on 401.
+//    */
+//   const loadUserFromSession = useCallback(async () => {
+//     try {
+//       const { data } = await API.get('/auth/me');
+//       setUser(data.user ?? data);
+//       return true;
+//     } catch {
+//       return false;
+//     }
+//   }, []);
+
+//   /**
+//    * Attempt to refresh tokens via the refreshToken cookie.
+//    *
+//    * @param {{ logoutOnFailure: boolean }} opts
+//    *    - logoutOnFailure: if true, will call handleLogout() on failure.
+//    *      We set this false during initial startup to avoid infinite loop.
+//    */
+//   const refreshSession = useCallback(
+//     async ({ logoutOnFailure = true } = {}) => {
+//       if (isRefreshing.current) return false;
+//       isRefreshing.current = true;
+//       try {
+//         const { data } = await API.post('/auth/refresh-token');
+//         setUser(data.user ?? null);
+//         scheduleAutoRefresh();
+//         return true;
+//       } catch (err) {
+//         console.warn('🔁 refreshSession failed:', err?.response?.status);
+//         if (logoutOnFailure) {
+//           handleLogout();
+//         }
+//         return false;
+//       } finally {
+//         isRefreshing.current = false;
+//       }
+//     },
+//     []
+//   );
+
+//   /**
+//    * Schedule the next automatic refresh in 13 minutes.
+//    */
+//   const scheduleAutoRefresh = useCallback(() => {
+//     clearTimeout(refreshTimer.current);
+//     refreshTimer.current = setTimeout(() => {
+//       refreshSession(); // here we use default logoutOnFailure=true
+//     }, 10 * 60 * 1000);
+//   }, [refreshSession]);
+
+//   /**
+//    * Call this after a successful login to set the user and start auto-refresh.
+//    */
+//   const login = useCallback(
+//     (loginResponse) => {
+//       const u = loginResponse.user ?? loginResponse;
+//       setUser(u);
+//       scheduleAutoRefresh();
+//     },
+//     [scheduleAutoRefresh]
+//   );
+
+//   /**
+//    * Core logout: clear timers, remove user, and redirect to /login.
+//    */
+//   const handleLogout = useCallback(() => {
+//     clearTimeout(refreshTimer.current);
+//     setUser(null);
+//     window.localStorage.setItem('logout-event', Date.now());
+//     window.location.href = '/login';
+//   }, []);
+
+//   /**
+//    * Full logout: call backend, then local cleanup.
+//    */
+//   const logout = useCallback(async () => {
+//     try {
+//       await API.post('/auth/logout');
+//     } catch (err) {
+//       console.error('Logout API error:', err);
+//     } finally {
+//       handleLogout();
+//     }
+//   }, [handleLogout]);
+
+//   // Sync logout across tabs
+//   useEffect(() => {
+//     const onStorage = (e) => {
+//       if (e.key === 'logout-event') handleLogout();
+//     };
+//     window.addEventListener('storage', onStorage);
+//     return () => window.removeEventListener('storage', onStorage);
+//   }, [handleLogout]);
+
+//   // Allow manual session-refresh from Axios interceptor
+//   useEffect(() => {
+//     const onRefresh = (e) => {
+//       setUser(e.detail);
+//       scheduleAutoRefresh();
+//     };
+//     window.addEventListener('session-refresh', onRefresh);
+//     return () => window.removeEventListener('session-refresh', onRefresh);
+//   }, [scheduleAutoRefresh]);
+
+//   // Idle-timeout auto logout (30 min)
+//   useEffect(() => {
+//     let idleTimer;
+//     const reset = () => {
+//       clearTimeout(idleTimer);
+//       idleTimer = setTimeout(() => logout(), 30 * 60 * 1000);
+//     };
+//     ['mousemove', 'keydown', 'click'].forEach((ev) =>
+//       window.addEventListener(ev, reset)
+//     );
+//     reset();
+//     return () =>
+//       ['mousemove', 'keydown', 'click'].forEach((ev) =>
+//         window.removeEventListener(ev, reset)
+//       );
+//   }, [logout]);
+
+//   /**
+//    * 🚀 **On mount**, try to restore session:
+//    * 1. call /auth/me
+//    * 2. if that fails, call /auth/refresh-token **without** logging out on failure
+//    * 3. then finish loading (so UI can stop showing spinner)
+//    */
+//   useEffect(() => {
+//     const bootstrap = async () => {
+//       const ok = await loadUserFromSession();
+//       if (!ok) {
+//         await refreshSession({ logoutOnFailure: false });
+//       }
+//       setLoading(false);
+//       // let Axios interceptor know it's safe to start auto-refresh logic
+//       window.dispatchEvent(new Event('session-checked'));
+//     };
+//     bootstrap();
+//     return () => clearTimeout(refreshTimer.current);
+//   }, [loadUserFromSession, refreshSession]);
+
+//   return (
+//     <AuthContext.Provider
+//       value={{ user, loading, login, logout, refreshSession }}
+//     >
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// }
+
+// export const useAuth = () => useContext(AuthContext);
+
+
+
 // src/contexts/AuthContext.jsx
 import React, {
   createContext,
@@ -12,15 +189,15 @@ import API from '../services/axios';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser]     = useState(null);
+  const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshTimer = useRef(null);
-  const isRefreshing = useRef(false);
+  const refreshTimer   = useRef(null);
+  const isRefreshing   = useRef(false);
 
   /**
-   * Try fetching the current user using the accessToken cookie.
-   * Returns true if /auth/me → 200, false on 401.
+   * 1️⃣ Try to load session via /auth/me
+   * Returns true if successful, false on 401
    */
   const loadUserFromSession = useCallback(async () => {
     try {
@@ -33,11 +210,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
-   * Attempt to refresh tokens via the refreshToken cookie.
-   *
+   * 2️⃣ Refresh session via /auth/refresh-token
    * @param {{ logoutOnFailure: boolean }} opts
-   *    - logoutOnFailure: if true, will call handleLogout() on failure.
-   *      We set this false during initial startup to avoid infinite loop.
+   *    - logoutOnFailure: only call handleLogout() if true
+   *      (we suppress it during initial bootstrap to avoid looping)
    */
   const refreshSession = useCallback(
     async ({ logoutOnFailure = true } = {}) => {
@@ -46,13 +222,11 @@ export function AuthProvider({ children }) {
       try {
         const { data } = await API.post('/auth/refresh-token');
         setUser(data.user ?? null);
-        scheduleAutoRefresh();
+        scheduleAutoRefresh();      // restart our timer
         return true;
       } catch (err) {
         console.warn('🔁 refreshSession failed:', err?.response?.status);
-        if (logoutOnFailure) {
-          handleLogout();
-        }
+        if (logoutOnFailure) handleLogout();
         return false;
       } finally {
         isRefreshing.current = false;
@@ -62,17 +236,17 @@ export function AuthProvider({ children }) {
   );
 
   /**
-   * Schedule the next automatic refresh in 13 minutes.
+   * 3️⃣ Schedule the next automatic refresh in 10 minutes
    */
   const scheduleAutoRefresh = useCallback(() => {
     clearTimeout(refreshTimer.current);
     refreshTimer.current = setTimeout(() => {
-      refreshSession(); // here we use default logoutOnFailure=true
-    }, 13 * 60 * 1000);
+      refreshSession(); // default: logoutOnFailure=true
+    }, 10 * 60 * 1000);
   }, [refreshSession]);
 
   /**
-   * Call this after a successful login to set the user and start auto-refresh.
+   * 4️⃣ login(): set user and kick off refresh cycle
    */
   const login = useCallback(
     (loginResponse) => {
@@ -84,17 +258,17 @@ export function AuthProvider({ children }) {
   );
 
   /**
-   * Core logout: clear timers, remove user, and redirect to /login.
+   * 5️⃣ Core logout: cleanup & redirect
    */
   const handleLogout = useCallback(() => {
     clearTimeout(refreshTimer.current);
     setUser(null);
-    window.localStorage.setItem('logout-event', Date.now());
+    localStorage.setItem('logout-event', Date.now());
     window.location.href = '/login';
   }, []);
 
   /**
-   * Full logout: call backend, then local cleanup.
+   * 6️⃣ logout(): call server, then core logout
    */
   const logout = useCallback(async () => {
     try {
@@ -106,7 +280,7 @@ export function AuthProvider({ children }) {
     }
   }, [handleLogout]);
 
-  // Sync logout across tabs
+  // 🔄 Sync logout across browser tabs
   useEffect(() => {
     const onStorage = (e) => {
       if (e.key === 'logout-event') handleLogout();
@@ -115,7 +289,7 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('storage', onStorage);
   }, [handleLogout]);
 
-  // Allow manual session-refresh from Axios interceptor
+  // 🧠 Handle manual session-refresh events (from Axios interceptor)
   useEffect(() => {
     const onRefresh = (e) => {
       setUser(e.detail);
@@ -125,28 +299,35 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('session-refresh', onRefresh);
   }, [scheduleAutoRefresh]);
 
-  // Idle-timeout auto logout (30 min)
+  // 💤 Auto-logout after 30 min inactivity
   useEffect(() => {
     let idleTimer;
-    const reset = () => {
+    const resetIdle = () => {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => logout(), 30 * 60 * 1000);
+      idleTimer = setTimeout(logout, 30 * 60 * 1000);
     };
     ['mousemove', 'keydown', 'click'].forEach((ev) =>
-      window.addEventListener(ev, reset)
+      window.addEventListener(ev, resetIdle)
     );
-    reset();
+    resetIdle();
     return () =>
       ['mousemove', 'keydown', 'click'].forEach((ev) =>
-        window.removeEventListener(ev, reset)
+        window.removeEventListener(ev, resetIdle)
       );
   }, [logout]);
 
+  // 📲 Refresh on window focus (covers sleep/hibernate)
+  useEffect(() => {
+    const onFocus = () => refreshSession();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [refreshSession]);
+
   /**
-   * 🚀 **On mount**, try to restore session:
-   * 1. call /auth/me
-   * 2. if that fails, call /auth/refresh-token **without** logging out on failure
-   * 3. then finish loading (so UI can stop showing spinner)
+   * 🚀 Bootstrap on mount:
+   *   • try /auth/me
+   *   • if that fails, try /auth/refresh-token (no logout on failure)
+   *   • then finish loading and fire `session-checked` so Axios knows it can retry
    */
   useEffect(() => {
     const bootstrap = async () => {
@@ -155,7 +336,6 @@ export function AuthProvider({ children }) {
         await refreshSession({ logoutOnFailure: false });
       }
       setLoading(false);
-      // let Axios interceptor know it's safe to start auto-refresh logic
       window.dispatchEvent(new Event('session-checked'));
     };
     bootstrap();
@@ -163,9 +343,7 @@ export function AuthProvider({ children }) {
   }, [loadUserFromSession, refreshSession]);
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, logout, refreshSession }}
-    >
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );
