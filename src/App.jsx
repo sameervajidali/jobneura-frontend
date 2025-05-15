@@ -110,18 +110,12 @@ function AppInitializer({ children }) {
       const path = location.pathname;
 
       // 🔍 Debug logging
-      console.group("🔐 redirectUser debug");
-      console.log("Full user object:", user);
-      console.log("user.role:", user.role);
-      console.log("user.role?.name:", user.role?.name);
-      console.log("Type of user.role?.name:", typeof user.role?.name);
+
       const rawName = user.role?.name;
       const role =
         typeof rawName === "string"
           ? rawName.toUpperCase()
           : `<INVALID: ${typeof rawName}>`;
-      console.log("Computed role string:", role);
-      console.groupEnd();
 
       // your redirect logic
       if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
@@ -150,9 +144,10 @@ function LayoutWrapper() {
   const location = useLocation();
 
   const isDashboard = location.pathname.startsWith("/dashboard");
+  const rawRoleName = user?.role?.name;
   const isAdmin =
-    user?.role.name &&
-    ADMIN_ROLES.includes(user.role.name.toUpperCase()) &&
+    typeof rawRoleName === "string" &&
+    ADMIN_ROLES.includes(rawRoleName.toUpperCase()) &&
     location.pathname.startsWith("/admin");
 
   return (
@@ -274,11 +269,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <AppInitializer>
-            <LayoutWrapper />
-          </AppInitializer>
-        </Router>
+        <AppInitializer>
+          <LayoutWrapper />
+        </AppInitializer>
       </AuthProvider>
     </ThemeProvider>
   );
