@@ -1,45 +1,34 @@
-// src/pages/LoginPageWrapper.jsx
-import React from "react";
-import { useNavigate, useLocation, Navigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import { ADMIN_ROLES } from "../constants/roles";
-import LoginPage from "./LoginPage";
+import { useAuth } from '../contexts/AuthContext';
+import { Navigate, useLocation } from 'react-router-dom';
+import LoginPage from './LoginPage';
 
 export default function LoginPageWrapper() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  // Wait until session is loaded
+  // 🕐 Wait until session is fully loaded
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Checking session…</p>
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center">Checking session…</div>;
   }
 
-  // Already logged in → redirect properly
   if (user) {
     const roleRaw = user.role?.name;
     const role = typeof roleRaw === "string" ? roleRaw.toUpperCase() : "";
-
-    const stored = localStorage.getItem("loginRedirectFrom");
+    const fromStorage = localStorage.getItem("loginRedirectFrom");
     const fromState = location.state?.from?.pathname;
 
-    const finalRedirect =
-      stored && stored !== "/login"
-        ? stored
+    const redirectTo =
+      fromStorage && fromStorage !== "/login"
+        ? fromStorage
         : fromState && fromState !== "/login"
         ? fromState
-        : ADMIN_ROLES.includes(role)
-        ? "/admin/dashboard"
-        : "/user/dashboard";
+        : role === "USER"
+        ? "/user/dashboard"
+        : "/admin/dashboard";
 
     localStorage.removeItem("loginRedirectFrom");
-
-    return <Navigate to={finalRedirect} replace />;
+    return <Navigate to={redirectTo} replace />;
   }
 
-  // Not logged in → show login form
   return <LoginPage />;
 }
