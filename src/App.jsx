@@ -7,7 +7,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 import React, { useEffect } from "react";
-import { useRef} from 'react';
 
 // Public Pages
 import HomePage from "./pages/HomePage";
@@ -89,7 +88,6 @@ function AppInitializer({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const didRedirect = useRef(false);    // ← guard to only redirect once
 
   // Fix: prevent users being stuck in admin route
   // useEffect(() => {
@@ -107,59 +105,56 @@ function AppInitializer({ children }) {
   //   }
   // }, [loading, user, location.pathname]);
 
-useEffect(() => {
-    // Only when session is done loading, user is set, and we haven't redirected yet:
-    if (!loading && user && !didRedirect.current) {
-      didRedirect.current = true;      // ← mark as done
+  useEffect(() => {
+    if (!loading && user) {
+      const path = location.pathname;
 
-      const path    = location.pathname;
-      const rawName = user.role?.name ?? '';
-      const role    = rawName.toUpperCase();
+      // 🔍 Debug logging
+      console.group("🔐 redirectUser debug");
+      console.log("Full user object:", user);
+      console.log("user.role:", user.role);
+      console.log("user.role?.name:", user.role?.name);
+      console.log("Type of user.role?.name:", typeof user.role?.name);
+      const rawName = user.role?.name;
+      const role =
+        typeof rawName === "string"
+          ? rawName.toUpperCase()
+          : `<INVALID: ${typeof rawName}>`;
+      console.log("Computed role string:", role);
+      console.groupEnd();
 
-      // 1) Landing‐page redirect (only if on / or /login)
-      if (path === '/' || path === '/login') {
-        if (ADMIN_ROLES.includes(role)) {
-          return navigate('/admin', { replace: true });
-        }
-        return navigate('/dashboard', { replace: true });
+      // your redirect logic
+      if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
+        navigate("/dashboard", { replace: true });
       }
-
-      // 2) Deep‐link guards
-      if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
-        return navigate('/dashboard', { replace: true });
-      }
-      if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
-        return navigate('/admin/users', { replace: true });
+      if (path.startsWith("/dashboard") && ADMIN_ROLES.includes(role)) {
+        navigate("/admin/users", { replace: true });
       }
     }
   }, [loading, user, location.pathname, navigate]);
 
-  // While loading, render your spinner…
   if (loading) {
-    return <div>Loading session…</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading session…</p>
+      </div>
+    );
   }
 
-  // Once done, render the rest
   return <>{children}</>;
 }
 
 // 🌐 Layout wrapper for navbar/footer logic
 function LayoutWrapper() {
-   const { user } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
-  const rawRole = user?.role?.name;
-  const role = typeof rawRole === "string" ? rawRole.toUpperCase() : "";
 
-  // True if current route is the user‐facing dashboard
-  const isUserDashboard =
-    role !== "" &&
-    !ADMIN_ROLES.includes(role) &&
-    location.pathname.startsWith("/dashboard");
-
-  // True if current route is ANY admin route
-  const isAdminRoute =
-    ADMIN_ROLES.includes(role) &&
+  const isDashboard = location.pathname.startsWith("/dashboard");
+  const isAdmin =
+    user?.role.name &&
+    ADMIN_ROLES.includes(user.role.name.toUpperCase()) &&
     location.pathname.startsWith("/admin");
+
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdmin && <Navbar />}
@@ -279,11 +274,12 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppInitializer>
-          <LayoutWrapper />
-        </AppInitializer>
+        <Router>
+          <AppInitializer>
+            <LayoutWrapper />
+          </AppInitializer>
+        </Router>
       </AuthProvider>
     </ThemeProvider>
   );
 }
-
