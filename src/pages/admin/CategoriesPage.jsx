@@ -333,19 +333,20 @@
 //   );
 // }
 
-// src/pages/admin/CategoriesPage.jsx
+
+
 import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import categoryService from "../../services/categoryService";
 
 export default function CategoriesPage() {
-  const [cats, setCats] = useState([]);
+  const [cats, setCats]       = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
+  const [search, setSearch]   = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
 
-  useEffect(() => {    
+  useEffect(() => {
     (async () => {
       setLoading(true);
       try {
@@ -359,19 +360,19 @@ export default function CategoriesPage() {
     })();
   }, []);
 
-  // Filter + Sort
-  const filtered = useMemo(() => {
+  // filter + sort pipeline
+  const processed = useMemo(() => {
     const term = search.toLowerCase();
     return cats
       .filter(c =>
         c.name.toLowerCase().includes(term) ||
-        (c.description || '').toLowerCase().includes(term)
+        (c.description || "").toLowerCase().includes(term)
       )
       .sort((a, b) => {
-        const aVal = (a[sortConfig.key] || '').toLowerCase();
-        const bVal = (b[sortConfig.key] || '').toLowerCase();
-        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        const aVal = (a[sortConfig.key] || "").toLowerCase();
+        const bVal = (b[sortConfig.key] || "").toLowerCase();
+        if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
         return 0;
       });
   }, [cats, search, sortConfig]);
@@ -379,17 +380,17 @@ export default function CategoriesPage() {
   const handleSort = key => {
     setSortConfig(cfg => ({
       key,
-      direction: cfg.key === key && cfg.direction === 'asc' ? 'desc' : 'asc'
+      direction: cfg.key === key && cfg.direction === "asc" ? "desc" : "asc"
     }));
   };
 
-  const handleDelete = async id => {
-    if (!window.confirm('Delete this category?')) return;
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this category?")) return;
     try {
       await categoryService.deleteCategory(id);
       setCats(cs => cs.filter(c => c._id !== id));
     } catch (err) {
-      alert('Delete failed: ' + (err.response?.data?.message || err.message));
+      alert("Delete failed: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -402,10 +403,10 @@ export default function CategoriesPage() {
           <div className="relative flex-1 lg:flex-none">
             <input
               type="text"
+              className="w-full lg:w-64 border border-gray-300 rounded pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="Search categories..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search categories..."
-              className="w-full lg:w-64 border border-gray-300 rounded pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
@@ -420,27 +421,25 @@ export default function CategoriesPage() {
 
       {/* Table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200 table-auto">
+        <table className="min-w-full table-auto divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3">
-                <input type="checkbox" className="h-4 w-4 text-indigo-600" disabled />
-              </th>
+              <th className="px-4 py-3"><input type="checkbox" disabled /></th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                onClick={() => handleSort('sr')}
+                onClick={() => handleSort("sr")}
               >
                 <SortIcon label="#" sortKey="sr" sortConfig={sortConfig} />
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                onClick={() => handleSort('name')}
+                onClick={() => handleSort("name")}
               >
                 <SortIcon label="Name" sortKey="name" sortConfig={sortConfig} />
               </th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                onClick={() => handleSort('description')}
+                onClick={() => handleSort("description")}
               >
                 <SortIcon label="Description" sortKey="description" sortConfig={sortConfig} />
               </th>
@@ -456,15 +455,18 @@ export default function CategoriesPage() {
                   Loading…
                 </td>
               </tr>
-            ) : filtered.length === 0 ? (
+            ) : processed.length === 0 ? (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-gray-500">
                   No categories found.
                 </td>
               </tr>
             ) : (
-              filtered.map((cat, idx) => (
-                <tr key={cat._id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+              processed.map((cat, idx) => (
+                <tr
+                  key={cat._id}
+                  className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                >
                   <td className="px-4 py-3">
                     <input type="checkbox" className="h-4 w-4 text-indigo-600" disabled />
                   </td>
@@ -472,7 +474,9 @@ export default function CategoriesPage() {
                     {idx + 1}
                   </td>
                   <td className="px-6 py-3 text-sm text-gray-900">{cat.name}</td>
-                  <td className="px-6 py-3 text-sm text-gray-700">{cat.description || '—'}</td>
+                  <td className="px-6 py-3 text-sm text-gray-700">
+                    {cat.description || "—"}
+                  </td>
                   <td className="px-6 py-3 text-center text-sm space-x-3">
                     <Link
                       to={`/admin/categories/${cat._id}/edit`}
@@ -498,12 +502,19 @@ export default function CategoriesPage() {
   );
 }
 
+// Sort icon helper
 function SortIcon({ label, sortKey, sortConfig }) {
   const isActive = sortConfig.key === sortKey;
   return (
     <span className="inline-flex items-center gap-1 text-gray-700">
       {label}
-      {isActive ? (sortConfig.direction === 'asc' ? <FaSortUp /> : <FaSortDown />) : <FaSort className="text-gray-300" />}
+      {isActive
+        ? sortConfig.direction === "asc"
+          ? <FaSortUp />
+          : <FaSortDown />
+        : <FaSort className="text-gray-300" />
+      }
     </span>
   );
 }
+
