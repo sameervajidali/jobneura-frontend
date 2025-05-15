@@ -211,25 +211,53 @@ export function AuthProvider({ children }) {
   }, []);
 
   // 2️⃣ /auth/refresh-token
-  const refreshSession = useCallback(
-    async ({ logoutOnFailure = true } = {}) => {
-      if (isRefreshing.current) return false;
-      isRefreshing.current = true;
-      try {
-        const { data } = await API.post('/auth/refresh-token');
-        setUser(data.user ?? null);
-        scheduleAutoRefresh();
-        return true;
-      } catch (err) {
-        console.warn('🔁 refreshSession failed:', err?.response?.status);
-        if (logoutOnFailure) handleLogout();
-        return false;
-      } finally {
-        isRefreshing.current = false;
-      }
-    },
-    []
-  );
+  // const refreshSession = useCallback(
+  //   async ({ logoutOnFailure = true } = {}) => {
+  //     if (isRefreshing.current) return false;
+  //     isRefreshing.current = true;
+  //     try {
+  //       const { data } = await API.post('/auth/refresh-token');
+  //       setUser(data.user ?? null);
+  //       scheduleAutoRefresh();
+  //       return true;
+  //     } catch (err) {
+  //       console.warn('🔁 refreshSession failed:', err?.response?.status);
+  //       if (logoutOnFailure) handleLogout();
+  //       return false;
+  //     } finally {
+  //       isRefreshing.current = false;
+  //     }
+  //   },
+  //   []
+  // );
+
+  // 2️⃣ /auth/refresh-token
+const refreshSession = useCallback(
+  async ({ logoutOnFailure = true } = {}) => {
+    if (isRefreshing.current) return false;
+    isRefreshing.current = true;
+    try {
+      const { data } = await API.post('/auth/refresh-token');
+      setUser((prev) => {
+        const refreshed = data.user || {};
+        // if the API gave us just a flat role string, re-wrap it:
+        if (typeof refreshed.role === 'string') {
+          refreshed.role = { name: refreshed.role };
+        }
+        // preserve any other nested bits (like profile) that your endpoint may omit
+        return { ...prev, ...refreshed };
+      });
+      scheduleAutoRefresh();
+      return true;
+    } catch (err) {
+    
+    } finally {
+      isRefreshing.current = false;
+    }
+  },
+  [scheduleAutoRefresh, handleLogout]
+);
+
 
   // 3️⃣ Schedule next refresh in 10 min
   const scheduleAutoRefresh = useCallback(() => {

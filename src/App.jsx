@@ -148,12 +148,12 @@ function LayoutWrapper() {
   const { user } = useAuth();
   const location = useLocation();
 
-  const isDashboard = location.pathname.startsWith("/dashboard");
+  const isDashboard = location.pathname.startsWith("/user/dashboard");
   const rawRoleName = user?.role?.name;
   const isAdmin =
     typeof rawRoleName === "string" &&
     ADMIN_ROLES.includes(rawRoleName.toUpperCase()) &&
-    location.pathname.startsWith("/admin");
+    location.pathname.startsWith("/admin/dashboard");
 
   return (
     <div className="flex flex-col min-h-screen">
