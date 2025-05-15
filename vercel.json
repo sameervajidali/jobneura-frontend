@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://api.jobneura.tech/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
