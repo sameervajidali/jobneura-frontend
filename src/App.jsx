@@ -88,6 +88,7 @@ function AppInitializer({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+   const didRedirect = useRef(false);    // ← guard to only redirect once
 
   // Fix: prevent users being stuck in admin route
   // useEffect(() => {
