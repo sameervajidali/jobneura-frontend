@@ -7,6 +7,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import React, { useEffect } from "react";
+import { useRef, useEffect } from 'react';
 
 // Public Pages
 import HomePage from "./pages/HomePage";
@@ -88,7 +89,7 @@ function AppInitializer({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-   const didRedirect = useRef(false);    // ← guard to only redirect once
+  const didRedirect = useRef(false);    // ← guard to only redirect once
 
   // Fix: prevent users being stuck in admin route
   // useEffect(() => {
