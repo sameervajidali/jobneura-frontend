@@ -145,16 +145,21 @@ useEffect(() => {
 
 // 🌐 Layout wrapper for navbar/footer logic
 function LayoutWrapper() {
-  const { user } = useAuth();
+   const { user } = useAuth();
   const location = useLocation();
+  const rawRole = user?.role?.name;
+  const role = typeof rawRole === "string" ? rawRole.toUpperCase() : "";
 
-  const isDashboard = location.pathname.startsWith("/dashboard");
-  const rawRoleName = user?.role?.name;
-  const isAdmin =
-    typeof rawRoleName === "string" &&
-    ADMIN_ROLES.includes(rawRoleName.toUpperCase()) &&
+  // True if current route is the user‐facing dashboard
+  const isUserDashboard =
+    role !== "" &&
+    !ADMIN_ROLES.includes(role) &&
     location.pathname.startsWith("/dashboard");
 
+  // True if current route is ANY admin route
+  const isAdminRoute =
+    ADMIN_ROLES.includes(role) &&
+    location.pathname.startsWith("/admin");
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdmin && <Navbar />}
