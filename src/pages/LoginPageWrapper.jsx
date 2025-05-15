@@ -1,31 +1,16 @@
-import React, { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+// src/pages/LoginPageWrapper.jsx
+import React from "react";
+import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { ADMIN_ROLES } from "../constants/roles";
 import LoginPage from "./LoginPage";
 
 export default function LoginPageWrapper() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    if (!loading && user) {
-      const role = user.role?.name
-      const stored = localStorage.getItem("loginRedirectFrom");
-
-      if (ADMIN_ROLES.includes(role)) {
-        navigate("/admin", { replace: true });
-      } else if (stored && stored !== "/login") {
-        navigate(stored, { replace: true });
-        localStorage.removeItem("loginRedirectFrom");
-      } else {
-        navigate("/", { replace: true });
-      }
-    }
-  }, [loading, user]);
-
-  if (loading || user) {
+  // Wait until session is loaded
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Checking session…</p>
@@ -33,5 +18,28 @@ export default function LoginPageWrapper() {
     );
   }
 
+  // Already logged in → redirect properly
+  if (user) {
+    const roleRaw = user.role?.name;
+    const role = typeof roleRaw === "string" ? roleRaw.toUpperCase() : "";
+
+    const stored = localStorage.getItem("loginRedirectFrom");
+    const fromState = location.state?.from?.pathname;
+
+    const finalRedirect =
+      stored && stored !== "/login"
+        ? stored
+        : fromState && fromState !== "/login"
+        ? fromState
+        : ADMIN_ROLES.includes(role)
+        ? "/admin/dashboard"
+        : "/user/dashboard";
+
+    localStorage.removeItem("loginRedirectFrom");
+
+    return <Navigate to={finalRedirect} replace />;
+  }
+
+  // Not logged in → show login form
   return <LoginPage />;
 }
