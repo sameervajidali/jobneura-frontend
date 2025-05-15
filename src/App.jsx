@@ -105,27 +105,31 @@ function AppInitializer({ children }) {
   //   }
   // }, [loading, user, location.pathname]);
 
-  useEffect(() => {
-    if (!loading && user) {
-      const path = location.pathname;
+ useEffect(() => {
+  if (!loading && user) {
+    const path    = location.pathname;
+    const rawName = user.role?.name;
+    const role    = typeof rawName === 'string'
+      ? rawName.toUpperCase()
+      : '';
 
-      // 🔍 Debug logging
-
-      const rawName = user.role?.name;
-      const role =
-        typeof rawName === "string"
-          ? rawName.toUpperCase()
-          : `<INVALID: ${typeof rawName}>`;
-
-      // your redirect logic
-      if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
-        navigate("/dashboard", { replace: true });
+    // **Landing‐page redirect**
+    if (path === '/' || path === '/login') {
+      if (ADMIN_ROLES.includes(role)) {
+        return navigate('/admin', { replace: true });
       }
-      if (path.startsWith("/dashboard") && ADMIN_ROLES.includes(role)) {
-        navigate("/admin/users", { replace: true });
-      }
+      return navigate('/dashboard', { replace: true });
     }
-  }, [loading, user, location.pathname, navigate]);
+
+    // **Unauthorized guards**
+    if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
+      return navigate('/dashboard', { replace: true });
+    }
+    if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
+      return navigate('/admin/users', { replace: true });
+    }
+  }
+}, [loading, user, location.pathname, navigate]);
 
   if (loading) {
     return (
