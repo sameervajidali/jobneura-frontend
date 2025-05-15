@@ -6,6 +6,16 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ADMIN_ROLES } from '../../constants/roles';
 import API from '../../services/axios';
 
+
+// Normalize whatever shape your API gives you
+function getUserRole(user) {
+  if (!user) return '';
+  // flat: { role: 'ADMIN' }
+  if (typeof user.role === 'string') return user.role.toUpperCase();
+  // nested: { role: { name: 'ADMIN' } }
+  return user.role.name?.toUpperCase() || '';
+}
+
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,30 +47,30 @@ export default function LoginForm() {
     );
   };
 
-const redirectUser = (user) => {
-  console.group('🔐 redirectUser');
+// const redirectUser = (user) => {
+//   console.group('🔐 redirectUser');
 
-  const rawName = user?.role?.name;
-  const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
-  const from = location.state?.from?.pathname;
+//   const rawName = user?.role?.name;
+//   const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
+//   const from = location.state?.from?.pathname;
 
-  let target;
+//   let target;
 
-  if (from && from !== '/login') {
-    target = from;
-  } else if (role === 'USER') {
-    target = '/dashboard';
-  } else {
-    // Anything other than 'USER'
-    target = '/admin/dashboard';
-  }
+//   if (from && from !== '/login') {
+//     target = from;
+//   } else if (role === 'USER') {
+//     target = '/dashboard';
+//   } else {
+//     // Anything other than 'USER'
+//     target = '/admin/dashboard';
+//   }
 
-  console.log('User role:', role);
-  console.log('Redirecting to:', target);
-  console.groupEnd();
+//   console.log('User role:', role);
+//   console.log('Redirecting to:', target);
+//   console.groupEnd();
 
-  navigate(target, { replace: true });
-};
+//   navigate(target, { replace: true });
+// };
 
 
   const handleGoogleCallback = async (response) => {
@@ -110,16 +120,44 @@ const redirectUser = (user) => {
     window.addEventListener('message', handleMessage);
   };
 
-  const handleLogin = async (e) => {
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   try {
+  //     const { data } = await API.post('/auth/login', { email, password });
+  //     login(data.user);
+  //     redirectUser(data.user);
+  //   } catch (err) {
+  //     alert(err.response?.data?.message || 'Login failed');
+  //     console.error(err);
+  //     setEmail('');
+  //     setPassword('');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
+      // 1) call your login API
       const { data } = await API.post('/auth/login', { email, password });
-      login(data.user);
-      redirectUser(data.user);
+
+      // 2) hydrate context with full payload
+      login(data);
+
+      // 3) decide where to go
+      const user = data.user ?? data;
+      const role = getUserRole(user);
+      if (ADMIN_ROLES.includes(role)) {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     } catch (err) {
-      alert(err.response?.data?.message || 'Login failed');
-      console.error(err);
+      setError(err.response?.data?.message || 'Login failed.');
       setEmail('');
       setPassword('');
     } finally {
