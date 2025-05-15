@@ -105,40 +105,39 @@ function AppInitializer({ children }) {
   //   }
   // }, [loading, user, location.pathname]);
 
- useEffect(() => {
-  if (!loading && user) {
-    const path    = location.pathname;
-    const rawName = user.role?.name;
-    const role    = typeof rawName === 'string'
-      ? rawName.toUpperCase()
-      : '';
+useEffect(() => {
+    // Only when session is done loading, user is set, and we haven't redirected yet:
+    if (!loading && user && !didRedirect.current) {
+      didRedirect.current = true;      // ← mark as done
 
-    // **Landing‐page redirect**
-    if (path === '/' || path === '/login') {
-      if (ADMIN_ROLES.includes(role)) {
-        return navigate('/admin', { replace: true });
+      const path    = location.pathname;
+      const rawName = user.role?.name ?? '';
+      const role    = rawName.toUpperCase();
+
+      // 1) Landing‐page redirect (only if on / or /login)
+      if (path === '/' || path === '/login') {
+        if (ADMIN_ROLES.includes(role)) {
+          return navigate('/admin', { replace: true });
+        }
+        return navigate('/dashboard', { replace: true });
       }
-      return navigate('/dashboard', { replace: true });
-    }
 
-    // **Unauthorized guards**
-    if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
-      return navigate('/dashboard', { replace: true });
+      // 2) Deep‐link guards
+      if (path.startsWith('/admin') && !ADMIN_ROLES.includes(role)) {
+        return navigate('/dashboard', { replace: true });
+      }
+      if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
+        return navigate('/admin/users', { replace: true });
+      }
     }
-    if (path.startsWith('/dashboard') && ADMIN_ROLES.includes(role)) {
-      return navigate('/admin/users', { replace: true });
-    }
-  }
-}, [loading, user, location.pathname, navigate]);
+  }, [loading, user, location.pathname, navigate]);
 
+  // While loading, render your spinner…
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading session…</p>
-      </div>
-    );
+    return <div>Loading session…</div>;
   }
 
+  // Once done, render the rest
   return <>{children}</>;
 }
 

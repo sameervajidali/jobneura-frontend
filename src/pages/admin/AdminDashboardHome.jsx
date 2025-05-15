@@ -51,7 +51,7 @@ export default function AdminDashboardHome() {
           API.get("/quizzes/admin/quizzes"),
           API.get("/quizzes/leaderboard", { params: { page: 1, limit: 1 } }),
           // tickets endpoint might not exist yet—catch failures below
-          API.get("/ticket/admin/tickets?status=closed").catch(() => ({ data: { total: 0, tickets: [] } })),
+          API.get("/ticket/admin/tickets?status=open").catch(() => ({ data: { total: 0, tickets: [] } })),
         ]);
 
         setStats({
