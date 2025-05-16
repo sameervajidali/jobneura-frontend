@@ -26,7 +26,7 @@ export function Topbar() {
   }, []);
 
   return (
-    <header className="flex items-center justify-between bg-white/80 dark:bg-gray-900 shadow-sm px-4 md:px-6 py-2 md:py-4 border-b sticky top-0 z-30">
+    <header className="h-16 flex items-center justify-between bg-white dark:bg-gray-900 shadow-sm px-6 border-b border-gray-200 dark:border-gray-800">
       {/* Responsive Title */}
       <h1 className="text-lg font-semibold text-gray-700 dark:text-gray-100 truncate">
         Dashboard

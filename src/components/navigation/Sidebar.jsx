@@ -13,7 +13,7 @@ const navItems = [
 
 export function Sidebar() {
   return (
-    <aside className="w-64 h-full bg-white border-r hidden md:flex flex-col">
+    <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen flex-shrink-0">
       <div className="px-6 py-4 text-lg font-bold text-indigo-700 border-b">
         JobNeura
       </div>
