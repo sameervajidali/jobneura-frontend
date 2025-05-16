@@ -1,183 +1,3 @@
-// import React, { useState, useEffect } from 'react'
-// import PropTypes from 'prop-types'
-// import API from '../../services/axios'
-// import FileUploader from '../FileUploader'
-
-// export default function ProfileForm({ initialData, onRefresh }) {
-//   const [profile, setProfile] = useState({
-//     name: '',
-//     phone: '',
-//     location: '',
-//     bio: '',
-//     website: '',
-//     linkedin: '',
-//     // … any other fields …
-//     avatar: ''
-//   })
-//   const [loading, setLoading] = useState(false)
-//   const [message, setMessage] = useState(null)
-
-//   // populate form when initialData arrives
-//   useEffect(() => {
-//     if (initialData) {
-//       setProfile({
-//         name:     initialData.name     || '',
-//         phone:    initialData.phone    || '',
-//         location: initialData.location || '',
-//         bio:      initialData.bio      || '',
-//         website:  initialData.website  || '',
-//         linkedin: initialData.linkedin || '',
-//         avatar:   initialData.avatar   || ''
-//       })
-//     }
-//   }, [initialData])
-
-//   // Generic change handler
-//   const handleChange = e => {
-//     const { name, value } = e.target
-//     setProfile(p => ({ ...p, [name]: value }))
-//   }
-
-//   // When FileUploader gives us a URL, stick it into `profile.avatar`
-//   const handleUpload = ({ url }) => {
-//     setProfile(p => ({ ...p, avatar: url }))
-//   }
-
-//  const handleSubmit = async e => {
-//   e.preventDefault()
-//   setLoading(true)
-//   setMessage(null)
-
-//   // ① Log the entire profile object
-//   console.log("About to send payload:", profile)
-
-//   try {
-//     await API.put('/auth/profile', profile)
-//     await onRefresh()
-//     setMessage({ type: 'success', text: 'Profile updated!' })
-//   } catch (err) {
-//     setMessage({ type: 'error', text: err.response?.data?.message || 'Update failed' })
-//   } finally {
-//     setLoading(false)
-//   }
-// }
-
-//   return (
-//     <form onSubmit={handleSubmit} className="space-y-6">
-//       {/* Avatar uploader */}
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700 mb-1">
-//           Avatar
-//         </label>
-//         <FileUploader
-//           accept="image/*"
-//           onUpload={handleUpload}
-//         />
-//         {profile.avatar && (
-//           <img
-//             src={profile.avatar}
-//             alt="Preview"
-//             className="mt-2 w-24 h-24 rounded-full object-cover"
-//           />
-//         )}
-//       </div>
-
-//       {/* Name */}
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700">Name</label>
-//         <input
-//           name="name"
-//           value={profile.name}
-//           onChange={handleChange}
-//           className="mt-1 block w-full border rounded px-3 py-2"
-//         />
-//       </div>
-
-//       {/* Phone */}
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700">Phone</label>
-//         <input
-//           name="phone"
-//           value={profile.phone}
-//           onChange={handleChange}
-//           className="mt-1 block w-full border rounded px-3 py-2"
-//         />
-//       </div>
-
-//       {/* Location */}
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700">Location</label>
-//         <input
-//           name="location"
-//           value={profile.location}
-//           onChange={handleChange}
-//           className="mt-1 block w-full border rounded px-3 py-2"
-//         />
-//       </div>
-
-//       {/* Bio */}
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700">Bio</label>
-//         <textarea
-//           name="bio"
-//           value={profile.bio}
-//           onChange={handleChange}
-//           rows={3}
-//           className="mt-1 block w-full border rounded px-3 py-2"
-//         />
-//       </div>
-
-//       {/* Website */}
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700">Website</label>
-//         <input
-//           name="website"
-//           value={profile.website}
-//           onChange={handleChange}
-//           className="mt-1 block w-full border rounded px-3 py-2"
-//         />
-//       </div>
-
-//       {/* LinkedIn */}
-//       <div>
-//         <label className="block text-sm font-medium text-gray-700">LinkedIn</label>
-//         <input
-//           name="linkedin"
-//           value={profile.linkedin}
-//           onChange={handleChange}
-//           className="mt-1 block w-full border rounded px-3 py-2"
-//         />
-//       </div>
-
-//       {/* Submit */}
-//       <button
-//         type="submit"
-//         disabled={loading}
-//         className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
-//       >
-//         {loading ? 'Saving…' : 'Save Changes'}
-//       </button>
-
-//       {message && (
-//         <p
-//           className={`text-center mt-2 ${
-//             message.type === 'success' ? 'text-green-600' : 'text-red-600'
-//           }`}
-//         >
-//           {message.text}
-//         </p>
-//       )}
-//     </form>
-//   )
-// }
-
-// ProfileForm.propTypes = {
-//   initialData: PropTypes.object.isRequired,
-//   onRefresh:   PropTypes.func.isRequired
-// }
-
-
-
 // src/components/profile/ProfileForm.jsx
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
@@ -197,7 +17,6 @@ export default function ProfileForm({ initialData, onRefresh }) {
   const [loading, setLoading]   = useState(false)
   const [message, setMessage]   = useState(null)
 
-  // populate when we get initialData
   useEffect(() => {
     if (initialData) {
       setProfile({
@@ -225,7 +44,6 @@ export default function ProfileForm({ initialData, onRefresh }) {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
-
     try {
       await API.put('/auth/profile', profile)
       await onRefresh()
@@ -238,28 +56,55 @@ export default function ProfileForm({ initialData, onRefresh }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 rounded-xl shadow">
-      {/* Avatar */}
-      <div className="flex items-center space-x-6">
-        <div>
-          <div className="text-sm font-medium text-gray-700 mb-1">Avatar</div>
-          <FileUploader accept="image/*" onUpload={handleUpload} />
-        </div>
-        {profile.avatar && (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-10 bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg max-w-3xl mx-auto
+        border border-gray-100 dark:border-gray-800"
+      style={{ fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif' }}
+    >
+      {/* Avatar upload */}
+      <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-gray-100 dark:border-gray-800">
+        <div className="relative">
           <img
-            src={profile.avatar}
-            alt="Avatar preview"
-            className="w-24 h-24 rounded-full object-cover border"
+            src={profile.avatar || '/avatar-default.svg'}
+            alt="Avatar"
+            className="w-28 h-28 rounded-full object-cover border-4 border-indigo-100 dark:border-gray-800 shadow"
           />
-        )}
+          {/* Upload button */}
+          <div className="absolute bottom-1 right-1">
+            <FileUploader
+              accept="image/*"
+              onUpload={handleUpload}
+              renderTrigger={({ open }) => (
+                <button
+                  type="button"
+                  onClick={open}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow transition border-2 border-white dark:border-gray-900"
+                  aria-label="Upload new avatar"
+                  tabIndex={0}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2}
+                    viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                </button>
+              )}
+            />
+          </div>
+        </div>
+        <div className="text-center sm:text-left">
+          <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{profile.name || "Your Name"}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{profile.email}</div>
+          {profile.location && <div className="text-sm text-gray-500 dark:text-gray-400">{profile.location}</div>}
+        </div>
       </div>
 
       {/* Basic Info */}
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-4">Basic Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Full Name
             </label>
             <input
@@ -269,13 +114,12 @@ export default function ProfileForm({ initialData, onRefresh }) {
               placeholder="Jane Doe"
               value={profile.name}
               onChange={handleChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
               required
             />
           </div>
-
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Phone
             </label>
             <input
@@ -285,27 +129,25 @@ export default function ProfileForm({ initialData, onRefresh }) {
               placeholder="+1 (555) 123-4567"
               value={profile.phone}
               onChange={handleChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
             />
           </div>
-
           <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="location" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Location
             </label>
             <input
               id="location"
               name="location"
               type="text"
-              placeholder="San Francisco, CA"
+              placeholder="Delhi"
               value={profile.location}
               onChange={handleChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
             />
           </div>
-
           <div className="sm:col-span-2">
-            <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Short Bio
             </label>
             <textarea
@@ -315,18 +157,18 @@ export default function ProfileForm({ initialData, onRefresh }) {
               placeholder="A few sentences about yourself..."
               value={profile.bio}
               onChange={handleChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
             />
           </div>
         </div>
       </section>
 
-      {/* Social & Links */}
+      {/* Online Presence */}
       <section>
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Online Presence</h3>
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-4">Online Presence</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               Personal Website
             </label>
             <input
@@ -336,12 +178,11 @@ export default function ProfileForm({ initialData, onRefresh }) {
               placeholder="https://yourdomain.com"
               value={profile.website}
               onChange={handleChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
             />
           </div>
-
           <div>
-            <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
               LinkedIn Profile
             </label>
             <input
@@ -351,28 +192,29 @@ export default function ProfileForm({ initialData, onRefresh }) {
               placeholder="https://linkedin.com/in/username"
               value={profile.linkedin}
               onChange={handleChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              className="mt-1 block w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
             />
           </div>
         </div>
       </section>
 
-      {/* Submit */}
+      {/* Save Button & Message */}
       <div>
         <button
           type="submit"
           disabled={loading}
-          className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white
+          className={`w-full flex justify-center py-2 px-4 rounded-xl text-base font-semibold shadow-sm
             bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
-            ${loading ? 'opacity-50 cursor-not-allowed' : ''}
+            transition text-white ${loading ? 'opacity-60 cursor-not-allowed' : ''}
           `}
         >
           {loading ? 'Saving…' : 'Save Changes'}
         </button>
         {message && (
           <p
-            className={`mt-4 text-center ${
-              message.type === 'success' ? 'text-green-600' : 'text-red-600'
+            className={`mt-4 text-center ${message.type === 'success'
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-red-600 dark:text-red-400'
             }`}
           >
             {message.text}
@@ -391,7 +233,8 @@ ProfileForm.propTypes = {
     bio:      PropTypes.string,
     website:  PropTypes.string,
     linkedin: PropTypes.string,
-    avatar:   PropTypes.string
+    avatar:   PropTypes.string,
+    email:    PropTypes.string,  // Add this so you can display in avatar card
   }).isRequired,
   onRefresh: PropTypes.func.isRequired
 }
