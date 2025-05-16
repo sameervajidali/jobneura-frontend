@@ -7,7 +7,7 @@ export const VALID_ROLES = [
   'SUPERADMIN',
 ];
 
-export const ADMIN_ROLES = ['ADMIN', 'SUPERADMIN','MODERATOR'];
+export const ADMIN_ROLES = ['ADMIN', 'SUPERADMIN'];
 export const MODERATOR_ROLES = ['MODERATOR', 'ADMIN', 'SUPERADMIN'];
 export const SUPPORT_ROLES = ['SUPPORT', 'ADMIN', 'SUPERADMIN'];
 export const CREATOR_ROLES = ['CREATOR', 'ADMIN', 'SUPERADMIN'];

@@ -98,6 +98,8 @@ function AppInitializer({ children }) {
       }
 
       // deep‐link guards
+
+      
       if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
         return navigate("/dashboard", { replace: true });
       }

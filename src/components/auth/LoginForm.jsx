@@ -46,7 +46,7 @@ const redirectUser = (user) => {
 
   if (role && role !== 'USER') {
     // All admin/creator/support/etc always go to admin dashboard
-    navigate('/admin/dashboard', { replace: true });
+    navigate('/admin', { replace: true });
   } else if (from && from !== '/login') {
     // Regular user: return to intended page (unless it's login)
     navigate(from, { replace: true });
