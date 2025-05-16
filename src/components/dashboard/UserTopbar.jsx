@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAvatarUrl } from '../../utils/getAvatarUrl';
 
-export default function Topbar({ onLogout }) {
+export default function UserTopbar({ onLogout }) {
   const { user } = useAuth();
   const { isDark, setIsDark } = useTheme();
   const [open, setOpen] = useState(false);
