@@ -11,9 +11,8 @@ export default function PrivateRoute() {
   }
 
   if (!user) {
-    // Save to storage (global & persistent)
-    localStorage.setItem("loginRedirectFrom", location.pathname);
-    return <Navigate to="/login" replace />;
+    // Pass intended destination via location.state, not localStorage
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <Outlet />;

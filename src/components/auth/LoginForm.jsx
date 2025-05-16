@@ -40,29 +40,22 @@ export default function LoginForm() {
   };
 
 const redirectUser = (user) => {
-  console.group('🔐 redirectUser');
-
   const rawName = user?.role?.name;
   const role = typeof rawName === 'string' ? rawName.toUpperCase() : '';
   const from = location.state?.from?.pathname;
 
-  let target;
-
-  if (from && from !== '/login') {
-    target = from;
-  } else if (role === 'USER') {
-    target = '/dashboard';
+  if (role && role !== 'USER') {
+    // All admin/creator/support/etc always go to admin dashboard
+    navigate('/admin/dashboard', { replace: true });
+  } else if (from && from !== '/login') {
+    // Regular user: return to intended page (unless it's login)
+    navigate(from, { replace: true });
   } else {
-    // Anything other than 'USER'
-    target = '/admin/dashboard';
+    // Default for user
+    navigate('/dashboard', { replace: true });
   }
-
-  console.log('User role:', role);
-  console.log('Redirecting to:', target);
-  console.groupEnd();
-
-  navigate(target, { replace: true });
 };
+
 
 
   const handleGoogleCallback = async (response) => {

@@ -15,9 +15,9 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
 
   // If not logged in, redirect to login and save attempt path
   if (!user) {
-    localStorage.setItem('loginRedirectFrom', location.pathname);
-    return <Navigate to="/login" replace />;
-  }
+  return <Navigate to="/login" state={{ from: location }} replace />;
+}
+
 
   // Safely extract the role name string
   const rawName = user.role?.name;
