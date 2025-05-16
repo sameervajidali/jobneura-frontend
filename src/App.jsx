@@ -424,7 +424,7 @@ function LayoutWrapper() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
-          <Route path="/login" element={LoginPageWrapper} />
+          <Route path="/login" element={<LoginPageWrapper />} />
           <Route path="/activate" element={<AccountActivationPage />} />
           {/* Quizzes & Leaderboard */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />
