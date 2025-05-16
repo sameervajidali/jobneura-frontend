@@ -2,7 +2,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  FaLinkedin, FaGlobe, FaPlus, FaTimes, FaUpload, FaDownload
+  FaLinkedin,
+  FaGlobe,
+  FaPlus,
+  FaTimes,
+  FaUpload,
+  FaDownload,
 } from "react-icons/fa";
 import API from "../services/axios";
 import FileUploader from "../components/FileUploader";
@@ -59,9 +64,16 @@ export default function Profile() {
   const calculateCompletion = (u) => {
     let filled = 0;
     [
-      "name", "email", "phone", "location",
-      "skills", "languages", "experience",
-      "education", "avatar", "resume"
+      "name",
+      "email",
+      "phone",
+      "location",
+      "skills",
+      "languages",
+      "experience",
+      "education",
+      "avatar",
+      "resume",
     ].forEach((key) => {
       const val = u[key];
       if (Array.isArray(val) ? val.length : val) filled++;
@@ -70,14 +82,17 @@ export default function Profile() {
   };
 
   // Input, chips, array helpers
-  const handleChange = (e) => setProfile((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) =>
+    setProfile((p) => ({ ...p, [e.target.name]: e.target.value }));
   const addItem = (field, value) => {
     if (!value.trim()) return;
     setProfile((p) => ({ ...p, [field]: [...p[field], value.trim()] }));
   };
-  const removeItem = (field, idx) => setProfile((p) => ({
-    ...p, [field]: p[field].filter((_, i) => i !== idx),
-  }));
+  const removeItem = (field, idx) =>
+    setProfile((p) => ({
+      ...p,
+      [field]: p[field].filter((_, i) => i !== idx),
+    }));
   const updateArray = (field, idx, key, val) => {
     const arr = [...profile[field]];
     arr[idx] = { ...arr[idx], [key]: val };
@@ -113,7 +128,9 @@ export default function Profile() {
   };
 
   if (sessionLoading || !profile) {
-    return <div className="p-8 text-center text-gray-400">Loading profile…</div>;
+    return (
+      <div className="p-8 text-center text-gray-400">Loading profile…</div>
+    );
   }
 
   // Responsive, premium, clean
@@ -122,53 +139,104 @@ export default function Profile() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* --- Sidebar / Profile Card --- */}
         <aside className="col-span-1 flex flex-col items-center bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-8 text-center">
-          <div className="relative group">
+          {/* Avatar Section - Place inside your Profile left sidebar */}
+          <div className="relative mx-auto w-fit">
             <img
               src={profile.avatar || "/default-avatar.png"}
               alt="Avatar"
-              className="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 dark:border-gray-700 shadow"
+              className="w-36 h-36 rounded-full object-cover border-4 border-indigo-100 shadow-md"
             />
-            {/* Avatar upload overlay */}
-            <div className="absolute bottom-1 right-0">
-              <FileUploader
+            {/* Upload Icon Overlay */}
+            <label
+              htmlFor="avatar-upload"
+              className="absolute bottom-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full p-2 cursor-pointer shadow-lg border-4 border-white transition-all"
+              style={{
+                boxShadow: "0 4px 24px 0 rgba(60, 80, 200, 0.10)",
+              }}
+              title="Change profile picture"
+            >
+              <FaUpload className="w-4 h-4" />
+              <input
+                id="avatar-upload"
+                type="file"
                 accept="image/*"
-                onUpload={({ url }) => {
-                  setProfile((p) => ({ ...p, avatar: url }));
-                  calculateCompletion({ ...profile, avatar: url });
+                className="hidden"
+                onChange={async (e) => {
+                  // Your upload handler
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  // Use your FileUploader logic here, then:
+                  // onUpload({ url: uploadedUrl });
                 }}
-                triggerClass="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-full w-9 h-9 shadow transition cursor-pointer"
-                icon={<FaUpload className="w-4 h-4" />}
               />
-            </div>
+            </label>
           </div>
-          <h2 className="mt-5 text-2xl font-bold text-gray-900 dark:text-gray-50">{profile.name}</h2>
-          <div className="text-gray-600 dark:text-gray-300 text-sm mb-1">{profile.email}</div>
-          {profile.phone && <div className="text-gray-500 dark:text-gray-400 text-sm">{profile.phone}</div>}
-          {profile.location && <div className="text-gray-500 dark:text-gray-400 text-sm">{profile.location}</div>}
+
+          <h2 className="mt-5 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            {profile.name}
+          </h2>
+          <div className="text-gray-600 dark:text-gray-300 text-sm mb-1">
+            {profile.email}
+          </div>
+          {profile.phone && (
+            <div className="text-gray-500 dark:text-gray-400 text-sm">
+              {profile.phone}
+            </div>
+          )}
+          {profile.location && (
+            <div className="text-gray-500 dark:text-gray-400 text-sm">
+              {profile.location}
+            </div>
+          )}
           <div className="flex space-x-4 mt-4 justify-center">
             {profile.website && (
-              <a href={profile.website} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 dark:hover:text-indigo-300"><FaGlobe size={20} /></a>
+              <a
+                href={profile.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-indigo-600 dark:hover:text-indigo-300"
+              >
+                <FaGlobe size={20} />
+              </a>
             )}
             {profile.linkedin && (
-              <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 dark:hover:text-blue-400"><FaLinkedin size={20} /></a>
+              <a
+                href={profile.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                <FaLinkedin size={20} />
+              </a>
             )}
           </div>
           <div className="w-full mt-6">
-            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Profile Completion</p>
+            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              Profile Completion
+            </p>
             <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-              <div className="h-full bg-indigo-600 dark:bg-indigo-400 transition-all" style={{ width: `${completion}%` }} />
+              <div
+                className="h-full bg-indigo-600 dark:bg-indigo-400 transition-all"
+                style={{ width: `${completion}%` }}
+              />
             </div>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">{completion}% complete</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-300">
+              {completion}% complete
+            </p>
           </div>
         </aside>
 
         {/* --- Main Profile Edit Form --- */}
         <section className="col-span-2 bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-6 md:p-10 space-y-8">
           <form onSubmit={handleSubmit} className="space-y-8">
-            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-50 mb-4">Edit Profile</h3>
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-50 mb-4">
+              Edit Profile
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Full Name</label>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -180,7 +248,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Phone</label>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                  Phone
+                </label>
                 <input
                   type="tel"
                   name="phone"
@@ -191,7 +261,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Location</label>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                  Location
+                </label>
                 <input
                   type="text"
                   name="location"
@@ -202,7 +274,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Email</label>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                  Email
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -212,7 +286,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Website</label>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                  Website
+                </label>
                 <input
                   type="url"
                   name="website"
@@ -223,7 +299,9 @@ export default function Profile() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">LinkedIn</label>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                  LinkedIn
+                </label>
                 <input
                   type="url"
                   name="linkedin"
@@ -235,7 +313,9 @@ export default function Profile() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Short Bio</label>
+              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                Short Bio
+              </label>
               <textarea
                 name="bio"
                 value={profile.bio}
@@ -280,121 +360,152 @@ export default function Profile() {
               ))}
             </div>
             {/* Experience & Education */}
-            {[["experience", "Experience"], ["education", "Education"]].map(
-              ([field, label], idx) => (
-                <div key={idx}>
-                  <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">{label}</label>
-                  {profile[field].map((entry, i) => (
-                    <div key={i} className="border rounded-xl p-4 mb-3 relative bg-gray-50 dark:bg-gray-800">
-                      <FaTimes
-                        className="absolute top-2 right-2 cursor-pointer text-red-500"
-                        onClick={() =>
-                          setProfile((p) => ({
-                            ...p,
-                            [field]: p[field].filter((_, j) => j !== i),
-                          }))
+            {[
+              ["experience", "Experience"],
+              ["education", "Education"],
+            ].map(([field, label], idx) => (
+              <div key={idx}>
+                <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                  {label}
+                </label>
+                {profile[field].map((entry, i) => (
+                  <div
+                    key={i}
+                    className="border rounded-xl p-4 mb-3 relative bg-gray-50 dark:bg-gray-800"
+                  >
+                    <FaTimes
+                      className="absolute top-2 right-2 cursor-pointer text-red-500"
+                      onClick={() =>
+                        setProfile((p) => ({
+                          ...p,
+                          [field]: p[field].filter((_, j) => j !== i),
+                        }))
+                      }
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {field === "experience" ? (
+                        <>
+                          <input
+                            value={entry.title}
+                            onChange={(e) =>
+                              updateArray(field, i, "title", e.target.value)
+                            }
+                            placeholder="Job Title"
+                            className="border rounded px-2 py-1"
+                          />
+                          <input
+                            value={entry.company}
+                            onChange={(e) =>
+                              updateArray(field, i, "company", e.target.value)
+                            }
+                            placeholder="Company"
+                            className="border rounded px-2 py-1"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <input
+                            value={entry.degree}
+                            onChange={(e) =>
+                              updateArray(field, i, "degree", e.target.value)
+                            }
+                            placeholder="Degree"
+                            className="border rounded px-2 py-1"
+                          />
+                          <input
+                            value={entry.institution}
+                            onChange={(e) =>
+                              updateArray(
+                                field,
+                                i,
+                                "institution",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Institution"
+                            className="border rounded px-2 py-1"
+                          />
+                        </>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <input
+                        type="month"
+                        value={entry.from}
+                        onChange={(e) =>
+                          updateArray(field, i, "from", e.target.value)
                         }
+                        className="border rounded px-2 py-1"
                       />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {field === "experience" ? (
-                          <>
-                            <input
-                              value={entry.title}
-                              onChange={(e) => updateArray(field, i, "title", e.target.value)}
-                              placeholder="Job Title"
-                              className="border rounded px-2 py-1"
-                            />
-                            <input
-                              value={entry.company}
-                              onChange={(e) => updateArray(field, i, "company", e.target.value)}
-                              placeholder="Company"
-                              className="border rounded px-2 py-1"
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <input
-                              value={entry.degree}
-                              onChange={(e) => updateArray(field, i, "degree", e.target.value)}
-                              placeholder="Degree"
-                              className="border rounded px-2 py-1"
-                            />
-                            <input
-                              value={entry.institution}
-                              onChange={(e) => updateArray(field, i, "institution", e.target.value)}
-                              placeholder="Institution"
-                              className="border rounded px-2 py-1"
-                            />
-                          </>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 mt-2">
-                        <input
-                          type="month"
-                          value={entry.from}
-                          onChange={(e) => updateArray(field, i, "from", e.target.value)}
-                          className="border rounded px-2 py-1"
-                        />
-                        <input
-                          type="month"
-                          value={entry.to}
-                          disabled={entry.current}
-                          onChange={(e) => updateArray(field, i, "to", e.target.value)}
-                          className={`border rounded px-2 py-1 ${entry.current ? "bg-gray-100 dark:bg-gray-700" : ""}`}
-                        />
-                      </div>
-                      <div className="flex items-center mt-2">
-                        <input
-                          type="checkbox"
-                          checked={entry.current}
-                          onChange={() => toggleCurrent(field, i)}
-                          className="mr-2"
-                        />
-                        <span className="text-xs text-gray-600 dark:text-gray-400">Present</span>
-                      </div>
-                      <textarea
-                        value={entry.description}
-                        onChange={(e) => updateArray(field, i, "description", e.target.value)}
-                        placeholder="Description"
-                        rows={2}
-                        className="w-full border rounded px-2 py-1 mt-2"
+                      <input
+                        type="month"
+                        value={entry.to}
+                        disabled={entry.current}
+                        onChange={(e) =>
+                          updateArray(field, i, "to", e.target.value)
+                        }
+                        className={`border rounded px-2 py-1 ${
+                          entry.current ? "bg-gray-100 dark:bg-gray-700" : ""
+                        }`}
                       />
                     </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      appendEmpty(
-                        field,
-                        field === "experience"
-                          ? {
-                              title: "",
-                              company: "",
-                              from: "",
-                              to: "",
-                              description: "",
-                              current: false,
-                            }
-                          : {
-                              degree: "",
-                              institution: "",
-                              from: "",
-                              to: "",
-                              description: "",
-                              current: false,
-                            }
-                      )
-                    }
-                    className="flex items-center gap-1 text-indigo-600 dark:text-indigo-300 hover:underline font-medium mt-2"
-                  >
-                    <FaPlus /> Add {label}
-                  </button>
-                </div>
-              )
-            )}
+                    <div className="flex items-center mt-2">
+                      <input
+                        type="checkbox"
+                        checked={entry.current}
+                        onChange={() => toggleCurrent(field, i)}
+                        className="mr-2"
+                      />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        Present
+                      </span>
+                    </div>
+                    <textarea
+                      value={entry.description}
+                      onChange={(e) =>
+                        updateArray(field, i, "description", e.target.value)
+                      }
+                      placeholder="Description"
+                      rows={2}
+                      className="w-full border rounded px-2 py-1 mt-2"
+                    />
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    appendEmpty(
+                      field,
+                      field === "experience"
+                        ? {
+                            title: "",
+                            company: "",
+                            from: "",
+                            to: "",
+                            description: "",
+                            current: false,
+                          }
+                        : {
+                            degree: "",
+                            institution: "",
+                            from: "",
+                            to: "",
+                            description: "",
+                            current: false,
+                          }
+                    )
+                  }
+                  className="flex items-center gap-1 text-indigo-600 dark:text-indigo-300 hover:underline font-medium mt-2"
+                >
+                  <FaPlus /> Add {label}
+                </button>
+              </div>
+            ))}
             {/* Resume Upload */}
             <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">Resume</label>
+              <label className="block text-sm font-semibold mb-1 text-gray-700 dark:text-gray-300">
+                Resume
+              </label>
               <FileUploader
                 accept=".pdf,.doc,.docx"
                 onUpload={({ url }) => {
@@ -421,7 +532,11 @@ export default function Profile() {
               {submitting ? "Saving…" : "Save Changes"}
             </button>
             {message && (
-              <div className={`text-center text-base mt-2 font-semibold ${message.type === "success" ? "text-green-600" : "text-red-600"}`}>
+              <div
+                className={`text-center text-base mt-2 font-semibold ${
+                  message.type === "success" ? "text-green-600" : "text-red-600"
+                }`}
+              >
                 {message.text}
               </div>
             )}
