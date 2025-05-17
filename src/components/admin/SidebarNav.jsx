@@ -149,21 +149,23 @@ export default function SidebarNav() {
                 location.pathname.startsWith(i.path + "/");
               return (
                 <Link
-                  key={i.path}
-                  to={i.path}
-                  className={`
-                    flex items-center gap-3 px-4 py-2 rounded-xl transition
-                    ${
-                      isActive
-                        ? "bg-indigo-50 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-100 shadow"
-                        : "text-gray-700 dark:text-gray-200 hover:bg-indigo-100 dark:hover:bg-gray-800"
-                    }
-                  `}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <span className="text-sm">{i.icon}</span>
-                  <span className="truncate">{i.label}</span>
-                </Link>
+  key={i.path}
+  to={i.path}
+  className={`
+    flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-150
+    group focus:outline-none focus:ring-2 focus:ring-indigo-400
+    ${
+      isActive
+        ? "bg-indigo-50 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-100 shadow-[2px_0_8px_0_#6366f11a]"
+        : "text-gray-700 dark:text-gray-200 hover:bg-indigo-100 dark:hover:bg-gray-800"
+    }
+  `}
+  onClick={() => setIsOpen(false)}
+>
+  <span className="text-lg">{i.icon}</span>
+  <span className="truncate text-base">{i.label}</span>
+</Link>
+
               );
             })}
         </nav>
