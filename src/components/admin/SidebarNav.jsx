@@ -140,7 +140,7 @@ export default function SidebarNav() {
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex-1 px-2 py-4 overflow-y-auto space-y-2 font-medium">
+        <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1 sidebar-scroll">
           {navItems
             .filter((i) => i.roles.includes(currentRole))
             .map((i) => {

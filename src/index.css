@@ -90,3 +90,24 @@ html, body, #root {
     @apply bg-background text-foreground;
     }
 }
+
+/* Custom Sidebar Scrollbar */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #a5b4fc #f1f5f9; /* thumb color (indigo-200), track (gray-100) */
+}
+
+/* For Chrome, Edge, Safari */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 7px;
+  background: #f1f5f9; /* gray-100 */
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #a5b4fc; /* indigo-200 */
+  border-radius: 8px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #6366f1; /* indigo-500 */
+}
