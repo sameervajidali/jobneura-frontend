@@ -7,8 +7,8 @@ import CTABanner from '../components/landing/CTABanner';
 
 function HomePage() {
   return (
-    <div>
-     
+   
+     <div>
       {/* Hero Section */}
       <HeroSection />
 
@@ -22,7 +22,7 @@ function HomePage() {
 
       {/* Call To Action Banner */}
       <CTABanner />
-    </div>
+  </div>
   );
 }
 

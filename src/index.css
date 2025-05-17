@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 html, body, #root {
-    height: 100%;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
-  }
+    /* Remove height: 100% unless you need fullscreen layouts everywhere */
+}
   
   @keyframes fadeOut {
     0%, 80% { opacity: 1; }

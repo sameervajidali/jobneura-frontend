@@ -74,6 +74,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ADMIN_ROLES } from "./constants/roles";
+import JobsPage from "./pages/JobsPage";  
 
 
 // --- AppInitializer: waits for session check before rendering ---
@@ -98,7 +99,6 @@ function AppInitializer({ children }) {
       }
 
       // deep‐link guards
-
       
       if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
         return navigate("/dashboard", { replace: true });
@@ -143,6 +143,7 @@ function LayoutWrapper() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/terms" element={<TermsPage />} />
+         <Route path="/jobs" element={<JobsPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/help" element={<HelpCenterPage />} />
           <Route path="/contact" element={<ContactPage />} />
