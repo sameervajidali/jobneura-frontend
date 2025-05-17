@@ -68,7 +68,7 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
   // If not allowed, logout and redirect to login
   if (!allowed.includes(userRole)) {
     const isAdminRoute = location.pathname.startsWith("/admin");
-    return <Navigate to={isAdminRoute ? "/admin/login" : "/login"} state={{ from: location }} replace />;
+    return <Navigate to={isAdminRoute ? "/login" : "/login"} state={{ from: location }} replace />;
   }
 
   // Authorized: render child routes
