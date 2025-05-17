@@ -356,81 +356,64 @@ export default function QuizSidebar({ filters, onChange }) {
         </div>
 
         {/* Categories + topics */}
-        <nav className="px-2 space-y-2">
-          {filtered.map((group) => {
-            const isOpen = openCat === group.id;
-            const isActive = filters.category === group.id;
-            return (
-              <div key={group.id} className="mb-1">
-                <button
-                  onClick={() => pickCat(group.id)}
-                  className={`
-                    flex items-center justify-between w-full px-3 py-2 rounded-xl font-semibold transition
-                    group
-                    ${
-                      isActive
-                        ? "bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-100 shadow"
-                        : "hover:bg-indigo-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"
-                    }
-                  `}
-                >
-                  <span className="flex items-center gap-2">
-                    {/* Expand/Collapse icon */}
-                    {isOpen ? (
-                      <FolderOpen className="w-5 h-5 text-indigo-500" />
-                    ) : (
-                      <Folder className="w-5 h-5 text-gray-400" />
-                    )}
-                    {/* Branded icon */}
-                    {IconFor(group.name)}
-                    <span>{group.name}</span>
-                    {isActive && (
-                      <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-200 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-100 animate-pulse">
-                        Active
+       <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1 sidebar-scroll">
+  {filtered.map(group => {
+    const isOpen = openCat === group.id;
+    const isActive = filters.category === group.id;
+    return (
+      <div key={group.id} className="mb-1">
+        {/* Category Button (NO ICONS, just clean label) */}
+        <button
+          onClick={() => pickCat(group.id)}
+          className={`
+            w-full text-left px-4 py-2 rounded-lg font-medium transition
+            focus:outline-none focus:ring-2 focus:ring-indigo-400
+            ${isActive
+              ? "bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-100 shadow"
+              : "hover:bg-indigo-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200"}
+          `}
+        >
+          {group.name}
+          {isActive && (
+            <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-indigo-200 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-100 rounded-full">
+              Active
+            </span>
+          )}
+        </button>
+        {/* Topics */}
+        {isOpen && group.topics.length > 0 && (
+          <ul className="mt-1 ml-4 space-y-1">
+            {group.topics.map(t => {
+              const act = filters.topic === t.id;
+              return (
+                <li key={t.id}>
+                  <button
+                    onClick={() => pickTopic(t.id)}
+                    className={`
+                      w-full text-left px-4 py-1.5 rounded transition
+                      text-sm
+                      ${act
+                        ? "bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 font-semibold"
+                        : "hover:bg-indigo-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300"}
+                    `}
+                  >
+                    {t.name}
+                    {act && (
+                      <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-100 rounded-full">
+                        •
                       </span>
                     )}
-                  </span>
-                  <span className="text-gray-400 group-hover:text-indigo-600 transition">
-                    {isOpen ? <ChevronDown /> : <ChevronRight />}
-                  </span>
-                </button>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    );
+  })}
+</nav>
 
-                {/* Topics under category */}
-                {isOpen && group.topics.length > 0 && (
-                  <ul className="mt-1 ml-9 space-y-1">
-                    {group.topics.map((t) => {
-                      const act = filters.topic === t.id;
-                      return (
-                        <li key={t.id}>
-                          <button
-                            onClick={() => pickTopic(t.id)}
-                            className={`
-                              flex items-center w-full px-3 py-1.5 text-sm rounded-lg font-normal
-                              transition
-                              ${
-                                act
-                                  ? "bg-indigo-200/80 text-indigo-800 dark:bg-indigo-800 dark:text-indigo-100 shadow"
-                                  : "hover:bg-indigo-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300"
-                              }
-                            `}
-                          >
-                            <BookOpen className="w-4 h-4 text-indigo-500 mr-2" />
-                            <span className="truncate">{t.name}</span>
-                            {act && (
-                              <span className="ml-auto text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-100 px-2 py-0.5 rounded-full font-semibold">
-                                Selected
-                              </span>
-                            )}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
-        </nav>
 
         {/* Level dropdown */}
         <div className="px-4 mt-6 mb-4">
