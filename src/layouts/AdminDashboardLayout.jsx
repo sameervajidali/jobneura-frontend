@@ -4,19 +4,16 @@ import { Outlet } from "react-router-dom";
 import SidebarNav from "../components/admin/SidebarNav";
 import Topbar from "../components/admin/Topbar";
 
-// Set sidebar width variable
-const SIDEBAR_WIDTH = "w-56"; // e.g., 14rem = 224px
-
 export default function AdminDashboardLayout() {
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-background">
+      {/* Sidebar (fixed, always visible on md+) */}
       <SidebarNav />
 
-      {/* Main section shifted right by sidebar width */}
-      <div className={`flex-1 flex flex-col min-w-0 ${SIDEBAR_WIDTH.startsWith('w-') ? `ml-56` : ''}`}>
-        <Topbar sidebarWidth={SIDEBAR_WIDTH} />
-        <main className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-900">
+      {/* Content shifts right by sidebar on desktop, full width on mobile */}
+      <div className="flex-1 flex flex-col min-w-0 transition-all duration-200 md:ml-56">
+        <Topbar />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-background">
           <Outlet />
         </main>
       </div>
