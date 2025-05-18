@@ -75,7 +75,7 @@ const redirectUser = (user) => {
   const handleGitHubLogin = () => {
     const API_BASE = import.meta.env.VITE_API_BASE_URL || window.location.origin;
     const authWindow = window.open(
-      `${API_BASE}/auth/github`,
+      `${API_BASE}/api/auth/github`,
       '_blank',
       'width=600,height=700'
     );
