@@ -27,7 +27,7 @@ function JobCard({ job }) {
 
 export default function JobList() {
   return (
-    <div className="w-full max-w-7xl mx-auto flex flex-row gap-8 justify-center overflow-x-auto py-8">
+    <div className="w-full max-w-7xl mx-auto flex flex-row gap-8 justify-center  py-8">
       {dummyJobs.map((job) => (
         <JobCard job={job} key={job.id} />
       ))}
