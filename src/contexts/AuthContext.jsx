@@ -269,10 +269,11 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ user, loading, login: doLogin, logout, refreshSession }}>
-      {loading
+      {/* {loading
         ? <div className="flex items-center justify-center h-full">Loading session…</div>
         : children
-      }
+      } */}
+       {children}
     </AuthContext.Provider>
   );
 }
