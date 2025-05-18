@@ -317,7 +317,7 @@ export default function RegisterForm() {
 
   const handleGoogleCallback = async (response) => {
     try {
-      const { data } = await axios.post("/auth/google", {
+      const { data } = await axios.post("/api/auth/google", {
         idToken: response.credential,
       });
       login(data.user);
