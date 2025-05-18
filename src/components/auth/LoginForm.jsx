@@ -61,7 +61,7 @@ const redirectUser = (user) => {
   const handleGoogleCallback = async (response) => {
     setLoading(true);
     try {
-      const { data } = await API.post('/api/auth/google', { idToken: response.credential });
+      const { data } = await API.post('auth/google', { idToken: response.credential });
       login(data.user);
       redirectUser(data.user);
     } catch (err) {
