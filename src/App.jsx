@@ -109,9 +109,9 @@ function AppInitializer({ children }) {
     }
   }, [loading, user, location.pathname, navigate]);
 
-  if (loading) {
-    return <div className="p-6 text-center">Loading session…</div>;
-  }
+  // if (loading) {
+  //   return <div className="p-6 text-center">Loading session…</div>;
+  // }
   return <>{children}</>;
 }
 
