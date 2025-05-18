@@ -134,7 +134,7 @@ function LayoutWrapper() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* only public navbar */}
-      {!isUserDashboard && !isAdminRoute && <Navbar />}
+      {!isAdminRoute && <Navbar />}
 
       <main
         className={`flex-grow ${
