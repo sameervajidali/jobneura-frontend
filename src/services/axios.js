@@ -85,12 +85,14 @@
 // export default API;
 
 
+
+
 // src/services/axios.js
 import axios from 'axios';
 
 const API = axios.create({
   baseURL: '/api',
-  withCredentials: true,
+  withCredentials: true,    // send HttpOnly cookies
 });
 
 // ——————————————————————————————————————————————————
@@ -99,66 +101,71 @@ let isRefreshing = false;
 let failedQueue = [];
 let initialSessionLoad = true;
 
+/**
+ * Resolve or reject all queued requests
+ */
 const processQueue = (error, token = null) => {
-  console.log('[axios] processQueue:', { error, tokenCount: failedQueue.length });
+  console.log('[axios] processQueue:', { error, queued: failedQueue.length });
   failedQueue.forEach(p => {
-    if (error) p.reject(error);
-    else p.resolve(token);
+    error ? p.reject(error) : p.resolve(token);
   });
   failedQueue = [];
 };
 
 // ——————————————————————————————————————————————————
-// INTERCEPTOR
+// RESPONSE INTERCEPTOR
 API.interceptors.response.use(
-  response => response,
-  async error => {
-    const original = error.config;
-    console.log('[axios] response error:', original.url, error.response?.status);
+  res => res,
+  async err => {
+    const orig = err.config;
+    console.log('[axios] response error:', orig.url, err.response?.status);
 
-    const is401 = error.response?.status === 401;
-    const skipPaths = ['/auth/login','/auth/refresh-token','/auth/me'];
-    const isRetryable = is401 && !original._retry && !skipPaths.some(p => original.url.includes(p));
+    const is401 = err.response?.status === 401;
+    const isAuthCall = ['/auth/login','/auth/refresh-token','/auth/me']
+      .some(path => orig.url.includes(path));
+    const hasSession = localStorage.getItem('hasSession') === 'true';
 
-    if (isRetryable && !initialSessionLoad) {
+    // only retry-protected calls after we know there *was* a session
+    if (is401 && !orig._retry && !isAuthCall && !initialSessionLoad && hasSession) {
       if (isRefreshing) {
-        console.log('[axios] queuing request during refresh:', original.url);
+        console.log('[axios] queueing during refresh:', orig.url);
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then(() => {
-          console.log('[axios] replaying queued request:', original.url);
-          return API(original);
+          console.log('[axios] replaying queued:', orig.url);
+          return API(orig);
         });
       }
 
-      original._retry = true;
+      orig._retry = true;
       isRefreshing = true;
       console.log('[axios] refreshing token…');
 
       try {
         const { data } = await API.post('/auth/refresh-token');
         console.log('[axios] refresh-token success:', data);
+        localStorage.setItem('hasSession', 'true');
         processQueue(null, data.user);
-        return API(original);
-      } catch (refreshError) {
-        console.error('[axios] refresh-token failed:', refreshError);
-        processQueue(refreshError, null);
+        return API(orig);
+      } catch (refreshErr) {
+        console.error('[axios] refresh-token failed:', refreshErr);
+        processQueue(refreshErr, null);
         localStorage.removeItem('hasSession');
         window.location.href = '/login';
-        return Promise.reject(refreshError);
+        return Promise.reject(refreshErr);
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(err);
   }
 );
 
 // ——————————————————————————————————————————————————
-// SESSION-CHECKED FLAG
+// ALLOW BOOTSTRAP TO SIGNAL READY
 window.addEventListener('session-checked', () => {
-  console.log('[axios] session-checked event received; disabling initialSessionLoad');
+  console.log('[axios] session-checked → disable initialSessionLoad');
   initialSessionLoad = false;
 });
 
