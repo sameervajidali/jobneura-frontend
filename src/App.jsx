@@ -32,7 +32,6 @@ import UserForm from "./pages/admin/Users/UserForm";
 
 // Admin Pages
 
-
 // Admin Features
 import AdminQuizPanel from "./pages/admin/AdminQuizPanel";
 import CreateQuizForm from "./pages/admin/Quiz/CreateQuizForm";
@@ -74,8 +73,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ADMIN_ROLES } from "./constants/roles";
-import JobsPage from "./pages/JobsPage";  
-
+import JobsPage from "./pages/JobsPage";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -86,6 +84,13 @@ function AppInitializer({ children }) {
 
   useEffect(() => {
     if (!loading && user && !didRedirect.current) {
+      // didRedirect.current = true;
+      // const path = location.pathname;
+
+      // if we have a `from` (quiz or any protected route), let redirectUser handle it
+      const from = location.state?.from?.pathname;
+      if (from) return;
+
       didRedirect.current = true;
       const path = location.pathname;
       const role = (user.role?.name || "").toUpperCase();
@@ -99,7 +104,7 @@ function AppInitializer({ children }) {
       }
 
       // deep‐link guards
-      
+
       if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
         return navigate("/dashboard", { replace: true });
       }
@@ -143,7 +148,7 @@ function LayoutWrapper() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/terms" element={<TermsPage />} />
-         <Route path="/jobs" element={<JobsPage />} />
+          <Route path="/jobs" element={<JobsPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/help" element={<HelpCenterPage />} />
           <Route path="/contact" element={<ContactPage />} />
