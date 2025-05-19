@@ -40,6 +40,7 @@
     "json2csv": "^6.0.0-alpha.2",
     "lucide-react": "^0.503.0",
     "ngrok": "^5.0.0-beta.2",
+    "papaparse": "^5.5.2",
     "radar": "^0.42.2",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",
