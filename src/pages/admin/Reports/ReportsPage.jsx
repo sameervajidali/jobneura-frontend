@@ -136,7 +136,7 @@ import {
   downloadAllQuizzes,
   downloadAllCategories,
   downloadAllTopics,
-} from '../../services/quizService';
+} from '../../../services/quizService';
 
 const dummyDAU = [
   { date: '2025-05-01', count: 12 },
