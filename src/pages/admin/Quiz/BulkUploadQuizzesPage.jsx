@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { bulkUploadQuestionsFile } from '../../../services/quizService';
+import { saveAs } from 'file-saver';
+import { Parser } from 'json2csv';
+
 
 export default function BulkUploadQuestionsPage() {
   const { quizId } = useParams();
@@ -34,6 +37,18 @@ export default function BulkUploadQuestionsPage() {
       setUploading(false);
     }
   };
+
+  const downloadCSV = (resultArray) => {
+  try {
+    const parser = new Parser();
+    const csv = parser.parse(resultArray);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'quiz_upload_report.csv');
+  } catch (err) {
+    console.error('CSV export error:', err);
+  }
+};
+
 
   return (
     <div className="p-4 bg-white rounded shadow max-w-md mx-auto">
