@@ -143,7 +143,7 @@ export default function QuizPage() {
             const top = q.topic?.name||'General';
             const lvl = q.level||'Intermediate';
             const count = q.questions?.length??0;
-            const duration = q.timeEstimate ? `${q.timeEstimate} min`:'– min';
+            const duration = q.duration ? `${q.duration} min`:'– min';
 
             const lvlClasses = lvl==='Beginner'? 'bg-green-100 text-green-800': lvl==='Advanced'? 'bg-red-100 text-red-800':'bg-yellow-100 text-yellow-800';
 
