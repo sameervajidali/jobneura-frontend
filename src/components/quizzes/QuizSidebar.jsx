@@ -20,25 +20,6 @@ export default function QuizSidebar({ filters, onChange }) {
     });
   }, []);
 
-  // useEffect(() => {
-  
-  //   if (!cats.length || !tops.length) return;
-  //   quizService.fetchGroupedTopics().then((raw) => {
-  //     const catMap = Object.fromEntries(cats.map((c) => [c._id, c.name]));
-  //     const topMap = Object.fromEntries(tops.map((t) => [t._id, t.name]));
-  //     setGroups(
-  //       raw.map(({ category, topics }) => ({
-  //         id: category,
-  //         name: catMap[category] || "Unknown",
-  //         topics: topics.map((tid) => ({
-  //           id: tid,
-  //           name: topMap[tid] || "Unknown",
-  //         })),
-  //       }))
-  //     );
-  //   });
-  // }, [cats, tops]);
-
   // Filter
   
 useEffect(() => {
