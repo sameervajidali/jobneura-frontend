@@ -13,7 +13,7 @@ export function NotificationProvider({ children }) {
 
   // 1) Fetch existing notifications on mount
   useEffect(() => {
-    api.get('/api/notifications')
+    api.get('/notifications')
       .then(res => {
         const mapped = res.data.notifications.map(n => ({
           ...n,
