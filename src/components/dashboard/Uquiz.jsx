@@ -22,7 +22,7 @@ export default function QuizPage() {
     async function fetchQuizzes() {
       try {
         setLoading(true);
-        const response = await API.get('/dashboard/quizzes');
+        const response = await API.get('/quizzes');
         setQuizzes(response.data.quizzes || []);
       } catch (err) {
         console.error(err);
