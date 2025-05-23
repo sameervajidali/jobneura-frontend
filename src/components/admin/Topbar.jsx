@@ -23,6 +23,7 @@ export default function Topbar() {
   const dropdownRef = useRef(null);
    const notifRef    = useRef(null);
   const { pathname } = useLocation();
+  const { notifications, markRead } = useNotifications();
 
 
   const firstName = user?.name?.split(" ")[0] || "Admin";

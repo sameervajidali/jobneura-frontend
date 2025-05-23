@@ -3,46 +3,74 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import api from '../services/axios'; // axios instance with credentials
 
-const NotificationContext = createContext();
+const NotificationContext = createContext({
+  notifications: [],
+  markRead: async () => {}
+});
+
 export const useNotifications = () => useContext(NotificationContext);
 
 export function NotificationProvider({ children }) {
   const [notifications, setNotifications] = useState([]);
-  const [socket, setSocket] = useState(null);
 
-  // 1) Fetch existing on mount
+  // 1) Fetch existing notifications on mount
   useEffect(() => {
-    api.get('/notifications').then(res => {
-      setNotifications(res.data.notifications);
-    });
+    api.get('/api/notifications')
+      .then(res => {
+        const mapped = res.data.notifications.map(n => ({
+          ...n,
+          id: n._id  // normalize id field
+        }));
+        setNotifications(mapped);
+      })
+      .catch(err => {
+        console.error('Failed to load notifications', err);
+      });
   }, []);
 
-  // 2) Connect Socket.IO
+  // 2) Connect Socket.IO once
   useEffect(() => {
-    const s = io(process.env.REACT_APP_API_URL, { withCredentials: true });
-    setSocket(s);
+    const socketUrl = process.env.REACT_APP_API_URL;
+    if (!socketUrl) {
+      console.warn('REACT_APP_API_URL not set; skipping socket connection');
+      return;
+    }
+
+    const s = io(socketUrl, { withCredentials: true });
+
+    s.on('connect_error', err => {
+      console.error('Socket.IO connection error:', err);
+    });
 
     s.on('notification:new', notif => {
-       console.log('Received:', notif);
-      setNotifications(prev => [notif, ...prev]);
+      console.log('Received:', notif);
+      setNotifications(prev => [{ 
+        ...notif, 
+        id: notif._id 
+      }, ...prev]);
     });
 
-    return () => s.disconnect();
-  }, []);
+    setSocket(s);
+    return () => {
+      s.off('notification:new');
+      s.disconnect();
+    };
+  }, [process.env.REACT_APP_API_URL]);
 
-  // 3) Mark as read
+  // 3) Mark a notification as read
   const markRead = async id => {
-    await api.patch(`/notifications/${id}/read`);
-    setNotifications(ns =>
-      ns.map(n => (n.id === id ? { ...n, isRead: true } : n))
-    );
+    try {
+      await api.patch(`/api/notifications/${id}/read`);
+      setNotifications(ns =>
+        ns.map(n => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (err) {
+      console.error(`Failed to mark notification ${id} as read`, err);
+    }
   };
 
   return (
-    <NotificationContext.Provider value={{
-      notifications,
-      markRead
-    }}>
+    <NotificationContext.Provider value={{ notifications, markRead }}>
       {children}
     </NotificationContext.Provider>
   );
