@@ -20,6 +20,7 @@ export default function Topbar() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+   const notifRef    = useRef(null);
   const { pathname } = useLocation();
 
   const firstName = user?.name?.split(" ")[0] || "Admin";
