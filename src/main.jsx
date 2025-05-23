@@ -7,7 +7,8 @@ import { Toaster }         from "react-hot-toast";
 import { AuthProvider }    from "./contexts/AuthContext.jsx";
 import { ThemeProvider }   from "./contexts/ThemeContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { ToastProvider }   from "./contexts/ToastContext.jsx";
+import { ToastProvider } from "./contexts/ToastContext.jsx";
+import { NotificationProvider } from './contexts/NotificationContext';
 
 const root = createRoot(document.getElementById("root"));
 root.render(
@@ -17,7 +18,9 @@ root.render(
         <AuthProvider>
           <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
             <ToastProvider>
+               <NotificationProvider>
               <App />
+              </NotificationProvider>
               <Toaster position="top-right" />
             </ToastProvider>
           </GoogleOAuthProvider>

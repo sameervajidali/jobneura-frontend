@@ -455,13 +455,16 @@ export function getQuizTopThree(quizId, timePeriod = 'week') {
 // 📥 Bulk Upload: Quizzes File (Admin)
 // ─────────────────────────────────────────────────────────────
 
-export function bulkUploadQuizzes(file) {
+export function bulkUploadQuizzes(file, config = {}) {
   const formData = new FormData();
   formData.append('file', file);
-  return API.post('/quizzes/admin/quizzes/bulk-upload-file', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }).then(res => res.data);
+  return API.post(
+    '/quizzes/admin/quizzes/bulk-upload-file',
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' }, responseType: 'blob', ...config }
+  ).then(res => res.data);
 }
+
 
 // ─────────────────────────────────────────────────────────────
 // 📥 Admin Downloads (CSV Export)

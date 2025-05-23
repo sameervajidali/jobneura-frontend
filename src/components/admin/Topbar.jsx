@@ -12,10 +12,12 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { getAvatarUrl } from "../../utils/getAvatarUrl";
+import { useNotifications } from "../../contexts/NotificationContext";
 
 export default function Topbar() {
   const { user, logout } = useAuth();
   const { isDark, setIsDark } = useTheme();
+  const [notifOpen, setNotifOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { pathname } = useLocation();
@@ -32,6 +34,10 @@ export default function Topbar() {
     const handle = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpen(false);
     };
+    if (notifRef.current && !notifRef.current.contains(e.target)) {
+      setNotifOpen(false);
+    }
+  
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
   }, []);
