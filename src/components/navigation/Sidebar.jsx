@@ -95,7 +95,7 @@ export function Sidebar() {
   const desktopSidebar = (
     <aside
         className={`
-          fixed top-0 left-0 z-40 h-full w-56 bg-background border-r border-border
+          fixed top-0 left-0 z-40 h-full w-56 bg-background 
           shadow-xl md:shadow-none flex flex-col
           transition-transform duration-200
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
