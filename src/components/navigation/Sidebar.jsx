@@ -53,6 +53,7 @@ const navGroups = [
 
 export function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Helper to render NavLink items
   const renderItems = (items) =>
