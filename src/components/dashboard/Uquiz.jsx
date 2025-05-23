@@ -218,7 +218,7 @@ export default function QuizPage() {
 
                 <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-500">
                   <div className="flex items-center gap-1">
-                    <span className="font-medium">{q.questionsCount}</span>
+                    <span className="font-medium">{q.questionCount}</span>
                     <span>Questions</span>
                   </div>
                   <div className="flex items-center gap-1">
