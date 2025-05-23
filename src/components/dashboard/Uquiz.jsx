@@ -2,7 +2,7 @@
 // src/pages/dashboard/QuizPage.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import API from "../../services/axios";
-import { Search, Repeat, Clock } from "lucide-react";
+import { Search, RefreshCw, Clock } from "lucide-react";
 import {Badge} from "../ui/badge";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -16,39 +16,32 @@ export default function QuizPage() {
   const [viewMode, setViewMode] = useState("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("recommended");
-  const [filters, setFilters] = useState({ categories: [], level: [] });
+  const [filters, setFilters] = useState({ categories: [], levels: [] });
 
- useEffect(() => {
-  API.get("/quizzes")
-    .then(({ data }) => {
-      console.log("QUIZZES PAYLOAD:", data.quizzes);
-      setQuizzes(data.quizzes || []);
-    })
-    .catch(() => setError("Could not load quizzes."))
-    .finally(() => setLoading(false));
-}, []);
-
+  useEffect(() => {
+    API.get("/quizzes")
+      .then(({ data }) => setQuizzes(data.quizzes || []))
+      .catch(() => setError("Could not load quizzes."))
+      .finally(() => setLoading(false));
+  }, []);
 
   const displayed = useMemo(() => {
     let list = [...quizzes];
     const term = searchTerm.trim().toLowerCase();
     if (term) {
-      list = list.filter(
-        ({ title, description }) =>
-          title.toLowerCase().includes(term) ||
-          description.toLowerCase().includes(term)
+      list = list.filter(({ title, description }) =>
+        title.toLowerCase().includes(term) ||
+        description.toLowerCase().includes(term)
       );
     }
     if (filters.categories.length) {
-      list = list.filter(
-        ({ category }) =>
-          category?.name && filters.categories.includes(category.name)
+      list = list.filter(q =>
+        filters.categories.includes(q.category?.name)
       );
     }
-    if (filters.level.length) {
-      list = list.filter(
-        ({ level }) =>
-          level?.name && filters.level.includes(level.name)
+    if (filters.levels.length) {
+      list = list.filter(q =>
+        filters.levels.includes(q.level)
       );
     }
     if (sortBy === "newest") {
@@ -60,66 +53,47 @@ export default function QuizPage() {
   }, [quizzes, searchTerm, filters, sortBy]);
 
   const toggleFilter = (key, value) => {
-    setFilters((f) => {
+    setFilters(f => {
       const arr = f[key];
-      return {
-        ...f,
-        [key]: arr.includes(value)
-          ? arr.filter((x) => x !== value)
-          : [...arr, value],
-      };
+      return { ...f, [key]: arr.includes(value) ? arr.filter(x => x!==value) : [...arr, value] };
     });
   };
 
   if (loading)
-    return (
-      <div className="py-8 text-center text-gray-500">Loading quizzes…</div>
-    );
+    return <div className="py-8 text-center text-gray-500">Loading quizzes…</div>;
   if (error)
-    return (
-      <div className="py-8 text-center text-red-500">{error}</div>
-    );
+    return <div className="py-8 text-center text-red-500">{error}</div>;
 
   return (
     <div className="flex gap-8">
-      <aside className="hidden xl:block w-64 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-4">
-          Filters
-        </h3>
+      {/* Filters Sidebar */}
+      <aside className="hidden xl:block w-64 p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-lg">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Filters</h3>
         <div className="space-y-6">
           <div>
-            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Category
-            </h4>
+            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Category</h4>
             <div className="space-y-2">
-              {['Programming', 'DevOps', 'Data Science','Networking','Database','Security'].map((cat) => (
-                <label key={cat} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
+              {quizzes.map(q => q.category?.name).filter((v,i,a)=>v && a.indexOf(v)===i).map(cat => (
+                <label key={cat} className="flex items-center gap-3">
+                  <input type="checkbox"
                     checked={filters.categories.includes(cat)}
-                    onChange={() => toggleFilter('categories', cat)}
-                    className="h-4 w-4 text-indigo-600 rounded border-gray-300"
-                  />
+                    onChange={()=>toggleFilter('categories',cat)}
+                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
                   <span className="text-gray-700 dark:text-gray-300">{cat}</span>
                 </label>
               ))}
             </div>
           </div>
-
           <div>
-            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Difficulty
-            </h4>
+            <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Level</h4>
             <div className="space-y-2">
-              {['Beginner', 'Intermediate', 'Advanced'].map((level) => (
-                <label key={level} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={filters.level.includes(level)}
-                    onChange={() => toggleFilter('difficulties', level)}
-                    className="h-4 w-4 text-indigo-600 rounded border-gray-300"
-                  />
-                  <span className="text-gray-700 dark:text-gray-300">{level}</span>
+              {quizzes.map(q=>q.level).filter((v,i,a)=>v && a.indexOf(v)===i).map(lvl=>(
+                <label key={lvl} className="flex items-center gap-3">
+                  <input type="checkbox"
+                    checked={filters.levels.includes(lvl)}
+                    onChange={()=>toggleFilter('levels',lvl)}
+                    className="h-4 w-4 text-indigo-600 border-gray-300 rounded" />
+                  <span className="text-gray-700 dark:text-gray-300">{lvl}</span>
                 </label>
               ))}
             </div>
@@ -127,116 +101,67 @@ export default function QuizPage() {
         </div>
       </aside>
 
+      {/* Main Content */}
       <div className="flex-1 space-y-8">
-        <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
+        {/* Header */}
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
-              Available Quizzes
-            </h1>
-            <p className="mt-1 text-gray-500 dark:text-gray-400">
-              Sharpen your skills with bite-sized tests
-            </p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Available Quizzes</h1>
+            <p className="text-gray-600 dark:text-gray-400">Sharpen your skills with bite-sized tests</p>
           </div>
-
           <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
             <div className="relative flex-1 xl:flex-none">
               <Search className="absolute left-4 top-3 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search quizzes…"
-                className="w-full xl:w-64 pl-12 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full xl:w-64 pl-12 py-2 pr-4 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e=>setSearchTerm(e.target.value)}
               />
             </div>
-
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="py-2 px-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+            <select value={sortBy} onChange={e=>setSortBy(e.target.value)}
+              className="py-2 px-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg text-sm"
             >
               <option value="recommended">Recommended</option>
               <option value="newest">Newest</option>
               <option value="popular">Popular</option>
             </select>
-
             <div className="flex items-center space-x-2">
-              <Button
-                variant={viewMode === 'grid' ? 'solid' : 'outline'}
-                onClick={() => setViewMode('grid')}
-                size="sm"
-              >
-                <Repeat size={16} />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'solid' : 'outline'}
-                onClick={() => setViewMode('list')}
-                size="sm"
-              >
-                <Clock size={16} />
-              </Button>
+              <Button size="sm" variant={viewMode==='grid'?'outline':'ghost'} onClick={()=>setViewMode('grid')}><RefreshCw size={16}/></Button>
+              <Button size="sm" variant={viewMode==='list'?'outline':'ghost'} onClick={()=>setViewMode('list')}><Clock size={16}/></Button>
             </div>
           </div>
         </div>
 
-        <div className={
-          viewMode === 'grid'
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
-            : 'space-y-6'
-        }>
-          {displayed.map((q) => {
-            const catName = q.category?.name || 'Uncategorized';
-            const diffName = q.level?.name || 'Unknown';
-            const duration = q.duration ? `${q.duration} min` : '– min';
+        {/* Quiz Cards */}
+        <div className={viewMode==='grid'?'grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3':'space-y-8'}>
+          {displayed.map(q=>{
+            const id = q._id;
+            const title = q.title;
+            const cat = q.category?.name||'Uncategorized';
+            const top = q.topic?.name||'General';
+            const lvl = q.level||'Intermediate';
+            const count = q.questions?.length??0;
+            const duration = q.timeEstimate ? `${q.timeEstimate} min`:'– min';
+
+            const lvlClasses = lvl==='Beginner'? 'bg-green-100 text-green-800': lvl==='Advanced'? 'bg-red-100 text-red-800':'bg-yellow-100 text-yellow-800';
 
             return (
-              <div
-                key={q.id}
-                className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow hover:shadow-xl transition flex flex-col justify-between"
-              >
+              <div key={id} className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow hover:shadow-xl transition flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                    {q.title}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <Badge variant="outline" size="sm">
-                      {catName}
-                    </Badge>
-                    <Badge
-                      variant={
-                        diffName === 'Beginner'
-                          ? 'success'
-                          : diffName === 'Intermediate'
-                          ? 'warning'
-                          : 'danger'
-                      }
-                      size="sm"
-                    >
-                      {diffName}
-                    </Badge>
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 mb-4 line-clamp-3">
-                    {q.description}
-                  </p>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium">{q.questionCount}</span>
-                    <span>Questions</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock size={14} />
-                    <span>{duration}</span>
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">{title}</h3>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full text-xs">{cat}</span>
+                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs">{top}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${lvlClasses}`}>{lvl}</span>
                   </div>
                 </div>
-
-                <Button
-                  className="mt-6"
-                  onClick={() => navigate(`/dashboard/quizzes/${q.id}`)}
-                >
-                  {q.progress ? 'Continue Quiz' : 'Start Quiz'}
-                </Button>
+                <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-500 mb-4">
+                  <span><strong>{count}</strong> Questions</span>
+                  <span className="flex items-center gap-1"><Clock size={14}/>{duration}</span>
+                </div>
+                <Button onClick={()=>navigate(`/dashboard/quizzes/${id}`)}>Start Quiz</Button>
               </div>
             );
           })}
