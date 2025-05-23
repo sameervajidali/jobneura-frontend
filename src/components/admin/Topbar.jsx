@@ -13,6 +13,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { getAvatarUrl } from "../../utils/getAvatarUrl";
 import { useNotifications } from "../../contexts/NotificationContext";
+import NotificationBell from "../common/NotificationBell";
 
 export default function Topbar() {
   const { user, logout } = useAuth();
@@ -23,6 +24,7 @@ export default function Topbar() {
    const notifRef    = useRef(null);
   const { pathname } = useLocation();
 
+
   const firstName = user?.name?.split(" ")[0] || "Admin";
   const avatarUrl = getAvatarUrl(user?.avatar);
 
@@ -32,16 +34,18 @@ export default function Topbar() {
 
   // close dropdown if click outside
   useEffect(() => {
-    const handle = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setOpen(false);
-    };
+  const handleClickOutside = e => {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setOpen(false);
+    }
     if (notifRef.current && !notifRef.current.contains(e.target)) {
       setNotifOpen(false);
     }
-  
-    document.addEventListener("mousedown", handle);
-    return () => document.removeEventListener("mousedown", handle);
-  }, []);
+  };
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => document.removeEventListener('mousedown', handleClickOutside);
+}, []);
+
 
   return (
     <header className="h-16 px-6 flex items-center justify-between border-b bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm relative z-10">
@@ -53,13 +57,8 @@ export default function Topbar() {
       {/* Actions */}
       <div className="flex items-center gap-3 md:gap-5">
         {/* Notification Bell */}
-        <button className="relative group rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-          <FaBell className="w-5 h-5 text-gray-500 dark:text-gray-300" />
-          <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-indigo-500 ring-2 ring-white dark:ring-gray-900"></span>
-          <span className="absolute left-8 top-0 scale-0 group-hover:scale-100 transition bg-gray-900 text-white rounded px-2 py-1 text-xs whitespace-nowrap z-20">
-            Notifications
-          </span>
-        </button>
+        <NotificationBell notifOpen={notifOpen} setNotifOpen={setNotifOpen} />
+
 
         {/* Dark Mode Toggle */}
         <button
