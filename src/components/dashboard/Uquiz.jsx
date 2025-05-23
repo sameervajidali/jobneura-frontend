@@ -16,7 +16,7 @@ export default function QuizPage() {
   const [viewMode, setViewMode] = useState("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("recommended");
-  const [filters, setFilters] = useState({ categories: [], difficulties: [] });
+  const [filters, setFilters] = useState({ categories: [], level: [] });
 
   useEffect(() => {
     API.get("/quizzes")
@@ -41,10 +41,10 @@ export default function QuizPage() {
           category?.name && filters.categories.includes(category.name)
       );
     }
-    if (filters.difficulties.length) {
+    if (filters.level.length) {
       list = list.filter(
-        ({ difficulty }) =>
-          difficulty?.name && filters.difficulties.includes(difficulty.name)
+        ({ level }) =>
+          level?.name && filters.level.includes(level.name)
       );
     }
     if (sortBy === "newest") {
@@ -111,7 +111,7 @@ export default function QuizPage() {
                 <label key={level} className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
-                    checked={filters.difficulties.includes(level)}
+                    checked={filters.level.includes(level)}
                     onChange={() => toggleFilter('difficulties', level)}
                     className="h-4 w-4 text-indigo-600 rounded border-gray-300"
                   />
