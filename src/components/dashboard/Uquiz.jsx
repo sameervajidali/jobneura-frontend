@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import API from '../../services/axios';
 import { Search, Repeat, Clock } from 'lucide-react';
-import { Badge, Button } from '@/components/ui'; // adjust to your UI library
+import Badge  from '../../components/ui/badge/Badge';
+import Button from '../../components/ui/button/Button';
 import { useNavigate } from 'react-router-dom';
 
 export default function QuizPage() {
