@@ -18,13 +18,7 @@ export default function QuizPage() {
   const [sortBy, setSortBy] = useState("recommended");
   const [filters, setFilters] = useState({ categories: [], level: [] });
 
-  useEffect(() => {
-    API.get("/quizzes")
-      .then(({ data }) => setQuizzes(data.quizzes || []))
-      .catch(() => setError("Could not load quizzes."))
-      .finally(() => setLoading(false));
-  }, []);
-
+console.log("QUIZZES PAYLOAD:", data.quizzes);
   const displayed = useMemo(() => {
     let list = [...quizzes];
     const term = searchTerm.trim().toLowerCase();
