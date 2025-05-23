@@ -56,7 +56,7 @@ export function NotificationProvider({ children }) {
   // 3) Mark a notification as read
   const markRead = async id => {
     try {
-      await api.patch(`/api/notifications/${id}/read`);
+      await api.patch(`/notifications/${id}/read`);
       setNotifications(ns =>
         ns.map(n => n.id === id ? { ...n, isRead: true } : n)
       );
