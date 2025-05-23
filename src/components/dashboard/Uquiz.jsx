@@ -183,7 +183,7 @@ export default function QuizPage() {
           {displayed.map((q) => {
             const catName = q.category?.name || 'Uncategorized';
             const diffName = q.level?.name || 'Unknown';
-            const duration = q.duration ? `${q.averageTime} min` : '– min';
+            const duration = q.duration ? `${q.duration} min` : '– min';
 
             return (
               <div
