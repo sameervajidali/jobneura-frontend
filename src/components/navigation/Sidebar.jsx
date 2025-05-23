@@ -77,7 +77,7 @@ export function Sidebar() {
 
   // Shared sidebar content (grouped navigation)
   const sidebarContent = (
-    <div className="flex-1 overflow-y-auto py-6 px-4">
+    <div className="flex-1 overflow-y-auto px-2 py-4 space-y-1 sidebar-scroll">
       {navGroups.map((group) => (
         <nav key={group.title} className="mb-6">
           <h6 className="text-xs font-semibold text-gray-500 uppercase mb-2 px-2">
