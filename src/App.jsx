@@ -17,6 +17,7 @@ import AccountActivationPage from "./pages/AccountActivation";
 import AccountActivationInfo from "./pages/AccountActivationInfo";
 import NotFoundPage from "./pages/NotFoundPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import Uquiz from "./components/dashboard/Uquiz";
 
 import DashboardHome from "./pages/DashboardHome";
 import Profile from "./pages/Profile";
@@ -177,6 +178,8 @@ function LayoutWrapper() {
             <Route index element={<DashboardHome />} />
             <Route path="profile" element={<Profile />} />
             <Route path="change-password" element={<ChangePassword />} />
+            <Route path="quizzes" element={<Uquiz />} />
+
           </Route>
 
           {/* Admin Routes */}
