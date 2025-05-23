@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import API from "../../services/axios";
 import { Search, Repeat, Clock } from "lucide-react";
-import Badge from "../ui/badge";
-import Button from "../ui/button";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 
 export default function QuizPage() {
@@ -35,13 +35,15 @@ export default function QuizPage() {
       );
     }
     if (filters.categories.length) {
-      list = list.filter(({ category }) =>
-        category?.name && filters.categories.includes(category.name)
+      list = list.filter(
+        ({ category }) =>
+          category?.name && filters.categories.includes(category.name)
       );
     }
     if (filters.difficulties.length) {
-      list = list.filter(({ difficulty }) =>
-        difficulty?.name && filters.difficulties.includes(difficulty.name)
+      list = list.filter(
+        ({ difficulty }) =>
+          difficulty?.name && filters.difficulties.includes(difficulty.name)
       );
     }
     if (sortBy === "newest") {
@@ -69,9 +71,7 @@ export default function QuizPage() {
       <div className="py-8 text-center text-gray-500">Loading quizzes…</div>
     );
   if (error)
-    return (
-      <div className="py-8 text-center text-red-500">{error}</div>
-    );
+    return <div className="py-8 text-center text-red-500">{error}</div>;
 
   return (
     <div className="flex gap-6">
@@ -84,12 +84,12 @@ export default function QuizPage() {
             <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
               Category
             </h4>
-            {['Programming', 'DevOps', 'Data Science'].map((cat) => (
+            {["Programming", "DevOps", "Data Science"].map((cat) => (
               <label key={cat} className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={filters.categories.includes(cat)}
-                  onChange={() => toggleFilter('categories', cat)}
+                  onChange={() => toggleFilter("categories", cat)}
                   className="form-checkbox"
                 />
                 {cat}
@@ -100,12 +100,12 @@ export default function QuizPage() {
             <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
               Difficulty
             </h4>
-            {['Beginner', 'Intermediate', 'Advanced'].map((level) => (
+            {["Beginner", "Intermediate", "Advanced"].map((level) => (
               <label key={level} className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
                   checked={filters.difficulties.includes(level)}
-                  onChange={() => toggleFilter('difficulties', level)}
+                  onChange={() => toggleFilter("difficulties", level)}
                   className="form-checkbox"
                 />
                 {level}
@@ -147,14 +147,14 @@ export default function QuizPage() {
             </select>
             <div className="flex items-center gap-2">
               <Button
-                variant={viewMode === 'grid' ? 'solid' : 'outline'}
-                onClick={() => setViewMode('grid')}
+                variant={viewMode === "grid" ? "solid" : "outline"}
+                onClick={() => setViewMode("grid")}
               >
                 <Repeat size={16} />
               </Button>
               <Button
-                variant={viewMode === 'list' ? 'solid' : 'outline'}
-                onClick={() => setViewMode('list')}
+                variant={viewMode === "list" ? "solid" : "outline"}
+                onClick={() => setViewMode("list")}
               >
                 <Clock size={16} />
               </Button>
@@ -162,14 +162,16 @@ export default function QuizPage() {
           </div>
         </div>
 
-        <div className={
-          viewMode === 'grid'
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'
-            : 'space-y-4'
-        }>
+        <div
+          className={
+            viewMode === "grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              : "space-y-4"
+          }
+        >
           {displayed.map((q) => {
-            const catName = q.category?.name || 'Uncategorized';
-            const diffName = q.difficulty?.name || 'Unknown';
+            const catName = q.category?.name || "Uncategorized";
+            const diffName = q.difficulty?.name || "Unknown";
 
             return (
               <div
@@ -196,7 +198,7 @@ export default function QuizPage() {
                   className="mt-4 w-full"
                   onClick={() => navigate(`/dashboard/quizzes/${q.id}`)}
                 >
-                  {q.progress ? 'Continue' : 'Start'} Quiz
+                  {q.progress ? "Continue" : "Start"} Quiz
                 </Button>
               </div>
             );
@@ -206,12 +208,11 @@ export default function QuizPage() {
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-full shadow-lg flex items-center gap-4">
           <Button
             variant="outline"
-            onClick={() => navigate('/dashboard/quizzes/random')}
+            onClick={() => navigate("/dashboard/quizzes/random")}
           >
             <Repeat size={16} className="mr-2" /> Take Random Quiz
           </Button>
-          <Button onClick={() => navigate('/dashboard/quizzes/resume')}
-          >
+          <Button onClick={() => navigate("/dashboard/quizzes/resume")}>
             <Clock size={16} className="mr-2" /> Resume Last Quiz
           </Button>
         </div>
