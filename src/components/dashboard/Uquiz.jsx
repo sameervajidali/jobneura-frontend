@@ -4,8 +4,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import API from "../../services/axios";
 import quizService from "../../services/quizService";
 import { Search, RefreshCw, Clock } from "lucide-react";
-import {Badge} from "../ui/badge";
-import {Button} from "../ui/button";
+import {Badge } from "../ui/badge";
+import {Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 
 export default function QuizPage() {
@@ -18,25 +18,26 @@ export default function QuizPage() {
   const [viewMode, setViewMode] = useState("grid");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("recommended");
+  // Store filters by level names and category names
   const [filters, setFilters] = useState({ levels: [], categories: [] });
 
   useEffect(() => {
     // Fetch quizzes
     API.get("/quizzes")
       .then(({ data }) => setQuizzes(data.quizzes || []))
-      .catch(() => setError("Could not load quizzes."));
+      .catch(() => setError("Could not load quizzes."))
+      .finally(() => setLoading(false));
 
-    // Fetch categories
+    // Fetch all categories
     quizService.fetchSidebarFilters()
       .then(({ categories }) => setCats(categories))
       .catch(() => {});
-
-    setLoading(false);
   }, []);
 
   // Static levels
   const distinctLevels = ["Beginner", "Intermediate", "Advanced"];
 
+  // Filtered and sorted quizzes
   const displayed = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     return quizzes
@@ -45,8 +46,9 @@ export default function QuizPage() {
         const desc = (q.description || "").toLowerCase();
         if (term && !title.includes(term) && !desc.includes(term)) return false;
         if (filters.levels.length && !filters.levels.includes(q.level)) return false;
-        const catId = q.category?._id;
-        if (filters.categories.length && !filters.categories.includes(catId)) return false;
+        // Compare by category name
+        const catName = typeof q.category === 'string' ? q.category : q.category?.name;
+        if (filters.categories.length && !filters.categories.includes(catName)) return false;
         return true;
       })
       .sort((a, b) => {
@@ -56,12 +58,7 @@ export default function QuizPage() {
       });
   }, [quizzes, searchTerm, filters, sortBy]);
 
-  // Sort categories alphabetically for display
-  const sortedCats = useMemo(
-    () => [...cats].sort((a, b) => a.name.localeCompare(b.name)),
-    [cats]
-  );
-
+  // Toggle filters
   const toggleFilter = (key, value) => {
     setFilters(prev => ({
       ...prev,
@@ -72,7 +69,7 @@ export default function QuizPage() {
   };
 
   if (loading) return <div className="py-8 text-center text-gray-500">Loading…</div>;
-  if (error) return <div className="py-8 text-center text-red-500">{error}</div>;
+  if (error)   return <div className="py-8 text-center text-red-500">{error}</div>;
 
   return (
     <div className="flex gap-8">
@@ -95,6 +92,7 @@ export default function QuizPage() {
               </label>
             ))}
           </div>
+
           {/* Categories */}
           <div>
             <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Category</h4>
@@ -102,8 +100,8 @@ export default function QuizPage() {
               <label key={_id} className="flex items-center gap-3 text-sm">
                 <input
                   type="checkbox"
-                  checked={filters.categories.includes(_id)}
-                  onChange={() => toggleFilter('categories', _id)}
+                  checked={filters.categories.includes(name)}
+                  onChange={() => toggleFilter('categories', name)}
                   className="h-4 w-4 text-indigo-600 border-gray-300 rounded"
                 />
                 <span className="text-gray-700 dark:text-gray-300">{name}</span>
@@ -119,14 +117,14 @@ export default function QuizPage() {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Available Quizzes</h1>
-            <p className="text-gray-600 dark:text-gray-400">Sharpen your skills…</p>
+            <p className="text-gray-600 dark:text-gray-400">Sharpen your skills with bite-sized tests</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 w-full xl:w-auto">
             <div className="relative flex-1 xl:flex-none">
               <Search className="absolute left-4 top-3 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search…"
+                placeholder="Search quizzes…"
                 className="w-full xl:w-64 pl-12 py-2 pr-4 border rounded-lg focus:ring-indigo-500"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
