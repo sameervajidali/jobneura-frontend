@@ -92,7 +92,14 @@ export function Sidebar() {
 
   // Desktop Sidebar
   const desktopSidebar = (
-    <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen hidden md:flex flex-col">
+    <aside
+        className={`
+          fixed top-0 left-0 z-40 h-full w-56 bg-background border-r border-border
+          shadow-xl md:shadow-none flex flex-col
+          transition-transform duration-200
+          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        `}
+      >
       <div className="h-16 px-6 flex items-center text-2xl font-bold text-indigo-600 dark:text-indigo-400 border-b border-gray-200 dark:border-gray-800">
         JobNeura
       </div>
