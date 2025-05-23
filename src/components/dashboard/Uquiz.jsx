@@ -88,7 +88,7 @@ export default function QuizPage() {
               Category
             </h4>
             <div className="space-y-2">
-              {['Programming', 'DevOps', 'Data Science'].map((cat) => (
+              {['Programming', 'DevOps', 'Data Science','Networking','Database','Security'].map((cat) => (
                 <label key={cat} className="flex items-center gap-2 text-sm">
                   <input
                     type="checkbox"
