@@ -62,7 +62,7 @@ export default function WelcomePanel() {
         {/* Action Button */}
         {completion < 100 && (
           <button
-            onClick={() => {/* navigate to /dashboard/profile */}}
+            onClick={() => {/dashboard/profile}}
             className="inline-block mt-2 px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-500 transition"
           >
             Complete Your Profile
