@@ -99,6 +99,7 @@ export function Sidebar() {
           shadow-xl md:shadow-none flex flex-col
           transition-transform duration-200
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          border-r border-gray-200 dark:border-gray-800
         `}
       >
       <div className="h-16 px-6 flex items-center text-2xl font-bold text-indigo-600 dark:text-indigo-400 border-b border-gray-200 dark:border-gray-800">
