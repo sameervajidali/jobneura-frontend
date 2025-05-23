@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import API from "../../services/axios";
 import { Search, RefreshCw, Clock } from "lucide-react";
-import {Badge} from "../ui/badge";
-import {Button} from "../ui/button";
+import {Badge } from "../ui/badge";
+import {Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 
 export default function QuizPage() {
@@ -25,12 +25,12 @@ export default function QuizPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Derive distinct level and category lists for filters
-  const distinctLevels = useMemo(
-    () => [...new Set(quizzes.map(q => q.level).filter(Boolean))],
-    [quizzes]
-  );
+  // Derive level list (always show three options) and dynamic category list for filters
+  const distinctLevels = ['Beginner', 'Intermediate', 'Advanced'];
   const distinctCategories = useMemo(
+    () => [...new Set(quizzes.map((q) => q.category?.name).filter(Boolean))],
+    [quizzes]
+  );(
     () => [...new Set(quizzes.map(q => q.category?.name).filter(Boolean))],
     [quizzes]
   );
