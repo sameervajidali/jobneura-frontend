@@ -23,7 +23,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     // Fetch quizzes
-    API.get("/quizzes")
+   API.get("/quizzes?perPage=1000") 
       .then(({ data }) => setQuizzes(data.quizzes || []))
       .catch(() => setError("Could not load quizzes."))
       .finally(() => setLoading(false));
