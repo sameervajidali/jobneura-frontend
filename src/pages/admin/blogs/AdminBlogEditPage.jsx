@@ -4,12 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import AdminBlogPreviewModal from './components/AdminBlogPreviewModal'; // Adjust path if needed
+import AdminBlogPreviewModal from './components/AdminBlogPreviewModal';
 import { useParams, useNavigate } from 'react-router-dom';
 
-
 import {
-  fetchBlogCategories, getBlogById, createBlog, updateBlog
+  fetchBlogCategories,
+  getBlogById,
+  createBlog,
+  updateBlog,
 } from '../../../services/blogService';
 
 const blogSchema = z.object({
@@ -22,15 +24,16 @@ const blogSchema = z.object({
   metaKeywords: z.string().optional(),
 });
 
-export default function AdminBlogEditPage({ blogId }) {
- 
-const navigate = useNavigate();
+export default function AdminBlogEditPage() {
+  const { blogId } = useParams();
+  const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [isPreviewOpen, setPreviewOpen] = useState(false);
-  const [featuredImage, setFeaturedImage] = useState(null); // for image preview or upload
+  const [featuredImage, setFeaturedImage] = useState(null);
+  const [featuredImageFile, setFeaturedImageFile] = useState(null);
 
   const {
     register,
@@ -52,17 +55,15 @@ const navigate = useNavigate();
     },
   });
 
-  // Prepare blog data for preview modal, watching form fields live
   const blogForPreview = {
     title: watch('title'),
-    authorName: 'You', // Replace with actual author if available
+    authorName: 'You',
     publishedAt: watch('status') === 'Published' ? new Date().toISOString() : null,
     content: watch('content') || '',
     featuredImage,
   };
 
   useEffect(() => {
-     console.log('Fetching blog categories and blog details for id:', blogId);
     fetchBlogCategories()
       .then(data => {
         if (Array.isArray(data)) setCategories(data);
@@ -91,38 +92,45 @@ const navigate = useNavigate();
     }
   }, [blogId, reset]);
 
-  const onSubmit = async (formData) => {
+  useEffect(() => {
+    return () => {
+      if (featuredImage) URL.revokeObjectURL(featuredImage);
+    };
+  }, [featuredImage]);
+
+  const onSubmit = async formData => {
     try {
-      // TODO: handle uploading the featured image if changed before submitting form data
+      // TODO: handle file upload and set formData.featuredImage URL
 
       if (blogId) {
         await updateBlog(blogId, formData);
         alert('Blog updated successfully');
       } else {
-        await createBlog(formData);
+        const data = await createBlog(formData);
         alert('Blog created successfully');
+        navigate(`/admin/blogs/${data._id}`);
+        return;
       }
-      navigate('/admin/blogs');  // Redirect after success
-    } catch (error) {
+      navigate('/admin/blogs');
+    } catch {
       alert('Failed to save blog');
     }
   };
 
-  // Image upload handler (simple preview)
-  const handleImageChange = (e) => {
+  const handleImageChange = e => {
     const file = e.target.files[0];
     if (file) {
       setFeaturedImage(URL.createObjectURL(file));
-      // TODO: You should store the file to send to backend during submit
+      setFeaturedImageFile(file);
     }
   };
 
-  if (loading) return <p>Loading blog data...</p>;
+  if (loading) return <div className="text-center py-10">Loading blog data...</div>;
   if (loadError) return <p className="text-red-600">{loadError}</p>;
 
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 bg-white rounded shadow space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded shadow space-y-6">
         <h1 className="text-2xl font-bold">{blogId ? 'Edit Blog' : 'Add New Blog'}</h1>
 
         <div>
@@ -130,11 +138,13 @@ const navigate = useNavigate();
           <input
             id="title"
             {...register('title')}
+            aria-invalid={errors.title ? 'true' : 'false'}
             className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
             type="text"
             placeholder="Enter blog title"
+            aria-describedby="title-error"
           />
-          {errors.title && <p className="text-red-600 mt-1">{errors.title.message}</p>}
+          {errors.title && <p id="title-error" className="text-red-600 mt-1">{errors.title.message}</p>}
         </div>
 
         <div>
@@ -142,19 +152,22 @@ const navigate = useNavigate();
           <select
             id="category"
             {...register('category')}
+            aria-invalid={errors.category ? 'true' : 'false'}
             className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
+            aria-describedby="category-error"
           >
             <option value="">Select category</option>
-            {Array.isArray(categories) && categories.map(cat => (
+            {categories.map(cat => (
               <option key={cat._id} value={cat._id}>{cat.name}</option>
             ))}
           </select>
-          {errors.category && <p className="text-red-600 mt-1">{errors.category.message}</p>}
+          {errors.category && <p id="category-error" className="text-red-600 mt-1">{errors.category.message}</p>}
         </div>
 
         <div>
-          <label className="block font-semibold mb-1">Status</label>
+          <label htmlFor="status" className="block font-semibold mb-1">Status</label>
           <select
+            id="status"
             {...register('status')}
             className="w-full border px-3 py-2 rounded focus:outline-none"
           >
@@ -180,7 +193,6 @@ const navigate = useNavigate();
           {errors.content && <p className="text-red-600 mt-1">{errors.content.message}</p>}
         </div>
 
-        {/* Image upload */}
         <div>
           <label className="block font-semibold mb-1">Featured Image</label>
           {featuredImage && (
@@ -195,11 +207,11 @@ const navigate = useNavigate();
             accept="image/*"
             onChange={handleImageChange}
             className="block w-full text-sm text-gray-500
-                       file:mr-4 file:py-2 file:px-4
-                       file:rounded file:border-0
-                       file:text-sm file:font-semibold
-                       file:bg-indigo-50 file:text-indigo-700
-                       hover:file:bg-indigo-100"
+              file:mr-4 file:py-2 file:px-4
+              file:rounded file:border-0
+              file:text-sm file:font-semibold
+              file:bg-indigo-50 file:text-indigo-700
+              hover:file:bg-indigo-100"
           />
         </div>
 
@@ -267,168 +279,3 @@ const navigate = useNavigate();
     </>
   );
 }
-
-
-// import React, { useEffect, useState } from 'react';
-// import { useParams, useNavigate } from 'react-router-dom';
-// import { useForm, Controller } from 'react-hook-form';
-// import { zodResolver } from '@hookform/resolvers/zod';
-// import * as z from 'zod';
-// import ReactQuill from 'react-quill';
-// import 'react-quill/dist/quill.snow.css';
-
-// import { fetchBlogCategories, getBlogById, createBlog, updateBlog } from '../../../services/blogService';
-
-// const blogSchema = z.object({
-//   title: z.string().min(5, 'Title is required'),
-//   category: z.string().min(1, 'Category is required'),
-//   status: z.enum(['Draft', 'Published']),
-//   content: z.string().min(10, 'Content is required'),
-//   metaTitle: z.string().optional(),
-//   metaDescription: z.string().optional(),
-//   metaKeywords: z.string().optional(),
-// });
-
-// export default function AdminBlogEditPage() {
-//   const { blogId } = useParams();
-//   const navigate = useNavigate();
-
-//   const [categories, setCategories] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [loadError, setLoadError] = useState(null);
-
-//   const {
-//     register,
-//     handleSubmit,
-//     control,
-//     reset,
-//     watch,
-//     formState: { errors, isSubmitting },
-//   } = useForm({
-//     resolver: zodResolver(blogSchema),
-//     defaultValues: {
-//       title: '',
-//       category: '',
-//       status: 'Draft',
-//       content: '',
-//       metaTitle: '',
-//       metaDescription: '',
-//       metaKeywords: '',
-//     },
-//   });
-
-//   useEffect(() => {
-//     fetchBlogCategories()
-//       .then(data => {
-//         if (Array.isArray(data)) setCategories(data);
-//         else if (Array.isArray(data.categories)) setCategories(data.categories);
-//         else setCategories([]);
-//       })
-//       .catch(() => setCategories([]));
-
-//     if (blogId) {
-//       setLoading(true);
-//       getBlogById(blogId)
-//         .then(data => {
-//           reset({
-//             title: data.title,
-//             category: data.category?._id || '',
-//             status: data.status,
-//             content: data.content,
-//             metaTitle: data.metaTitle || '',
-//             metaDescription: data.metaDescription || '',
-//             metaKeywords: data.metaKeywords || '',
-//           });
-//         })
-//         .catch(() => setLoadError('Failed to load blog'))
-//         .finally(() => setLoading(false));
-//     }
-//   }, [blogId, reset]);
-
-//   const onSubmit = async (formData) => {
-//     try {
-//       if (blogId) {
-//         await updateBlog(blogId, formData);
-//         alert('Blog updated successfully');
-//       } else {
-//         await createBlog(formData);
-//         alert('Blog created successfully');
-//       }
-//       navigate('/admin/blogs');
-//     } catch {
-//       alert('Failed to save blog');
-//     }
-//   };
-
-//   if (loading) return <p>Loading blog data...</p>;
-//   if (loadError) return <p className="text-red-600">{loadError}</p>;
-
-//   return (
-//     <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-6 bg-white rounded shadow space-y-6">
-//       <h1 className="text-2xl font-bold">{blogId ? 'Edit Blog' : 'Add New Blog'}</h1>
-
-//       <div>
-//         <label htmlFor="title" className="block font-semibold mb-1">Title</label>
-//         <input
-//           id="title"
-//           {...register('title')}
-//           className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-//           type="text"
-//           placeholder="Enter blog title"
-//         />
-//         {errors.title && <p className="text-red-600 mt-1">{errors.title.message}</p>}
-//       </div>
-
-//       <div>
-//         <label htmlFor="category" className="block font-semibold mb-1">Category</label>
-//         <select
-//           id="category"
-//           {...register('category')}
-//           className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
-//         >
-//           <option value="">Select category</option>
-//           {categories.map(cat => (
-//             <option key={cat._id} value={cat._id}>{cat.name}</option>
-//           ))}
-//         </select>
-//         {errors.category && <p className="text-red-600 mt-1">{errors.category.message}</p>}
-//       </div>
-
-//       <div>
-//         <label className="block font-semibold mb-1">Status</label>
-//         <select
-//           {...register('status')}
-//           className="w-full border px-3 py-2 rounded focus:outline-none"
-//         >
-//           <option value="Draft">Draft</option>
-//           <option value="Published">Published</option>
-//         </select>
-//       </div>
-
-//       <div>
-//         <label className="block font-semibold mb-1">Content</label>
-//         <Controller
-//           control={control}
-//           name="content"
-//           render={({ field }) => (
-//             <ReactQuill
-//               {...field}
-//               theme="snow"
-//               placeholder="Write your blog content here..."
-//               className={`${errors.content ? 'border-red-500' : ''}`}
-//             />
-//           )}
-//         />
-//         {errors.content && <p className="text-red-600 mt-1">{errors.content.message}</p>}
-//       </div>
-
-//       <button
-//         type="submit"
-//         disabled={isSubmitting}
-//         className="bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700 disabled:opacity-50"
-//       >
-//         {blogId ? 'Update Blog' : 'Create Blog'}
-//       </button>
-//     </form>
-//   );
-// }
