@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchBlogs, fetchCategories, updateBlogStatus, deleteBlogs } from '../../../services/blogService'; // Adjust service paths
+import { fetchBlogs, fetchBlogCategories, updateBlogStatus, deleteBlogs } from '../../../services/blogService'; // Adjust service paths
 import BlogCategoryFilter from './components/BlogCategoryFilter';
 import BlogStatusFilter from './components/BlogStatusFilter';
 import BlogSearchInput from './components/BlogSearchInput';
