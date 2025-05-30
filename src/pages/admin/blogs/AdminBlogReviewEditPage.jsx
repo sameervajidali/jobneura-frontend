@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import {
+  fetchBlogCategories,
   getBlogById,
   updateBlog,
   updateBlogStatus,
-  fetchBlogCategories,
 } from '../../../services/blogService';
 
 const blogSchema = z.object({
@@ -55,52 +55,47 @@ export default function AdminBlogReviewEditPage() {
   const watchStatus = watch('status');
   const watchContent = watch('content');
 
-  // Load categories and blog data on mount or blogId change
- useEffect(() => {
-  async function fetchData() {
-    try {
-      const cats = await fetchBlogCategories();
-      setCategories(Array.isArray(cats) ? cats : []);
-      const blog = await getBlogById(blogId);
-      console.log('Blog category id:', blog.category?._id);
-      console.log('Categories:', cats);
-      reset({
-        title: blog.title,
-        category: blog.category?._id || '',
-        status: blog.status,
-        content: blog.content,
-        metaTitle: blog.metaTitle || '',
-        metaDescription: blog.metaDescription || '',
-        metaKeywords: blog.metaKeywords || '',
-      });
-    } catch {
-      setError('Failed to load blog or categories');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const cats = await fetchBlogCategories();
+        setCategories(Array.isArray(cats) ? cats : []);
+
+        const blog = await getBlogById(blogId);
+        reset({
+          title: blog.title,
+          category: blog.category?._id || '',
+          status: blog.status,
+          content: blog.content,
+          metaTitle: blog.metaTitle || '',
+          metaDescription: blog.metaDescription || '',
+          metaKeywords: blog.metaKeywords || '',
+        });
+      } catch {
+        setError('Failed to load blog or categories');
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-  fetchData();
-}, [blogId, reset]);
+    fetchData();
+  }, [blogId, reset]);
 
-
-  // Save form changes to backend on submit
   const onSubmit = async (data) => {
     try {
       await updateBlog(blogId, data);
       alert('Blog details saved successfully.');
-      reset(data); // Reset form dirty state
+      reset(data);
     } catch {
       alert('Failed to save blog');
     }
   };
 
-  // Publish or revert blog status
   const changeStatus = async (newStatus) => {
     setUpdatingStatus(true);
     try {
       await updateBlogStatus(blogId, newStatus);
       alert(`Blog status changed to ${newStatus}`);
-      reset({ ...watch(), status: newStatus }); // reset form with updated status
+      reset({ ...watch(), status: newStatus });
     } catch {
       alert('Failed to change status');
     } finally {
@@ -115,7 +110,6 @@ export default function AdminBlogReviewEditPage() {
     <div className="max-w-5xl mx-auto p-6 bg-white rounded shadow space-y-8">
       <h1 className="text-3xl font-bold mb-4">Review & Edit Blog</h1>
 
-      {/* Blog Info Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
           <label className="block font-semibold mb-1" htmlFor="title">Title</label>
@@ -165,7 +159,7 @@ export default function AdminBlogReviewEditPage() {
                 {...field}
                 theme="snow"
                 placeholder="Write your blog content here..."
-                className={` ${errors.content ? 'border-red-500' : ''}`}
+                className={`${errors.content ? 'border-red-500' : ''}`}
               />
             )}
           />
@@ -216,7 +210,6 @@ export default function AdminBlogReviewEditPage() {
         </button>
       </form>
 
-      {/* Preview Panel */}
       <div className="border border-gray-300 rounded p-6 mt-8">
         <h2 className="text-xl font-semibold mb-4">Live Preview</h2>
         <article
@@ -225,13 +218,11 @@ export default function AdminBlogReviewEditPage() {
         />
       </div>
 
-      {/* Action Buttons */}
       <div className="flex space-x-4 mt-6">
         <button
           onClick={() => changeStatus('Published')}
           disabled={updatingStatus || watchStatus === 'Published'}
           className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 disabled:opacity-50"
-          type="button"
         >
           Publish
         </button>
@@ -239,7 +230,6 @@ export default function AdminBlogReviewEditPage() {
           onClick={() => changeStatus('Draft')}
           disabled={updatingStatus || watchStatus === 'Draft'}
           className="bg-yellow-500 text-white px-6 py-3 rounded hover:bg-yellow-600 disabled:opacity-50"
-          type="button"
         >
           Send Back to Draft
         </button>
