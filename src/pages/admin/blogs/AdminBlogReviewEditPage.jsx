@@ -55,32 +55,34 @@ export default function AdminBlogReviewEditPage() {
   const watchStatus = watch("status");
   const watchContent = watch("content");
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const cats = await fetchBlogCategories();
-        setCategories(Array.isArray(cats) ? cats : []);
-
-        const blog = await getBlogById(blogId);
-
-        // Explicitly convert category IDs to string to avoid mismatch
-        reset({
-          title: blog.title,
-          category: blog.category?._id?.toString() || "",
-          status: blog.status,
-          content: blog.content,
-          metaTitle: blog.metaTitle || "",
-          metaDescription: blog.metaDescription || "",
-          metaKeywords: blog.metaKeywords || "",
-        });
-      } catch {
-        setError("Failed to load blog or categories");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [blogId, reset]);
+ useEffect(() => {
+     fetchBlogCategories()
+       .then(data => {
+         if (Array.isArray(data)) setCategories(data);
+         else if (Array.isArray(data.categories)) setCategories(data.categories);
+         else setCategories([]);
+       })
+       .catch(() => setCategories([]));
+ 
+     if (blogId) {
+       setLoading(true);
+       getBlogById(blogId)
+         .then(data => {
+           reset({
+             title: data.title,
+             category: data.category?._id || '',
+             status: data.status,
+             content: data.content,
+             metaTitle: data.metaTitle || '',
+             metaDescription: data.metaDescription || '',
+             metaKeywords: data.metaKeywords || '',
+           });
+           setFeaturedImage(data.featuredImage || null);
+         })
+         .catch(() => setLoadError('Failed to load blog'))
+         .finally(() => setLoading(false));
+     }
+   }, [blogId, reset]);
 
   const onSubmit = async (data) => {
     try {
