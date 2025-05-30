@@ -1,11 +1,10 @@
 import React from 'react';
 
-export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted, onEdit }) {
+export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted, onEdit, onPreview }) {
   const { _id, title, authorName, categoryName, status, createdAt } = blog;
 
   const formattedDate = new Date(createdAt).toLocaleDateString();
 
-  // Confirm delete action before invoking callback
   const handleDelete = () => {
     if (window.confirm(`Delete blog "${title}"? This action cannot be undone.`)) {
       onDeleted(_id);
@@ -43,7 +42,7 @@ export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted
         <button
           type="button"
           title="Edit blog"
-          onClick={onEdit}
+          onClick={onEdit} // Expect this to be a function passed from parent handling react-router navigation
           className="text-indigo-600 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded"
           aria-label={`Edit blog titled ${title}`}
         >
@@ -65,7 +64,7 @@ export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted
         <button
           type="button"
           title="Preview blog"
-          onClick={() => window.open(`/blogs/${_id}`, '_blank', 'noopener,noreferrer')}
+          onClick={onPreview} // Expect this to be a function passed from parent, e.g. opening preview in new tab
           className="text-green-600 hover:text-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
           aria-label={`Preview blog titled ${title}`}
         >

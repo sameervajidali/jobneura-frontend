@@ -127,7 +127,8 @@ export default function AdminBlogListPage() {
                 isSelected={selectedBlogs.has(blog._id)}
                 toggleSelect={() => {/* toggle logic here */}}
                 onDeleted={() => setPage(1)} // refresh list on delete
-                onEdit={() => navigate(`/admin/blogs/${blog._id}`)}  // pass navigate callback here
+                 onEdit={() => navigate(`/admin/blogs/${blog._id}`)}   // react-router navigation
+                 onPreview={() => window.open(`/admin/blogs/review/${blog._id}`, '_blank')} // admin preview page
               />
             ))
           )}
