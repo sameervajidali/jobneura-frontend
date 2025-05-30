@@ -8,6 +8,7 @@ export default function BlogCategoryFilter({ categories = [], value, onChange })
       </label>
       <select
         id="category-filter"
+        aria-label="Filter blogs by category"
         className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         value={value}
         onChange={e => onChange(e.target.value)}
