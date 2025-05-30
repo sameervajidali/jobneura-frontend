@@ -40,7 +40,7 @@ export function deleteBlog(blogId) {
 // 📂 Fetch categories filtered for blogs
 // GET /api/categories?type=blog (adjust endpoint as per backend)
 export function fetchBlogCategories() {
-  return API.get('/categories', { params: { type: 'blog' } }).then(res => res.data);
+  return API.get('/admin/categories', { params: { type: 'blog' } }).then(res => res.data);
 }
 
 // ──────────────────────────────────────────────
