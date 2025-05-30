@@ -25,6 +25,7 @@ export default function AdminBlogEditPage({ blogId }) {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [isPreviewOpen, setPreviewOpen] = useState(false);
+  const [featuredImage, setFeaturedImage] = useState(null); // for image preview or upload
 
   const {
     register,
@@ -52,11 +53,17 @@ export default function AdminBlogEditPage({ blogId }) {
     authorName: 'You', // Replace with actual author if available
     publishedAt: watch('status') === 'Published' ? new Date().toISOString() : null,
     content: watch('content') || '',
+    featuredImage,
   };
 
   useEffect(() => {
     fetchBlogCategories()
-      .then(setCategories)
+      .then(data => {
+        // Defensive: if data is wrapped inside object or is array
+        if (Array.isArray(data)) setCategories(data);
+        else if (Array.isArray(data.categories)) setCategories(data.categories);
+        else setCategories([]);
+      })
       .catch(() => setCategories([]));
 
     if (blogId) {
@@ -65,13 +72,14 @@ export default function AdminBlogEditPage({ blogId }) {
         .then(data => {
           reset({
             title: data.title,
-            category: data.category._id,
+            category: data.category?._id || '',
             status: data.status,
             content: data.content,
             metaTitle: data.metaTitle || '',
             metaDescription: data.metaDescription || '',
             metaKeywords: data.metaKeywords || '',
           });
+          setFeaturedImage(data.featuredImage || null);
         })
         .catch(() => setLoadError('Failed to load blog'))
         .finally(() => setLoading(false));
@@ -80,6 +88,8 @@ export default function AdminBlogEditPage({ blogId }) {
 
   const onSubmit = async (formData) => {
     try {
+      // TODO: handle uploading the featured image if changed before submitting form data
+
       if (blogId) {
         await updateBlog(blogId, formData);
         alert('Blog updated successfully');
@@ -90,6 +100,15 @@ export default function AdminBlogEditPage({ blogId }) {
       // Optionally redirect or reset form here
     } catch (error) {
       alert('Failed to save blog');
+    }
+  };
+
+  // Image upload handler (simple preview)
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFeaturedImage(URL.createObjectURL(file));
+      // Ideally, you should also save the file to send to backend during submit
     }
   };
 
@@ -121,7 +140,7 @@ export default function AdminBlogEditPage({ blogId }) {
             className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
           >
             <option value="">Select category</option>
-            {categories.map(cat => (
+            {Array.isArray(categories) && categories.map(cat => (
               <option key={cat._id} value={cat._id}>{cat.name}</option>
             ))}
           </select>
@@ -154,6 +173,29 @@ export default function AdminBlogEditPage({ blogId }) {
             )}
           />
           {errors.content && <p className="text-red-600 mt-1">{errors.content.message}</p>}
+        </div>
+
+        {/* Image upload */}
+        <div>
+          <label className="block font-semibold mb-1">Featured Image</label>
+          {featuredImage && (
+            <img
+              src={featuredImage}
+              alt="Featured preview"
+              className="mb-2 max-h-48 object-cover rounded"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="block w-full text-sm text-gray-500
+                       file:mr-4 file:py-2 file:px-4
+                       file:rounded file:border-0
+                       file:text-sm file:font-semibold
+                       file:bg-indigo-50 file:text-indigo-700
+                       hover:file:bg-indigo-100"
+          />
         </div>
 
         <fieldset className="border border-gray-300 rounded p-4">
@@ -192,8 +234,6 @@ export default function AdminBlogEditPage({ blogId }) {
             />
           </div>
         </fieldset>
-
-        {/* TODO: Add image upload field */}
 
         <div className="flex space-x-4">
           <button
