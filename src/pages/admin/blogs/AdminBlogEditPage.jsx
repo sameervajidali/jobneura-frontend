@@ -23,7 +23,7 @@ const blogSchema = z.object({
 });
 
 export default function AdminBlogEditPage({ blogId }) {
-  const { blogId } = useParams();
+ 
 const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
