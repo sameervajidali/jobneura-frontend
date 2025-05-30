@@ -68,21 +68,21 @@ export default function AdminReportsPage() {
   const [alertSaving, setAlertSaving] = useState(false);
 
   // Fetch DAU data with date range
-  useEffect(() => {
-    async function loadDAU() {
-      setDauLoading(true);
-      setDauError(null);
-      try {
-        const data = await getDAUReport(dateRange.from, dateRange.to);
-        setDauData(data);
-      } catch (err) {
-        setDauError('Failed to load usage data');
-      } finally {
-        setDauLoading(false);
-      }
+useEffect(() => {
+  async function loadDAU() {
+    setDauLoading(true);
+    setDauError(null);
+    try {
+      const data = await getDAUReport({ from: dateRange.from, to: dateRange.to });
+      setDauData(data);
+    } catch (err) {
+      setDauError('Failed to load usage data');
+    } finally {
+      setDauLoading(false);
     }
-    loadDAU();
-  }, [dateRange]);
+  }
+  loadDAU();
+}, [dateRange]);
 
   // Fetch category engagement
   useEffect(() => {
