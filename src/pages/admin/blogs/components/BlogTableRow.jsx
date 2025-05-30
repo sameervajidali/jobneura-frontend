@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useNavigate } from 'react-router-dom';
 export default function BlogTableRow({
   blog,
   isSelected,
@@ -58,13 +58,7 @@ export default function BlogTableRow({
           type="button"
           title="Preview blog"
           className="text-green-600 hover:underline cursor-pointer"
-          onClick={() =>
-            window.open(
-              `/admin/blogs/review/${_id}`,
-              "_blank",
-              "noopener,noreferrer"
-            )
-          }
+          onClick={() => navigate(`/admin/blogs/review/${_id}`)}
         >
           👁️
         </button>

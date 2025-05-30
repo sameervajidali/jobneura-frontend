@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -22,7 +23,10 @@ const blogSchema = z.object({
   metaKeywords: z.string().optional(),
 });
 
-export default function AdminBlogReviewEditPage({ blogId, navigateBack }) {
+export default function AdminBlogReviewEditPage() {
+  const { blogId } = useParams();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
@@ -34,7 +38,7 @@ export default function AdminBlogReviewEditPage({ blogId, navigateBack }) {
     control,
     reset,
     watch,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(blogSchema),
     defaultValues: {
@@ -51,7 +55,7 @@ export default function AdminBlogReviewEditPage({ blogId, navigateBack }) {
   const watchStatus = watch('status');
   const watchContent = watch('content');
 
-  // Load categories and blog data
+  // Load categories and blog data on mount or blogId change
   useEffect(() => {
     async function fetchData() {
       try {
@@ -82,8 +86,7 @@ export default function AdminBlogReviewEditPage({ blogId, navigateBack }) {
     try {
       await updateBlog(blogId, data);
       alert('Blog details saved successfully.');
-      // Optionally reset dirty state:
-      reset(data);
+      reset(data); // Reset form dirty state
     } catch {
       alert('Failed to save blog');
     }
@@ -216,7 +219,7 @@ export default function AdminBlogReviewEditPage({ blogId, navigateBack }) {
         <h2 className="text-xl font-semibold mb-4">Live Preview</h2>
         <article
           className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: watch('content') }}
+          dangerouslySetInnerHTML={{ __html: watchContent }}
         />
       </div>
 
@@ -226,6 +229,7 @@ export default function AdminBlogReviewEditPage({ blogId, navigateBack }) {
           onClick={() => changeStatus('Published')}
           disabled={updatingStatus || watchStatus === 'Published'}
           className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 disabled:opacity-50"
+          type="button"
         >
           Publish
         </button>
@@ -233,6 +237,7 @@ export default function AdminBlogReviewEditPage({ blogId, navigateBack }) {
           onClick={() => changeStatus('Draft')}
           disabled={updatingStatus || watchStatus === 'Draft'}
           className="bg-yellow-500 text-white px-6 py-3 rounded hover:bg-yellow-600 disabled:opacity-50"
+          type="button"
         >
           Send Back to Draft
         </button>
