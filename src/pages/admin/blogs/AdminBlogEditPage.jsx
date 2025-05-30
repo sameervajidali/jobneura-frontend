@@ -5,7 +5,8 @@ import * as z from 'zod';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import AdminBlogPreviewModal from './components/AdminBlogPreviewModal'; // Adjust path if needed
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+
 
 import {
   fetchBlogCategories, getBlogById, createBlog, updateBlog
@@ -22,7 +23,8 @@ const blogSchema = z.object({
 });
 
 export default function AdminBlogEditPage({ blogId }) {
-  const navigate = useNavigate();
+  const { blogId } = useParams();
+const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -60,6 +62,7 @@ export default function AdminBlogEditPage({ blogId }) {
   };
 
   useEffect(() => {
+     console.log('Fetching blog categories and blog details for id:', blogId);
     fetchBlogCategories()
       .then(data => {
         if (Array.isArray(data)) setCategories(data);
