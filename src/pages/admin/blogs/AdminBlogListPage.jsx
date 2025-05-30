@@ -30,6 +30,13 @@ export default function AdminBlogListPage() {
   // Categories for dropdown filter
   const [categories, setCategories] = useState([]);
 
+  const transformedBlogs = blogs.map(blog => ({
+  ...blog,
+  authorName: blog.author?.name || 'Unknown',
+  categoryName: blog.category?.name || 'N/A',
+  categoryId: blog.category?._id?.toString() || '',  // for any future use
+}));
+
   // Fetch categories once on mount
   useEffect(() => {
     fetchBlogCategories()

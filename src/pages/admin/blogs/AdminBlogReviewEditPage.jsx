@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { useParams, useNavigate } from "react-router-dom";
 
 import {
   fetchBlogCategories,
   getBlogById,
   updateBlog,
   updateBlogStatus,
-} from '../../../services/blogService';
+} from "../../../services/blogService";
 
 const blogSchema = z.object({
-  title: z.string().min(5, 'Title is required'),
-  category: z.string().min(1, 'Category is required'),
-  status: z.enum(['Draft', 'Published']),
-  content: z.string().min(10, 'Content is required'),
+  title: z.string().min(5, "Title is required"),
+  category: z.string().min(1, "Category is required"),
+  status: z.enum(["Draft", "Published"]),
+  content: z.string().min(10, "Content is required"),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.string().optional(),
@@ -42,18 +42,18 @@ export default function AdminBlogReviewEditPage() {
   } = useForm({
     resolver: zodResolver(blogSchema),
     defaultValues: {
-      title: '',
-      category: '',
-      status: 'Draft',
-      content: '',
-      metaTitle: '',
-      metaDescription: '',
-      metaKeywords: '',
+      title: "",
+      category: "",
+      status: "Draft",
+      content: "",
+      metaTitle: "",
+      metaDescription: "",
+      metaKeywords: "",
     },
   });
 
-  const watchStatus = watch('status');
-  const watchContent = watch('content');
+  const watchStatus = watch("status");
+  const watchContent = watch("content");
 
   useEffect(() => {
     async function fetchData() {
@@ -62,17 +62,19 @@ export default function AdminBlogReviewEditPage() {
         setCategories(Array.isArray(cats) ? cats : []);
 
         const blog = await getBlogById(blogId);
+
+        // Explicitly convert category IDs to string to avoid mismatch
         reset({
           title: blog.title,
-          category: blog.category?._id || '',
+          category: blog.category?._id?.toString() || "",
           status: blog.status,
           content: blog.content,
-          metaTitle: blog.metaTitle || '',
-          metaDescription: blog.metaDescription || '',
-          metaKeywords: blog.metaKeywords || '',
+          metaTitle: blog.metaTitle || "",
+          metaDescription: blog.metaDescription || "",
+          metaKeywords: blog.metaKeywords || "",
         });
       } catch {
-        setError('Failed to load blog or categories');
+        setError("Failed to load blog or categories");
       } finally {
         setLoading(false);
       }
@@ -83,10 +85,10 @@ export default function AdminBlogReviewEditPage() {
   const onSubmit = async (data) => {
     try {
       await updateBlog(blogId, data);
-      alert('Blog details saved successfully.');
+      alert("Blog details saved successfully.");
       reset(data);
     } catch {
-      alert('Failed to save blog');
+      alert("Failed to save blog");
     }
   };
 
@@ -97,7 +99,7 @@ export default function AdminBlogReviewEditPage() {
       alert(`Blog status changed to ${newStatus}`);
       reset({ ...watch(), status: newStatus });
     } catch {
-      alert('Failed to change status');
+      alert("Failed to change status");
     } finally {
       setUpdatingStatus(false);
     }
@@ -112,36 +114,54 @@ export default function AdminBlogReviewEditPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label className="block font-semibold mb-1" htmlFor="title">Title</label>
+          <label className="block font-semibold mb-1" htmlFor="title">
+            Title
+          </label>
           <input
             id="title"
-            {...register('title')}
-            className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+            {...register("title")}
+            className={`w-full border px-3 py-2 rounded focus:outline-none ${
+              errors.title ? "border-red-500" : "border-gray-300"
+            }`}
             placeholder="Enter blog title"
           />
-          {errors.title && <p className="text-red-600 mt-1">{errors.title.message}</p>}
+          {errors.title && (
+            <p className="text-red-600 mt-1">{errors.title.message}</p>
+          )}
         </div>
 
         <div>
-          <label className="block font-semibold mb-1" htmlFor="category">Category</label>
+          <label className="block font-semibold mb-1" htmlFor="category">
+            Category
+          </label>
           <select
             id="category"
-            {...register('category')}
-            className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
+            {...register("category")}
+            className={`w-full border px-3 py-2 rounded focus:outline-none ${
+              errors.category ? "border-red-500" : "border-gray-300"
+            }`}
+            value={watch("category") || ""}
           >
             <option value="">Select category</option>
-            {categories.map(cat => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id.toString()}>
+                {cat.name}
+              </option>
             ))}
           </select>
-          {errors.category && <p className="text-red-600 mt-1">{errors.category.message}</p>}
+
+          {errors.category && (
+            <p className="text-red-600 mt-1">{errors.category.message}</p>
+          )}
         </div>
 
         <div>
-          <label className="block font-semibold mb-1" htmlFor="status">Status</label>
+          <label className="block font-semibold mb-1" htmlFor="status">
+            Status
+          </label>
           <select
             id="status"
-            {...register('status')}
+            {...register("status")}
             className="w-full border px-3 py-2 rounded focus:outline-none"
           >
             <option value="Draft">Draft</option>
@@ -159,31 +179,39 @@ export default function AdminBlogReviewEditPage() {
                 {...field}
                 theme="snow"
                 placeholder="Write your blog content here..."
-                className={`${errors.content ? 'border-red-500' : ''}`}
+                className={`${errors.content ? "border-red-500" : ""}`}
               />
             )}
           />
-          {errors.content && <p className="text-red-600 mt-1">{errors.content.message}</p>}
+          {errors.content && (
+            <p className="text-red-600 mt-1">{errors.content.message}</p>
+          )}
         </div>
 
         <fieldset className="border border-gray-300 rounded p-4">
-          <legend className="font-semibold mb-2">SEO Metadata (optional)</legend>
+          <legend className="font-semibold mb-2">
+            SEO Metadata (optional)
+          </legend>
 
           <div className="mb-4">
-            <label htmlFor="metaTitle" className="block mb-1">Meta Title</label>
+            <label htmlFor="metaTitle" className="block mb-1">
+              Meta Title
+            </label>
             <input
               id="metaTitle"
-              {...register('metaTitle')}
+              {...register("metaTitle")}
               className="w-full border px-3 py-2 rounded focus:outline-none border-gray-300"
               placeholder="SEO title"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="metaDescription" className="block mb-1">Meta Description</label>
+            <label htmlFor="metaDescription" className="block mb-1">
+              Meta Description
+            </label>
             <textarea
               id="metaDescription"
-              {...register('metaDescription')}
+              {...register("metaDescription")}
               className="w-full border px-3 py-2 rounded focus:outline-none border-gray-300"
               placeholder="SEO description"
               rows={3}
@@ -191,10 +219,12 @@ export default function AdminBlogReviewEditPage() {
           </div>
 
           <div>
-            <label htmlFor="metaKeywords" className="block mb-1">Meta Keywords</label>
+            <label htmlFor="metaKeywords" className="block mb-1">
+              Meta Keywords
+            </label>
             <input
               id="metaKeywords"
-              {...register('metaKeywords')}
+              {...register("metaKeywords")}
               className="w-full border px-3 py-2 rounded focus:outline-none border-gray-300"
               placeholder="Comma-separated keywords"
             />
@@ -220,15 +250,15 @@ export default function AdminBlogReviewEditPage() {
 
       <div className="flex space-x-4 mt-6">
         <button
-          onClick={() => changeStatus('Published')}
-          disabled={updatingStatus || watchStatus === 'Published'}
+          onClick={() => changeStatus("Published")}
+          disabled={updatingStatus || watchStatus === "Published"}
           className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 disabled:opacity-50"
         >
           Publish
         </button>
         <button
-          onClick={() => changeStatus('Draft')}
-          disabled={updatingStatus || watchStatus === 'Draft'}
+          onClick={() => changeStatus("Draft")}
+          disabled={updatingStatus || watchStatus === "Draft"}
           className="bg-yellow-500 text-white px-6 py-3 rounded hover:bg-yellow-600 disabled:opacity-50"
         >
           Send Back to Draft
