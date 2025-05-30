@@ -222,7 +222,7 @@ function LayoutWrapper() {
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
               <Route path="blogs" element={<AdminBlogListPage />} />
               <Route path="blogs/new" element={<AdminBlogEditPage />} />
-              <Route path="blogs/edit/:blogId" element={<AdminBlogEditPage />} />
+              <Route path="blogs/:blogId" element={<AdminBlogEditPage />} />
               <Route path="jobs" element={<AdminJobsPage />} />
               <Route path="seo-manager" element={<SeoManager />} />
               <Route
