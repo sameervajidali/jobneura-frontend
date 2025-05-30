@@ -16,7 +16,7 @@ export default function ProtectedRoute({ allowedRoles = [] }) {
   if (!user) {
     // If trying to access admin, go to /admin/login, else /login
     const isAdminRoute = location.pathname.startsWith("/admin");
-    return <Navigate to={isAdminRoute ? "/admin/login" : "/login"} state={{ from: location }} replace />;
+    return <Navigate to={isAdminRoute ? "/login" : "/login"} state={{ from: location }} replace />;
   }
 
   // Extract role string
