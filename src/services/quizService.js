@@ -759,24 +759,24 @@ export function fetchDailySpotlight() {
 
 export function getDAUReport(params) {
   // params: { from: 'YYYY-MM-DD', to: 'YYYY-MM-DD' }
-  return API.get('/admin/reports/dau', { params }).then(res => res.data);
+  return API.get('/quizzes/admin/reports/dau', { params }).then(res => res.data);
 }
 
 export function getCategoryEngagement() {
-  return API.get('/admin/reports/category-engagement').then(res => res.data);
+  return API.get('/quizzes/admin/reports/category-engagement').then(res => res.data);
 }
 
 export function getExportHistory() {
-  return API.get('/admin/reports/export-history').then(res => res.data);
+  return API.get('/quizzes/admin/reports/export-history').then(res => res.data);
 }
 
 export function getAlerts() {
-  return API.get('/admin/reports/alerts').then(res => res.data);
+  return API.get('/quizzes/admin/reports/alerts').then(res => res.data);
 }
 
 export function saveAlertConfig(payload) {
   // payload: { dauThreshold: number, sendEmail: boolean }
-  return API.post('/admin/reports/alerts', payload).then(res => res.data);
+  return API.post('/quizzes/admin/reports/alerts', payload).then(res => res.data);
 }
 
 // ─────────────────────────────────────────────────────────────
