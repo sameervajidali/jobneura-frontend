@@ -46,6 +46,7 @@ import UserHistoryPage from "./pages/admin/Users/UserHistoryPage";
 import ProfilePage from "./pages/admin/ProfilePage";
 import ChangePasswordPage from "./pages/admin/ChangePasswordPage";
 import BulkUploadQuizzesPage from "./pages/admin/Quiz/BulkUploadQuizzesPage";
+import AdminBlogListPage from "./pages/admin/blogs/AdminBlogListPage";
 
 // Quiz
 import QuizExplorerPage from "./pages/QuizExplorerPage";
@@ -218,6 +219,7 @@ function LayoutWrapper() {
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
+              <Route path="blogs" element={< AdminBlogListPage/>} />
               <Route path="jobs" element={<AdminJobsPage />} />
               <Route path="seo-manager" element={<SeoManager />} />
               <Route
