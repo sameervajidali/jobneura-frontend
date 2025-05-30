@@ -56,30 +56,32 @@ export default function AdminBlogReviewEditPage() {
   const watchContent = watch('content');
 
   // Load categories and blog data on mount or blogId change
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const cats = await fetchBlogCategories();
-        setCategories(Array.isArray(cats) ? cats : []);
-
-        const blog = await getBlogById(blogId);
-        reset({
-          title: blog.title,
-          category: blog.category?._id || '',
-          status: blog.status,
-          content: blog.content,
-          metaTitle: blog.metaTitle || '',
-          metaDescription: blog.metaDescription || '',
-          metaKeywords: blog.metaKeywords || '',
-        });
-      } catch {
-        setError('Failed to load blog or categories');
-      } finally {
-        setLoading(false);
-      }
+ useEffect(() => {
+  async function fetchData() {
+    try {
+      const cats = await fetchBlogCategories();
+      setCategories(Array.isArray(cats) ? cats : []);
+      const blog = await getBlogById(blogId);
+      console.log('Blog category id:', blog.category?._id);
+      console.log('Categories:', cats);
+      reset({
+        title: blog.title,
+        category: blog.category?._id || '',
+        status: blog.status,
+        content: blog.content,
+        metaTitle: blog.metaTitle || '',
+        metaDescription: blog.metaDescription || '',
+        metaKeywords: blog.metaKeywords || '',
+      });
+    } catch {
+      setError('Failed to load blog or categories');
+    } finally {
+      setLoading(false);
     }
-    fetchData();
-  }, [blogId, reset]);
+  }
+  fetchData();
+}, [blogId, reset]);
+
 
   // Save form changes to backend on submit
   const onSubmit = async (data) => {
