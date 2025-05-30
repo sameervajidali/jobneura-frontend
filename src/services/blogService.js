@@ -4,7 +4,7 @@ import API from './axios'; // Axios instance with baseURL set to your backend AP
 // ──────────────────────────────────────────────
 // 📄 Fetch paginated blog list with filters
 // GET /api/blogs?params
-export function getBlogs(params = {}) {
+export function fetchBlogs(params = {}) {
   return API.get('/blogs', { params }).then(res => res.data);
 }
 
