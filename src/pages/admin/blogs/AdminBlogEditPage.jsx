@@ -5,6 +5,7 @@ import * as z from 'zod';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import AdminBlogPreviewModal from './components/AdminBlogPreviewModal'; // Adjust path if needed
+import { useNavigate } from 'react-router-dom';
 
 import {
   fetchBlogCategories, getBlogById, createBlog, updateBlog
@@ -21,6 +22,8 @@ const blogSchema = z.object({
 });
 
 export default function AdminBlogEditPage({ blogId }) {
+  const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(null);
@@ -59,7 +62,6 @@ export default function AdminBlogEditPage({ blogId }) {
   useEffect(() => {
     fetchBlogCategories()
       .then(data => {
-        // Defensive: if data is wrapped inside object or is array
         if (Array.isArray(data)) setCategories(data);
         else if (Array.isArray(data.categories)) setCategories(data.categories);
         else setCategories([]);
@@ -98,7 +100,6 @@ export default function AdminBlogEditPage({ blogId }) {
         alert('Blog created successfully');
       }
       navigate('/admin/blogs');  // Redirect after success
-      // Optionally redirect or reset form here
     } catch (error) {
       alert('Failed to save blog');
     }
@@ -109,7 +110,7 @@ export default function AdminBlogEditPage({ blogId }) {
     const file = e.target.files[0];
     if (file) {
       setFeaturedImage(URL.createObjectURL(file));
-      // Ideally, you should also save the file to send to backend during submit
+      // TODO: You should store the file to send to backend during submit
     }
   };
 
