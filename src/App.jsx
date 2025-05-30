@@ -66,6 +66,7 @@ import TopicForm from "./pages/admin/TopicForm";
 import CategoriesPage from "./pages/admin/CategoriesPage";
 import AdminJobsPage from "./pages/admin/jobs/AdminJobsPage";
 import SeoManager from "./pages/admin/SeoManager";
+import AdminBlogEditPage from "./pages/admin/blogs/AdminBlogEditPage";
 // … import any other admin pages …
 
 import Navbar from "./components/layouts/Navbar";
@@ -219,7 +220,9 @@ function LayoutWrapper() {
               <Route path="quizzes" element={<AdminQuizPanel />} />
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
-              <Route path="blogs" element={< AdminBlogListPage/>} />
+              <Route path="blogs" element={<AdminBlogListPage />} />
+<Route path="blogs/new" element={<AdminBlogEditPage />} />
+<Route path="blogs/edit/:blogId" element={<AdminBlogEditPage />} />
               <Route path="jobs" element={<AdminJobsPage />} />
               <Route path="seo-manager" element={<SeoManager />} />
               <Route

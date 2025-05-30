@@ -110,7 +110,15 @@ export default function AdminBlogListPage() {
 
   return (
     <div className="p-6 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-6">Manage Blogs</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Manage Blogs</h1>
+        <button
+          onClick={() => window.location.href = '/admin/blogs/new'}
+          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+        >
+          + New Blog
+        </button>
+      </div>
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">
         <BlogSearchInput value={searchTerm} onChange={setSearchTerm} />
