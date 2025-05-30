@@ -40,7 +40,6 @@ export function deleteBlog(blogId) {
 // 📂 Fetch categories filtered for blogs
 // GET /api/categories?type=blog (adjust endpoint as per backend)
 export function fetchBlogCategories() {
-  // Assuming your backend supports filter by type on this route
   return API.get('/categories', { params: { type: 'blog' } }).then(res => res.data);
 }
 
@@ -54,10 +53,16 @@ export function unpublishBlog(blogId) {
   return updateBlog(blogId, { status: 'Draft' });
 }
 
+export function updateBlogStatus(blogId, status) {
+  return updateBlog(blogId, { status });
+}
+
+
 // ──────────────────────────────────────────────
 // Export all as default for easy import
 const blogService = {
-  getBlogs,
+  fetchBlogs,
+  updateBlogStatus,
   getBlogById,
   createBlog,
   updateBlog,

@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { fetchBlogs, fetchBlogCategories, updateBlogStatus, deleteBlogs } from '../../../services/blogService'; // Adjust service paths
+import {
+  fetchBlogs,
+  fetchBlogCategories,
+  updateBlogStatus,
+  deleteBlog,
+} from '../../../services/blogService'; // Ensure these exist in blogService.js
+
 import BlogCategoryFilter from './components/BlogCategoryFilter';
 import BlogStatusFilter from './components/BlogStatusFilter';
 import BlogSearchInput from './components/BlogSearchInput';
@@ -8,29 +14,25 @@ import BulkActionsToolbar from './components/BulkActionsToolbar';
 import BlogTableRow from './components/BlogTableRow';
 
 export default function AdminBlogListPage() {
-  // State: blogs list and loading
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Filters and pagination
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const limit = 10;
   const [totalBlogs, setTotalBlogs] = useState(0);
 
-  // Bulk selection
   const [selectedBlogs, setSelectedBlogs] = useState(new Set());
 
-  // Categories for filter dropdown
   const [categories, setCategories] = useState([]);
 
   // Load categories once on mount
   useEffect(() => {
-    fetchCategories()
-      .then(data => setCategories(data))
+    fetchBlogCategories()
+      .then(setCategories)
       .catch(() => setCategories([]));
   }, []);
 
@@ -58,11 +60,11 @@ export default function AdminBlogListPage() {
     loadBlogs();
   }, [page, limit, searchTerm, categoryFilter, statusFilter]);
 
-  // Handlers for bulk actions
+  // Bulk delete blogs (call deleteBlog one by one)
   async function handleBulkDelete() {
     if (selectedBlogs.size === 0) return;
     try {
-      await deleteBlogs(Array.from(selectedBlogs));
+      await Promise.all(Array.from(selectedBlogs).map(id => deleteBlog(id)));
       setSelectedBlogs(new Set());
       setPage(1); // Refresh list
     } catch {
@@ -70,10 +72,15 @@ export default function AdminBlogListPage() {
     }
   }
 
+  // Bulk publish/unpublish blogs
   async function handleBulkPublish(publish = true) {
     if (selectedBlogs.size === 0) return;
     try {
-      await Promise.all(Array.from(selectedBlogs).map(id => updateBlogStatus(id, publish ? 'Published' : 'Draft')));
+      await Promise.all(
+        Array.from(selectedBlogs).map(id =>
+          updateBlogStatus(id, publish ? 'Published' : 'Draft')
+        )
+      );
       setSelectedBlogs(new Set());
       setPage(1); // Refresh list
     } catch {
@@ -81,7 +88,7 @@ export default function AdminBlogListPage() {
     }
   }
 
-  // Select/Deselect blog for bulk
+  // Toggle select for single blog
   function toggleSelectBlog(id) {
     const newSet = new Set(selectedBlogs);
     if (newSet.has(id)) {
@@ -92,7 +99,7 @@ export default function AdminBlogListPage() {
     setSelectedBlogs(newSet);
   }
 
-  // Select/Deselect all in current page
+  // Toggle select all blogs on current page
   function toggleSelectAll() {
     if (selectedBlogs.size === blogs.length) {
       setSelectedBlogs(new Set());
@@ -107,9 +114,11 @@ export default function AdminBlogListPage() {
 
       <div className="flex flex-wrap gap-4 mb-4 items-center">
         <BlogSearchInput value={searchTerm} onChange={setSearchTerm} />
-
-        <BlogCategoryFilter categories={categories} value={categoryFilter} onChange={setCategoryFilter} />
-
+        <BlogCategoryFilter
+          categories={categories}
+          value={categoryFilter}
+          onChange={setCategoryFilter}
+        />
         <BlogStatusFilter value={statusFilter} onChange={setStatusFilter} />
       </div>
 
@@ -134,6 +143,7 @@ export default function AdminBlogListPage() {
                     type="checkbox"
                     checked={selectedBlogs.size === blogs.length && blogs.length > 0}
                     onChange={toggleSelectAll}
+                    aria-label="Select all blogs"
                   />
                 </th>
                 <th className="p-3">Title</th>
@@ -147,7 +157,7 @@ export default function AdminBlogListPage() {
             <tbody>
               {blogs.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center p-6">
+                  <td colSpan={7} className="text-center p-6">
                     No blogs found.
                   </td>
                 </tr>
