@@ -1,26 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   fetchBlogs,
   fetchBlogCategories,
   updateBlogStatus,
   deleteBlog,
-} from '../../../services/blogService';
+} from "../../../services/blogService";
 
-import BlogCategoryFilter from './components/BlogCategoryFilter';
-import BlogStatusFilter from './components/BlogStatusFilter';
-import BlogSearchInput from './components/BlogSearchInput';
-import BlogPagination from './components/BlogPagination';
-import BulkActionsToolbar from './components/BulkActionsToolbar';
-import BlogTableRow from './components/BlogTableRow';
+import BlogCategoryFilter from "./components/BlogCategoryFilter";
+import BlogStatusFilter from "./components/BlogStatusFilter";
+import BlogSearchInput from "./components/BlogSearchInput";
+import BlogPagination from "./components/BlogPagination";
+import BulkActionsToolbar from "./components/BulkActionsToolbar";
+import BlogTableRow from "./components/BlogTableRow";
 
 export default function AdminBlogListPage() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(1);
   const limit = 10;
   const [totalBlogs, setTotalBlogs] = useState(0);
@@ -32,7 +32,7 @@ export default function AdminBlogListPage() {
   // Load categories once on mount
   useEffect(() => {
     fetchBlogCategories()
-      .then(data => {
+      .then((data) => {
         if (Array.isArray(data)) setCategories(data);
         else setCategories([]);
       })
@@ -45,7 +45,7 @@ export default function AdminBlogListPage() {
       setLoading(true);
       setError(null);
       try {
-        const data = await fetchBlogs({
+        const { blogs, total } = await fetchBlogs({
           page,
           limit,
           search: searchTerm,
@@ -53,20 +53,17 @@ export default function AdminBlogListPage() {
           status: statusFilter,
         });
 
-        // Defensive checks in case data shape changes
-        if (data && Array.isArray(data.blogs)) {
-          setBlogs(data.blogs);
-          setTotalBlogs(typeof data.total === 'number' ? data.total : 0);
-        } else {
-          setBlogs([]);
-          setTotalBlogs(0);
-          setError('Invalid data format received from server.');
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Failed to load blogs');
-        setBlogs([]);
-        setTotalBlogs(0);
+        // Map nested fields to flat strings for UI
+        const mappedBlogs = blogs.map((blog) => ({
+          ...blog,
+          authorName: blog.author?.name || "Unknown",
+          categoryName: blog.category?.name || "Uncategorized",
+        }));
+
+        setBlogs(mappedBlogs);
+        setTotalBlogs(total);
+      } catch {
+        setError("Failed to load blogs");
       } finally {
         setLoading(false);
       }
@@ -78,12 +75,12 @@ export default function AdminBlogListPage() {
   async function handleBulkDelete() {
     if (selectedBlogs.size === 0) return;
     try {
-      await Promise.all(Array.from(selectedBlogs).map(id => deleteBlog(id)));
+      await Promise.all(Array.from(selectedBlogs).map((id) => deleteBlog(id)));
       setSelectedBlogs(new Set());
       setPage(1); // Refresh list
     } catch (err) {
       console.error(err);
-      alert('Failed to delete selected blogs');
+      alert("Failed to delete selected blogs");
     }
   }
 
@@ -92,15 +89,15 @@ export default function AdminBlogListPage() {
     if (selectedBlogs.size === 0) return;
     try {
       await Promise.all(
-        Array.from(selectedBlogs).map(id =>
-          updateBlogStatus(id, publish ? 'Published' : 'Draft')
+        Array.from(selectedBlogs).map((id) =>
+          updateBlogStatus(id, publish ? "Published" : "Draft")
         )
       );
       setSelectedBlogs(new Set());
       setPage(1); // Refresh list
     } catch (err) {
       console.error(err);
-      alert('Failed to update blog status');
+      alert("Failed to update blog status");
     }
   }
 
@@ -120,7 +117,7 @@ export default function AdminBlogListPage() {
     if (selectedBlogs.size === blogs.length) {
       setSelectedBlogs(new Set());
     } else {
-      setSelectedBlogs(new Set(blogs.map(b => b._id)));
+      setSelectedBlogs(new Set(blogs.map((b) => b._id)));
     }
   }
 
@@ -129,7 +126,7 @@ export default function AdminBlogListPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Manage Blogs</h1>
         <button
-          onClick={() => window.location.href = '/admin/blogs/new'}
+          onClick={() => (window.location.href = "/admin/blogs/new")}
           className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
           aria-label="Create new blog"
         >
@@ -162,13 +159,19 @@ export default function AdminBlogListPage() {
         </div>
       ) : (
         <>
-          <table className="w-full border-collapse table-auto" role="table" aria-label="Blogs table">
+          <table
+            className="w-full border-collapse table-auto"
+            role="table"
+            aria-label="Blogs table"
+          >
             <thead>
               <tr className="bg-gray-100 text-left">
                 <th className="p-3">
                   <input
                     type="checkbox"
-                    checked={selectedBlogs.size === blogs.length && blogs.length > 0}
+                    checked={
+                      selectedBlogs.size === blogs.length && blogs.length > 0
+                    }
                     onChange={toggleSelectAll}
                     aria-label="Select all blogs"
                   />
@@ -189,7 +192,7 @@ export default function AdminBlogListPage() {
                   </td>
                 </tr>
               ) : (
-                blogs.map(blog => (
+                blogs.map((blog) => (
                   <BlogTableRow
                     key={blog._id}
                     blog={blog}

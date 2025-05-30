@@ -97,6 +97,7 @@ export default function AdminBlogEditPage({ blogId }) {
         await createBlog(formData);
         alert('Blog created successfully');
       }
+      navigate('/admin/blogs');  // Redirect after success
       // Optionally redirect or reset form here
     } catch (error) {
       alert('Failed to save blog');

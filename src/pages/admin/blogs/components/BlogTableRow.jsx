@@ -24,8 +24,8 @@ export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted
         />
       </td>
       <td className="border px-4 py-2">{title}</td>
-      <td className="border px-4 py-2">{authorName}</td>
-      <td className="border px-4 py-2">{categoryName}</td>
+      <td className="border px-4 py-2">{authorName || 'Unknown'}</td>
+      <td className="border px-4 py-2">{categoryName || 'Uncategorized'}</td>
       <td className="border px-4 py-2 capitalize">{status}</td>
       <td className="border px-4 py-2">{formattedDate}</td>
       <td className="border px-4 py-2 text-center space-x-2">
@@ -33,7 +33,7 @@ export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted
           type="button"
           title="Edit blog"
           className="text-indigo-600 hover:underline cursor-pointer"
-          onClick={() => window.location.href = `/admin/blogs/edit/${_id}`}
+          onClick={() => window.location.href = `/admin/blogs/${_id}`}
         >
           ✏️
         </button>
