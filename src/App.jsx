@@ -77,6 +77,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ADMIN_ROLES } from "./constants/roles";
 import JobsPage from "./pages/JobsPage";
+import AdminBlogReviewEditPage from "./pages/admin/blogs/AdminBlogReviewEditPage";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -223,6 +224,7 @@ function LayoutWrapper() {
               <Route path="blogs" element={<AdminBlogListPage />} />
               <Route path="blogs/new" element={<AdminBlogEditPage />} />
               <Route path="blogs/:blogId" element={<AdminBlogEditPage />} />
+              <Route path="blogs/review/:blogId" element={<AdminBlogReviewEditPage />} />
               <Route path="jobs" element={<AdminJobsPage />} />
               <Route path="seo-manager" element={<SeoManager />} />
               <Route

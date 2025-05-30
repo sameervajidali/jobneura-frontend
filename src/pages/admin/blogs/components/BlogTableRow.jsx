@@ -1,12 +1,19 @@
-import React from 'react';
+import React from "react";
 
-export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted }) {
+export default function BlogTableRow({
+  blog,
+  isSelected,
+  toggleSelect,
+  onDeleted,
+}) {
   const { _id, title, author, category, status, createdAt } = blog;
 
   const formattedDate = new Date(createdAt).toLocaleDateString();
 
   const handleDelete = () => {
-    if (window.confirm(`Delete blog "${title}"? This action cannot be undone.`)) {
+    if (
+      window.confirm(`Delete blog "${title}"? This action cannot be undone.`)
+    ) {
       onDeleted(_id);
     }
   };
@@ -23,8 +30,11 @@ export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted
         />
       </td>
       <td className="border px-4 py-2">{title}</td>
-      <td className="border px-4 py-2">{author?.name || author?.email || '-'}</td>
-      <td className="border px-4 py-2">{category?.name || '-'}</td> {/* Nested category */}
+      <td className="border px-4 py-2">
+        {author?.name || author?.email || "-"}
+      </td>
+      <td className="border px-4 py-2">{category?.name || "-"}</td>{" "}
+      {/* Nested category */}
       <td className="border px-4 py-2 capitalize">{status}</td>
       <td className="border px-4 py-2">{formattedDate}</td>
       <td className="border px-4 py-2 text-center space-x-2">
@@ -32,7 +42,7 @@ export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted
           type="button"
           title="Edit blog"
           className="text-indigo-600 hover:underline cursor-pointer"
-          onClick={() => window.location.href = `/admin/blogs/edit/${_id}`}
+          onClick={() => (window.location.href = `/admin/blogs/edit/${_id}`)}
         >
           ✏️
         </button>
@@ -48,7 +58,13 @@ export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted
           type="button"
           title="Preview blog"
           className="text-green-600 hover:underline cursor-pointer"
-          onClick={() => window.open(`/blogs/${_id}`, '_blank', 'noopener,noreferrer')}
+          onClick={() =>
+            window.open(
+              `/admin/blogs/review/${_id}`,
+              "_blank",
+              "noopener,noreferrer"
+            )
+          }
         >
           👁️
         </button>
