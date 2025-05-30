@@ -1,19 +1,10 @@
-import React from "react";
-import { useNavigate } from 'react-router-dom';
-export default function BlogTableRow({
-  blog,
-  isSelected,
-  toggleSelect,
-  onDeleted,
-}) {
-  const { _id, title, author, category, status, createdAt } = blog;
+export default function BlogTableRow({ blog, isSelected, toggleSelect, onDeleted, onEdit }) {
+  const { _id, title, authorName, categoryName, status, createdAt } = blog;
 
   const formattedDate = new Date(createdAt).toLocaleDateString();
 
   const handleDelete = () => {
-    if (
-      window.confirm(`Delete blog "${title}"? This action cannot be undone.`)
-    ) {
+    if (window.confirm(`Delete blog "${title}"? This action cannot be undone.`)) {
       onDeleted(_id);
     }
   };
@@ -30,11 +21,8 @@ export default function BlogTableRow({
         />
       </td>
       <td className="border px-4 py-2">{title}</td>
-      <td className="border px-4 py-2">
-        {author?.name || author?.email || "-"}
-      </td>
-      <td className="border px-4 py-2">{category?.name || "-"}</td>{" "}
-      {/* Nested category */}
+      <td className="border px-4 py-2">{authorName}</td>
+      <td className="border px-4 py-2">{categoryName}</td>
       <td className="border px-4 py-2 capitalize">{status}</td>
       <td className="border px-4 py-2">{formattedDate}</td>
       <td className="border px-4 py-2 text-center space-x-2">
@@ -42,7 +30,7 @@ export default function BlogTableRow({
           type="button"
           title="Edit blog"
           className="text-indigo-600 hover:underline cursor-pointer"
-          onClick={() => (window.location.href = `/admin/blogs/edit/${_id}`)}
+          onClick={onEdit}  // Use the passed callback here
         >
           ✏️
         </button>
@@ -58,7 +46,7 @@ export default function BlogTableRow({
           type="button"
           title="Preview blog"
           className="text-green-600 hover:underline cursor-pointer"
-          onClick={() => navigate(`/admin/blogs/review/${_id}`)}
+          onClick={() => window.open(`/blogs/${_id}`, '_blank', 'noopener,noreferrer')}
         >
           👁️
         </button>
