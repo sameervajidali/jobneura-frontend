@@ -6,7 +6,9 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import AdminBlogPreviewModal from './components/AdminBlogPreviewModal'; // Adjust path if needed
 
-import { fetchCategories, getBlogById, createBlog, updateBlog } from '../../../services/blogService';
+import {
+  fetchBlogCategories, getBlogById, createBlog, updateBlog
+} from '../../../services/blogService';
 
 const blogSchema = z.object({
   title: z.string().min(5, 'Title is required'),
@@ -53,7 +55,7 @@ export default function AdminBlogEditPage({ blogId }) {
   };
 
   useEffect(() => {
-    fetchCategories()
+    fetchBlogCategories()
       .then(setCategories)
       .catch(() => setCategories([]));
 
