@@ -19,10 +19,10 @@ import {
   downloadAllQuizzes,
   downloadAllCategories,
   downloadAllTopics,
-  fetchDAUReport,
-  fetchCategoryEngagement,
-  fetchExportHistory,
-  fetchAlerts,
+  getDAUReport,
+  getCategoryEngagement,
+  getExportHistory,
+  getAlerts,
   saveAlertConfig,
 } from '../../../services/quizService';
 
@@ -73,7 +73,7 @@ export default function AdminReportsPage() {
       setDauLoading(true);
       setDauError(null);
       try {
-        const data = await fetchDAUReport(dateRange.from, dateRange.to);
+        const data = await getDAUReport(dateRange.from, dateRange.to);
         setDauData(data);
       } catch (err) {
         setDauError('Failed to load usage data');
@@ -90,7 +90,7 @@ export default function AdminReportsPage() {
       setEngagementLoading(true);
       setEngagementError(null);
       try {
-        const data = await fetchCategoryEngagement();
+        const data = await getCategoryEngagement();
         setCategoryData(data);
       } catch (err) {
         setEngagementError('Failed to load engagement data');
@@ -105,7 +105,7 @@ export default function AdminReportsPage() {
   useEffect(() => {
     async function loadExportHistory() {
       try {
-        const history = await fetchExportHistory();
+        const history = await getExportHistory();
         setExportHistory(history);
       } catch {
         // silently fail
@@ -118,7 +118,7 @@ export default function AdminReportsPage() {
   useEffect(() => {
     async function loadAlerts() {
       try {
-        const activeAlerts = await fetchAlerts();
+        const activeAlerts = await getAlerts();
         setAlerts(activeAlerts);
       } catch {
         // silently fail
