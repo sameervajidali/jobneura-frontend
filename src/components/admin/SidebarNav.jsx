@@ -14,11 +14,11 @@ const navItems = [
   { path: "/admin/categories",  label: "Categories",    icon: <FaTags />,        roles: ["superadmin", "admin"] },
   { path: "/admin/topics",      label: "Topics",        icon: <FaList />,        roles: ["superadmin", "admin"] },
   { path: "/admin/leaderboard", label: "Leaderboard",   icon: <FaChartBar />,    roles: ["superadmin", "admin"] },
-  { path: "/admin/blogs",       label: "Blogs",         icon: <FaBook />,        roles: ["superadmin", "creator", "moderator"] },
+  { path: "/admin/blogs",       label: "Blogs",         icon: <FaBook />,        roles: ["superadmin", "creator","creator", "moderator"] },
   { path: "/admin/tickets",     label: "Tickets",       icon: <FaComments />,    roles: ["superadmin", "admin", "support"] },
   { path: "/admin/reports",     label: "Reports",       icon: <FaFileAlt />,     roles: ["superadmin", "admin"] },
   { path: "/admin/roles",       label: "Roles",         icon: <FaShieldAlt />,   roles: ["superadmin"] },
-  { path: "/admin/jobs",        label: "Jobs",          icon: <FaBriefcase />,   roles: ["superadmin", "admin"] },
+  { path: "/admin/jobs",        label: "Jobs",          icon: <FaBriefcase />,   roles: ["superadmin", "admin","creator"] },
   { path: "/admin/seo-manager", label: "SEO Manager",   icon: <FaSearch />,      roles: ["superadmin", "admin"] },
   { path: "/admin/settings",    label: "Settings",      icon: <FaCogs />,        roles: ["superadmin"] },
 ];

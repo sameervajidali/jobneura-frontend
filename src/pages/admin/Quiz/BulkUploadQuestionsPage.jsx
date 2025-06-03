@@ -131,7 +131,7 @@ export default function BulkUploadQuestionsPage() {
         <a
           href={`${
             import.meta.env.VITE_API_BASE_URL
-          }/quizzes/admin/quizzes/${quizId}/template`}
+          }/api/quizzes/admin/quizzes/${quizId}/template`}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
         >
           Download CSV Template

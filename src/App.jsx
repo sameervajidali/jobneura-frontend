@@ -19,6 +19,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import Uquiz from "./components/dashboard/Uquiz";
 
+
 import DashboardHome from "./pages/DashboardHome";
 import Profile from "./pages/Profile";
 import ChangePassword from "./components/profile/ChangePassword";
@@ -78,6 +79,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { ADMIN_ROLES } from "./constants/roles";
 import JobsPage from "./pages/JobsPage";
 import AdminBlogReviewEditPage from "./pages/admin/blogs/AdminBlogReviewEditPage";
+import TutorialsPage from "./pages/TutorialsPage";
+import BlogPage from "./pages/BlogPage";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -159,6 +162,8 @@ function LayoutWrapper() {
           <Route path="/features" element={<FeaturesPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/login" element={<LoginPageWrapper />} />
+          <Route path="/tutorials" element={<TutorialsPage />} />
+          <Route path="/blogs" element={<BlogPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
           {/* Quizzes & Leaderboard */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />
