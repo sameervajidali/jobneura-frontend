@@ -42,7 +42,7 @@ export default function HeroActions() {
     </button>
   </div>
   {/* Create Quiz */}
-  <div
+  {/* <div
     className="flex-1 flex flex-col items-center bg-gradient-to-br from-indigo-50 to-white dark:from-gray-800 dark:to-gray-900
       border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-md hover:shadow-xl transition
       hover:scale-105 cursor-pointer"
@@ -57,7 +57,7 @@ export default function HeroActions() {
     >
       Create Quiz
     </button>
-  </div>
+  </div> */}
 </div>
 
       </div>
