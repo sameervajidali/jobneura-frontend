@@ -1,12 +1,7 @@
-import React, { useState } from 'react';
-import { Helmet } from 'react-helmet';
-import Hero from '../components/tutorials/Hero';
-import CategoryFilter from '../components/tutorials/CategoryFilter';
-import TutorialGrid from '../components/tutorials/TutorialGrid';
-import Sidebar from '../components/tutorials/Sidebar';
-import Pagination from '../components/tutorials/Pagination';
+import React from 'react';
+import TutorialCard from './TutorialCard';
 
-// Sample tutorials array (put your full 12 tutorials here)
+// Expanded dummy data: 12 tutorials
 const tutorials = [
   {
     title: 'Building Responsive Websites',
@@ -154,88 +149,14 @@ const tutorials = [
   },
 ];
 
-// Tutorials per page
-const TUTORIALS_PER_PAGE = 6;
-
-const TutorialsPage = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [activeCategory, setActiveCategory] = useState(null);
-
-  // Filter tutorials by category if selected
-  const filteredTutorials = activeCategory
-    ? tutorials.filter(tut =>
-        tut.tags.some(tag => tag.toLowerCase() === activeCategory.toLowerCase())
-      )
-    : tutorials;
-
-  // Calculate total pages dynamically
-  const totalPages = Math.ceil(filteredTutorials.length / TUTORIALS_PER_PAGE);
-
-  // Handle page changes with bounds checking
-  const handlePageChange = (page) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  // Handle category selection and reset page
-  const handleCategorySelect = (category) => {
-    setActiveCategory(category);
-    setCurrentPage(1);
-  };
-
-  // Slice tutorials to show based on page
-  const startIndex = (currentPage - 1) * TUTORIALS_PER_PAGE;
-  const tutorialsToShow = filteredTutorials.slice(
-    startIndex,
-    startIndex + TUTORIALS_PER_PAGE
-  );
-
-  // SEO JSON-LD - update to only current tutorials
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "JobNeura Tutorials",
-    "description": "Master in-demand skills with expert tutorials across Web Development, AI, Design, and more.",
-    "numberOfItems": filteredTutorials.length,
-    "itemListElement": tutorialsToShow.map((tut, idx) => ({
-      "@type": "ListItem",
-      "position": startIndex + idx + 1,
-      "url": `https://jobneura.tech/tutorials/${encodeURIComponent(
-        tut.title.toLowerCase().replace(/\s+/g, '-')
-      )}`
-    }))
-  };
-
+const TutorialGrid = () => {
   return (
-    <>
-      <Helmet>
-        <title>Expert Tutorials for Career Growth | JobNeura</title>
-        <meta
-          name="description"
-          content="Explore over 200 tutorials on Web Development, AI, Design, and more. Boost your career with JobNeura's expert-led tutorials."
-        />
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </Helmet>
-
-      <main className="pt-4 min-h-screen bg-gray-50 text-gray-900 w-full px-6 sm:px-10 lg:px-16">
-        <Hero />
-        <CategoryFilter onSelect={handleCategorySelect} />
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 py-10">
-          <div className="lg:col-span-3">
-            <TutorialGrid tutorials={tutorialsToShow} />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              tutorialTitles={filteredTutorials.map(t => t.title)}
-            />
-          </div>
-          <Sidebar />
-        </div>
-      </main>
-    </>
+    <section aria-label="Tutorials List" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {tutorials.map((tutorial, index) => (
+        <TutorialCard key={index} tutorial={tutorial} />
+      ))}
+    </section>
   );
 };
 
-export default TutorialsPage;
+export default TutorialGrid;
