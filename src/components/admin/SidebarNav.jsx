@@ -1,4 +1,3 @@
-// src/components/admin/SidebarNav.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -17,84 +16,19 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 
 const navItems = [
-  {
-    path: "/admin",
-    label: "Dashboard",
-    icon: <FaChartBar />,
-    roles: ["superadmin", "admin", "creator", "moderator", "support"],
-  },
-  {
-    path: "/admin/users",
-    label: "Users",
-    icon: <FaUser />,
-    roles: ["superadmin", "admin"],
-  },
-  {
-    path: "/admin/quizzes",
-    label: "Quizzes",
-    icon: <FaBook />,
-    roles: ["superadmin", "admin", "creator"],
-  },
-  {
-    path: "/admin/categories",
-    label: "Categories",
-    icon: <FaTags />,
-    roles: ["superadmin", "admin"],
-  },
-  {
-    path: "/admin/topics",
-    label: "Topics",
-    icon: <FaList />,
-    roles: ["superadmin", "admin"],
-  },
-  {
-    path: "/admin/leaderboard",
-    label: "Leaderboard",
-    icon: <FaChartBar />,
-    roles: ["superadmin", "admin"],
-  },
-  {
-    path: "/admin/blogs",
-    label: "Blogs",
-    icon: <FaBook />,
-    roles: ["superadmin", "creator", "moderator"],
-  },
-  {
-    path: "/admin/tickets",
-    label: "Tickets",
-    icon: <FaComments />,
-    roles: ["superadmin", "admin", "support"],
-  },
-  {
-    path: "/admin/reports",
-    label: "Reports",
-    icon: <FaFileAlt />,
-    roles: ["superadmin", "admin"],
-  },
-  {
-    path: "/admin/roles",
-    label: "Roles",
-    icon: <FaShieldAlt />,
-    roles: ["superadmin"],
-  },
-  {
-    path: "/admin/jobs",
-    label: "Jobs",
-    icon: <FaBriefcase />,
-    roles: ["superadmin", "admin", "creator"],
-  },
-  {
-    path: "/admin/seo-manager",
-    label: "SEO Manager",
-    icon: <FaSearch />,
-    roles: ["superadmin", "admin"],
-  },
-  {
-    path: "/admin/settings",
-    label: "Settings",
-    icon: <FaCogs />,
-    roles: ["superadmin"],
-  },
+  { path: "/admin", label: "Dashboard", icon: <FaChartBar />, roles: ["superadmin", "admin", "creator", "moderator", "support"] },
+  { path: "/admin/users", label: "Users", icon: <FaUser />, roles: ["superadmin", "admin"] },
+  { path: "/admin/quizzes", label: "Quizzes", icon: <FaBook />, roles: ["superadmin", "admin", "creator"] },
+  { path: "/admin/categories", label: "Categories", icon: <FaTags />, roles: ["superadmin", "admin"] },
+  { path: "/admin/topics", label: "Topics", icon: <FaList />, roles: ["superadmin", "admin"] },
+  { path: "/admin/leaderboard", label: "Leaderboard", icon: <FaChartBar />, roles: ["superadmin", "admin"] },
+  { path: "/admin/blogs", label: "Blogs", icon: <FaBook />, roles: ["superadmin", "creator", "moderator"] },
+  { path: "/admin/tickets", label: "Tickets", icon: <FaComments />, roles: ["superadmin", "admin", "support"] },
+  { path: "/admin/reports", label: "Reports", icon: <FaFileAlt />, roles: ["superadmin", "admin"] },
+  { path: "/admin/roles", label: "Roles", icon: <FaShieldAlt />, roles: ["superadmin"] },
+  { path: "/admin/jobs", label: "Jobs", icon: <FaBriefcase />, roles: ["superadmin", "admin", "creator"] },
+  { path: "/admin/seo-manager", label: "SEO Manager", icon: <FaSearch />, roles: ["superadmin", "admin"] },
+  { path: "/admin/settings", label: "Settings", icon: <FaCogs />, roles: ["superadmin"] },
 ];
 
 export default function SidebarNav({ isOpen, onToggle }) {
@@ -120,30 +54,22 @@ export default function SidebarNav({ isOpen, onToggle }) {
         className={`
           fixed top-0 left-0 z-40 h-full bg-background border-r border-border shadow-xl flex flex-col
           transition-all duration-300 ease-in-out
-          w-56
-          md:w-auto
-          ${isOpen ? "md:w-56" : "md:w-14"}
-          ${!isOpen ? "overflow-x-hidden" : ""}
-          transform
-          md:translate-x-0
-          ${!isOpen ? "md:overflow-visible" : ""}
-          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          ${isOpen ? "w-56 translate-x-0" : "w-16 -translate-x-full md:translate-x-0 md:w-16"}
+          overflow-x-hidden
         `}
         aria-label="Admin sidebar navigation"
         aria-hidden={!isOpen && window.innerWidth < 768}
       >
         {/* Header */}
-        <div className="flex items-center justify-between h-16 px-6 border-b border-border bg-background">
+        <div className="flex items-center justify-between h-16 px-3 border-b border-border bg-background">
           <span
-            className={`bg-indigo-600 text-white rounded-xl p-2 flex items-center justify-center shadow
-              transition-all duration-300 ease-in-out
-              ${isOpen ? "w-8 h-8" : "w-10 h-10 mx-auto"}`}
+            className="bg-indigo-600 text-white rounded-xl p-2 flex items-center justify-center shadow w-10 h-10"
             aria-label="JobNeura Logo"
             role="img"
           >
             <FaChartBar className="w-6 h-6" aria-hidden="true" />
           </span>
-          {/* Collapse/Expand Button */}
+
           <button
             onClick={onToggle}
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
@@ -154,9 +80,9 @@ export default function SidebarNav({ isOpen, onToggle }) {
           </button>
         </div>
 
-        {/* Nav Links */}
+        {/* Navigation */}
         <nav
-          className="flex-1 overflow-y-auto px-1 pt-4 space-y-1 sidebar-scroll"
+          className="flex-1 overflow-y-auto pt-4 space-y-1 sidebar-scroll"
           aria-label="Admin navigation links"
         >
           {navItems
@@ -171,18 +97,15 @@ export default function SidebarNav({ isOpen, onToggle }) {
                   key={item.path}
                   to={item.path}
                   className={`
-                    flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-150
+                    flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-150
                     group focus:outline-none focus:ring-2 focus:ring-indigo-400
-                    ${
-                      isActive
-                        ? "bg-indigo-50 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-100 shadow-[2px_0_8px_0_#6366f11a]"
-                        : "text-foreground hover:bg-indigo-100 dark:hover:bg-gray-800"
-                    }
+                    ${isActive
+                      ? "bg-indigo-50 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-100 shadow-[2px_0_8px_0_#6366f11a]"
+                      : "text-foreground hover:bg-indigo-100 dark:hover:bg-gray-800"}
+                    justify-center
                   `}
                   onClick={() => {
-                    if (window.innerWidth < 768) {
-                      onToggle();
-                    }
+                    if (window.innerWidth < 768) onToggle();
                   }}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -192,6 +115,7 @@ export default function SidebarNav({ isOpen, onToggle }) {
                   >
                     {item.icon}
                   </span>
+
                   {/* Show label only if sidebar is open */}
                   {isOpen && <span className="truncate text-base">{item.label}</span>}
                 </Link>
@@ -199,7 +123,7 @@ export default function SidebarNav({ isOpen, onToggle }) {
             })}
         </nav>
 
-        {/* User Info */}
+        {/* User info */}
         {user && isOpen && (
           <div className="mt-auto px-6 py-4 border-t border-border text-xs text-gray-500 dark:text-gray-400 bg-background">
             <div
