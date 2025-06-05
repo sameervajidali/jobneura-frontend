@@ -101,13 +101,12 @@ export default function SidebarNav({ isOpen, onToggle }) {
   const { user } = useAuth();
   const location = useLocation();
 
-  // Normalize role to lowercase string
   const rawRole = typeof user?.role === "string" ? user.role : user?.role?.name;
   const currentRole = typeof rawRole === "string" ? rawRole.toLowerCase() : "";
 
   return (
     <>
-      {/* Overlay: only show on mobile when sidebar is open */}
+      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-30 md:hidden"
@@ -117,38 +116,47 @@ export default function SidebarNav({ isOpen, onToggle }) {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 z-40 h-full bg-background border-r border-border
-          shadow-xl flex flex-col transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-x-0 w-56" : "-translate-x-full md:translate-x-0 md:w-14"}
+          fixed top-0 left-0 z-40 h-full bg-background border-r border-border shadow-xl flex flex-col
+          transition-all duration-300 ease-in-out
+          w-56
+          md:w-auto
+          ${isOpen ? "md:w-56" : "md:w-14"}
+          ${!isOpen ? "overflow-x-hidden" : ""}
+          transform
+          md:translate-x-0
+          ${!isOpen ? "md:overflow-visible" : ""}
+          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
         aria-label="Admin sidebar navigation"
         aria-hidden={!isOpen && window.innerWidth < 768}
       >
-        {/* Header with logo and collapse button */}
+        {/* Header */}
         <div className="flex items-center justify-between h-16 px-6 border-b border-border bg-background">
           <span
-            className="bg-indigo-600 text-white rounded-xl p-2 flex items-center justify-center shadow"
+            className={`bg-indigo-600 text-white rounded-xl p-2 flex items-center justify-center shadow
+              transition-all duration-300 ease-in-out
+              ${isOpen ? "w-8 h-8" : "w-10 h-10 mx-auto"}`}
             aria-label="JobNeura Logo"
             role="img"
           >
             <FaChartBar className="w-6 h-6" aria-hidden="true" />
           </span>
+          {/* Collapse/Expand Button */}
           <button
             onClick={onToggle}
             aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
-            className="text-indigo-600 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded"
+            className="text-indigo-600 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded ml-auto"
             type="button"
           >
             {isOpen ? "←" : "→"}
           </button>
         </div>
 
-        {/* Navigation links */}
+        {/* Nav Links */}
         <nav
-          className="flex-1 overflow-y-auto px-2 py-4 space-y-1 sidebar-scroll"
+          className="flex-1 overflow-y-auto px-1 pt-4 space-y-1 sidebar-scroll"
           aria-label="Admin navigation links"
         >
           {navItems
@@ -173,22 +181,26 @@ export default function SidebarNav({ isOpen, onToggle }) {
                   `}
                   onClick={() => {
                     if (window.innerWidth < 768) {
-                      onToggle(); // close sidebar on mobile after nav click
+                      onToggle();
                     }
                   }}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  <span className="text-lg" aria-hidden="true">
+                  <span
+                    className="text-lg flex-shrink-0 w-6 h-6 flex items-center justify-center"
+                    aria-hidden="true"
+                  >
                     {item.icon}
                   </span>
+                  {/* Show label only if sidebar is open */}
                   {isOpen && <span className="truncate text-base">{item.label}</span>}
                 </Link>
               );
             })}
         </nav>
 
-        {/* User info section */}
-        {isOpen && user && (
+        {/* User Info */}
+        {user && isOpen && (
           <div className="mt-auto px-6 py-4 border-t border-border text-xs text-gray-500 dark:text-gray-400 bg-background">
             <div
               className="font-semibold text-indigo-600 dark:text-indigo-300"
