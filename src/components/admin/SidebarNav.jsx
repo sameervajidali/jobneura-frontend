@@ -35,12 +35,13 @@ export default function SidebarNav({ isOpen, onToggle }) {
   const { user } = useAuth();
   const location = useLocation();
 
+  // Normalize role string
   const rawRole = typeof user?.role === "string" ? user.role : user?.role?.name;
   const currentRole = typeof rawRole === "string" ? rawRole.toLowerCase() : "";
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Overlay on mobile when sidebar is open */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-30 md:hidden"
@@ -50,6 +51,7 @@ export default function SidebarNav({ isOpen, onToggle }) {
         />
       )}
 
+      {/* Sidebar */}
       <aside
         className={`
           fixed top-0 left-0 z-40 h-full bg-background border-r border-border shadow-xl flex flex-col
@@ -60,7 +62,7 @@ export default function SidebarNav({ isOpen, onToggle }) {
         aria-label="Admin sidebar navigation"
         aria-hidden={!isOpen && window.innerWidth < 768}
       >
-        {/* Header */}
+        {/* Header with logo and toggle button */}
         <div className="flex items-center justify-between h-16 px-3 border-b border-border bg-background">
           <span
             className="bg-indigo-600 text-white rounded-xl p-2 flex items-center justify-center shadow w-10 h-10"
@@ -80,7 +82,7 @@ export default function SidebarNav({ isOpen, onToggle }) {
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation Links */}
         <nav
           className="flex-1 overflow-y-auto pt-4 space-y-1 sidebar-scroll"
           aria-label="Admin navigation links"
@@ -97,12 +99,15 @@ export default function SidebarNav({ isOpen, onToggle }) {
                   key={item.path}
                   to={item.path}
                   className={`
-                    flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-150
+                    flex items-center transition-all duration-150
                     group focus:outline-none focus:ring-2 focus:ring-indigo-400
                     ${isActive
                       ? "bg-indigo-50 dark:bg-indigo-900/80 text-indigo-700 dark:text-indigo-100 shadow-[2px_0_8px_0_#6366f11a]"
-                      : "text-foreground hover:bg-indigo-100 dark:hover:bg-gray-800"}
-                    justify-center
+                      : "text-foreground hover:bg-indigo-100 dark:hover:bg-gray-800"
+                    }
+                    rounded-xl
+                    py-3
+                    ${isOpen ? "px-4 justify-start gap-4" : "px-0 justify-center"}
                   `}
                   onClick={() => {
                     if (window.innerWidth < 768) onToggle();
@@ -110,20 +115,20 @@ export default function SidebarNav({ isOpen, onToggle }) {
                   aria-current={isActive ? "page" : undefined}
                 >
                   <span
-                    className="text-lg flex-shrink-0 w-6 h-6 flex items-center justify-center"
+                    className="w-6 h-6 flex items-center justify-center text-lg flex-shrink-0"
                     aria-hidden="true"
                   >
                     {item.icon}
                   </span>
 
-                  {/* Show label only if sidebar is open */}
+                  {/* Label visible only when expanded */}
                   {isOpen && <span className="truncate text-base">{item.label}</span>}
                 </Link>
               );
             })}
         </nav>
 
-        {/* User info */}
+        {/* User Info */}
         {user && isOpen && (
           <div className="mt-auto px-6 py-4 border-t border-border text-xs text-gray-500 dark:text-gray-400 bg-background">
             <div
