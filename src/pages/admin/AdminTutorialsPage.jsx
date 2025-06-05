@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import tutorialsService from '../services/tutorialsService';
+import tutorialsService from '../../services/tutorialsService';
 import { FaEdit, FaTrash, FaPlus, FaSearch } from 'react-icons/fa';
 
 function AdminTutorialsPage() {
