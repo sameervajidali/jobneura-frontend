@@ -1,9 +1,9 @@
 // src/components/admin/SidebarNav.jsx
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   FaUser, FaBook, FaChartBar, FaSearch, FaBriefcase, FaCogs,
-  FaShieldAlt, FaComments, FaTags, FaList, FaFileAlt, FaBars, FaTimes,
+  FaShieldAlt, FaComments, FaTags, FaList, FaFileAlt,
 } from "react-icons/fa";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -23,10 +23,7 @@ const navItems = [
   { path: "/admin/settings",    label: "Settings",      icon: <FaCogs />,        roles: ["superadmin"] },
 ];
 
-export default function SidebarNav() {
-  // State to toggle sidebar open/close on mobile
-  const [isOpen, setIsOpen] = useState(false);
-
+export default function SidebarNav({ isOpen, onToggle }) {
   const { user } = useAuth();
   const location = useLocation();
 
@@ -35,48 +32,43 @@ export default function SidebarNav() {
 
   return (
     <>
-      {/* Mobile Hamburger / Close Toggle Button */}
-      <div className="md:hidden fixed top-4 left-4 z-[999]">
-        <button
-          onClick={() => setIsOpen(o => !o)}
-          aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
-          aria-expanded={isOpen}
-          aria-controls="sidebar-navigation"
-          className="text-2xl p-2 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 transition-colors"
-        >
-          {isOpen ? <FaTimes aria-hidden="true" /> : <FaBars aria-hidden="true" />}
-        </button>
-      </div>
+      {/* Overlay for mobile when sidebar is open */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-30 md:hidden"
+          onClick={onToggle}
+          aria-hidden="true"
+        />
+      )}
 
       {/* Sidebar */}
       <aside
-        id="sidebar-navigation"
         className={`
-          fixed top-0 left-0 z-40 h-full w-56 bg-background border-r border-border
-          shadow-xl md:shadow-none flex flex-col
-          transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          fixed top-0 left-0 z-40 h-full bg-background border-r border-border
+          shadow-xl flex flex-col transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0 w-56" : "-translate-x-full md:translate-x-0 md:w-14"}
         `}
         aria-hidden={!isOpen && window.innerWidth < 768}
       >
-        {/* Logo & Brand */}
-        <div className="flex items-center h-16 px-6 border-b border-border bg-background">
-          <span className="bg-indigo-600 text-white rounded-xl p-2 mr-2 flex items-center justify-center shadow">
+        {/* Optional: Add a collapse button inside sidebar for desktop */}
+        <div className="flex items-center justify-between h-16 px-6 border-b border-border bg-background">
+          <span className="bg-indigo-600 text-white rounded-xl p-2 flex items-center justify-center shadow">
             <FaChartBar className="w-6 h-6" aria-hidden="true" />
           </span>
-          <span className="font-bold text-xl text-indigo-700 dark:text-indigo-300 tracking-tight">
-            JobNeura
-          </span>
+          <button
+            onClick={onToggle}
+            aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            className="text-indigo-600 hover:text-indigo-800 focus:outline-none"
+          >
+            {isOpen ? "←" : "→"}
+          </button>
         </div>
 
-        {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1 sidebar-scroll" aria-label="Admin navigation">
           {navItems
             .filter(i => i.roles.includes(currentRole))
             .map(i => {
-              const isActive =
-                location.pathname === i.path ||
-                location.pathname.startsWith(i.path + "/");
+              const isActive = location.pathname === i.path || location.pathname.startsWith(i.path + "/");
 
               return (
                 <Link
@@ -90,18 +82,21 @@ export default function SidebarNav() {
                       : "text-foreground hover:bg-indigo-100 dark:hover:bg-gray-800"
                     }
                   `}
-                  onClick={() => setIsOpen(false)} // Close sidebar on mobile nav click
+                  onClick={() => {
+                    // Optionally close sidebar on mobile after nav click
+                    if (window.innerWidth < 768) onToggle();
+                  }}
                   aria-current={isActive ? "page" : undefined}
                 >
                   <span className="text-lg" aria-hidden="true">{i.icon}</span>
-                  <span className="truncate text-base">{i.label}</span>
+                  {isOpen && <span className="truncate text-base">{i.label}</span>}
                 </Link>
               );
             })}
         </nav>
 
-        {/* User Info */}
-        {user && (
+        {/* User info */}
+        {isOpen && user && (
           <div className="mt-auto px-6 py-4 border-t border-border text-xs text-gray-500 dark:text-gray-400 bg-background">
             <div className="font-semibold text-indigo-600 dark:text-indigo-300" tabIndex={-1}>
               {user.name}
@@ -110,16 +105,6 @@ export default function SidebarNav() {
           </div>
         )}
       </aside>
-
-      {/* Overlay behind sidebar on mobile */}
-      {isOpen && (
-        <div
-          onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-black/30 z-30 md:hidden"
-          aria-hidden="true"
-          tabIndex={-1}
-        />
-      )}
     </>
   );
 }
