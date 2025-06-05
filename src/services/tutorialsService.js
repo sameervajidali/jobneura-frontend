@@ -19,9 +19,15 @@ export function getTutorialById(tutorialId) {
 /**
  * Get all tutorial categories
  */
+// src/services/tutorialsService.js (example)
 export function getTutorialCategories() {
-  return API.get('/tutorials/categories').then(res => res.data);
+  return API.get('/tutorials/categories')
+    .then(res => {
+      // adjust here if response wrapped in object
+      return Array.isArray(res.data) ? res.data : res.data.categories || [];
+    });
 }
+
 
 /**
  * Create a new tutorial (Admin/Creator)
