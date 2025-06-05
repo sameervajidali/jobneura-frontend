@@ -1,113 +1,104 @@
-// src/services/axios.js
 import axios from 'axios';
 
-// Create an axios instance with baseURL and credentials to send HttpOnly cookies automatically
+// Create axios instance with baseURL and cookie sending enabled
 const API = axios.create({
-  baseURL: '/api',           // Base URL for all requests; can be replaced with full URL in production
-  withCredentials: true,     // Send cookies (HttpOnly tokens) with every request
+  baseURL: '/api',        // Adjust this if you use full URL in production
+  withCredentials: true,  // Send HttpOnly cookies automatically
 });
 
 // ——————————————————————————————————————————————————
-// QUEUE & REFRESH CONTROLS
-let isRefreshing = false;    // Flag to indicate if token refresh is in progress
-let failedQueue = [];        // Queue to hold requests during refresh token call
-let initialSessionLoad = true;  // Flag to prevent retry logic during initial load
+// Refresh token queue management
+let isRefreshing = false; // Flag to indicate ongoing refresh
+let failedQueue = [];     // Requests queued while refresh happens
+let initialSessionLoad = true; // Flag to disable retry on startup
 
 /**
- * Process all queued requests after refresh token resolves or fails
- * @param {Error|null} error - If token refresh failed, reject queued requests with this error
- * @param {string|null} token - If refresh succeeded, resolve queued requests with the new token/user info
+ * Resolves or rejects all queued requests after refresh attempt
+ * @param {Error|null} error - refresh error or null on success
+ * @param {any} user - user info returned after refresh
  */
-const processQueue = (error, token = null) => {
-  console.log('[axios] processQueue:', { error, queued: failedQueue.length });
-  failedQueue.forEach(p => {
-    if (error) {
-      p.reject(error);
-    } else {
-      p.resolve(token);
-    }
+const processQueue = (error, user = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) reject(error);
+    else resolve(user);
   });
-  failedQueue = []; // Clear queue after processing
+  failedQueue = [];
 };
 
 // ——————————————————————————————————————————————————
-// RESPONSE INTERCEPTOR
+// Response interceptor to handle 401 & refresh token logic
 API.interceptors.response.use(
-  res => res,   // Return successful responses directly
-  async err => {
-    const orig = err.config;  // Original request config that caused error
-    console.log('[axios] response error:', orig.url, err.response?.status);
+  response => response,
+  async error => {
+    const originalRequest = error.config;
 
-    // Check for 401 Unauthorized responses
-    const is401 = err.response?.status === 401;
+    // Defensive check: config may be undefined if request never sent
+    if (!originalRequest) return Promise.reject(error);
 
-    // Paths related to authentication which should NOT be retried by refresh logic
-    const isAuthCall = ['/auth/login', '/auth/refresh-token', '/auth/me']
-      .some(path => orig.url.includes(path));
+    const status = error.response?.status;
+    const is401 = status === 401;
 
-    // Check localStorage flag to know if user previously had a session
+    // URLs which should NOT trigger token refresh retry
+    const authPaths = ['/auth/login', '/auth/refresh-token', '/auth/me'];
+    const isAuthRequest = authPaths.some(path => originalRequest.url.includes(path));
+
+    // Check if user had a valid session before (to avoid retry on first load)
     const hasSession = localStorage.getItem('hasSession') === 'true';
 
-    // Retry logic applies only when:
-    // - 401 error occurred,
-    // - original request not already retried (_retry flag),
-    // - request is NOT an auth call (to prevent infinite loops),
-    // - initialSessionLoad flag is false (to skip retries during startup),
-    // - user had a session previously (to avoid retry on fresh visits)
-    if (is401 && !orig._retry && !isAuthCall && !initialSessionLoad && hasSession) {
+    // Retry conditions:
+    if (
+      is401 &&                     // Unauthorized error
+      !originalRequest._retry &&   // Not already retried
+      !isAuthRequest &&            // Not auth related endpoint
+      !initialSessionLoad &&       // Initial session load finished
+      hasSession                   // User had a session before
+    ) {
       if (isRefreshing) {
-        // If token refresh is already happening, queue this request and retry later
-        console.log('[axios] queueing during refresh:', orig.url);
+        // Queue the request until refresh completes
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then(() => {
-          console.log('[axios] replaying queued:', orig.url);
-          return API(orig);
+          return API(originalRequest);
         });
       }
 
-      // Mark request as retrying
-      orig._retry = true;
+      // Mark the request for retry
+      originalRequest._retry = true;
       isRefreshing = true;
-      console.log('[axios] refreshing token…');
 
       try {
         // Call refresh token endpoint
         const { data } = await API.post('/auth/refresh-token');
-        console.log('[axios] refresh-token success:', data);
 
-        // Mark session as active in localStorage
+        // Mark session as active again
         localStorage.setItem('hasSession', 'true');
 
-        // Resolve all queued requests with new token info
+        // Resolve queued requests
         processQueue(null, data.user);
 
-        // Retry the original request with refreshed token
-        return API(orig);
-      } catch (refreshErr) {
-        // If refresh fails, reject queued requests and clear session
-        console.error('[axios] refresh-token failed:', refreshErr);
-        processQueue(refreshErr, null);
-        localStorage.removeItem('hasSession');
+        // Retry original request
+        return API(originalRequest);
+      } catch (refreshError) {
+        // Reject queued requests on failure
+        processQueue(refreshError, null);
 
-        // Redirect to login page on refresh failure to force re-authentication
+        // Clear session flags and redirect to login
+        localStorage.removeItem('hasSession');
         window.location.href = '/login';
 
-        return Promise.reject(refreshErr);
+        return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
 
-    // For all other errors, just reject the promise with the error
-    return Promise.reject(err);
+    // For other errors, reject immediately
+    return Promise.reject(error);
   }
 );
 
-// ——————————————————————————————————————————————————
-// LISTEN FOR CUSTOM EVENT TO STOP initialSessionLoad FLAG
+// Listen for a custom event to mark session check as done
 window.addEventListener('session-checked', () => {
-  console.log('[axios] session-checked → disable initialSessionLoad');
   initialSessionLoad = false;
 });
 

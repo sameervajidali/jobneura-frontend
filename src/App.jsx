@@ -81,6 +81,7 @@ import JobsPage from "./pages/JobsPage";
 import AdminBlogReviewEditPage from "./pages/admin/blogs/AdminBlogReviewEditPage";
 import TutorialsPage from "./pages/TutorialsPage";
 import BlogPage from "./pages/BlogPage";
+import AdminTutorialsPage from "./pages/admin/AdminTutorialsPage";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -227,6 +228,7 @@ function LayoutWrapper() {
               <Route path="quizzes/create" element={<CreateQuizForm />} />
               <Route path="quizzes/:quizId/edit" element={<EditQuizPage />} />
               <Route path="blogs" element={<AdminBlogListPage />} />
+              <Route path="tutorials" element={<AdminTutorialsPage />} />
               <Route path="blogs/new" element={<AdminBlogEditPage />} />
               <Route path="blogs/:blogId" element={<AdminBlogEditPage />} />
               <Route path="blogs/review/:blogId" element={<AdminBlogReviewEditPage />} />

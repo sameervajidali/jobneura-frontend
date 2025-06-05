@@ -1,18 +1,19 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
+  FaChartBar,
   FaUser,
   FaBook,
-  FaChartBar,
-  FaSearch,
-  FaBriefcase,
-  FaCogs,
-  FaShieldAlt,
-  FaComments,
   FaTags,
   FaList,
+  FaComments,
   FaFileAlt,
-} from "react-icons/fa";
+  FaShieldAlt,
+  FaBriefcase,
+  FaSearch,
+  FaCogs,
+  FaUsers, // optional icon for tutorials, else you can pick your own icon
+} from 'react-icons/fa';
 import { useAuth } from "../../contexts/AuthContext";
 
 const navItems = [
@@ -21,6 +22,7 @@ const navItems = [
   { path: "/admin/quizzes", label: "Quizzes", icon: <FaBook />, roles: ["superadmin", "admin", "creator"] },
   { path: "/admin/categories", label: "Categories", icon: <FaTags />, roles: ["superadmin", "admin"] },
   { path: "/admin/topics", label: "Topics", icon: <FaList />, roles: ["superadmin", "admin"] },
+  { path: "/admin/tutorials", label: "Tutorials", icon: <FaBook />, roles: ["superadmin", "admin", "creator"] }, // Added Tutorials
   { path: "/admin/leaderboard", label: "Leaderboard", icon: <FaChartBar />, roles: ["superadmin", "admin"] },
   { path: "/admin/blogs", label: "Blogs", icon: <FaBook />, roles: ["superadmin", "creator", "moderator"] },
   { path: "/admin/tickets", label: "Tickets", icon: <FaComments />, roles: ["superadmin", "admin", "support"] },
@@ -30,7 +32,6 @@ const navItems = [
   { path: "/admin/seo-manager", label: "SEO Manager", icon: <FaSearch />, roles: ["superadmin", "admin"] },
   { path: "/admin/settings", label: "Settings", icon: <FaCogs />, roles: ["superadmin"] },
 ];
-
 export default function SidebarNav({ isOpen, onToggle }) {
   const { user } = useAuth();
   const location = useLocation();
