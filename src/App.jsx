@@ -68,7 +68,7 @@ import CategoriesPage from "./pages/admin/CategoriesPage";
 import AdminJobsPage from "./pages/admin/jobs/AdminJobsPage";
 import SeoManager from "./pages/admin/SeoManager";
 import AdminBlogEditPage from "./pages/admin/blogs/AdminBlogEditPage";
-import CategoryTopicsPage from "../pages/admin/CategoryTopicsPage";
+import CategoryTopicsPage from "./pages/admin/CategoryTopicsPage";
 // … import any other admin pages …
 
 import Navbar from "./components/layouts/Navbar";
