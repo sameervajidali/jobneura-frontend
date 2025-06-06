@@ -83,6 +83,7 @@ import AdminBlogReviewEditPage from "./pages/admin/blogs/AdminBlogReviewEditPage
 import TutorialsPage from "./pages/TutorialsPage";
 import BlogPage from "./pages/BlogPage";
 import AdminTutorialsPage from "./pages/admin/AdminTutorialsPage";
+import SubTopicsPage from "./pages/admin/subTopicPage";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -220,6 +221,7 @@ function LayoutWrapper() {
               <Route path="topics" element={<TopicsPage />} />
               <Route path="topics/new" element={<TopicForm />} />
               <Route path="topics/:id/edit" element={<TopicForm />} />
+              <Route path="/admin/topics/:topicId/subtopics" element={<SubTopicsPage />} />
               <Route path="roles/new" element={<RoleForm />} />
               <Route path="roles/:id/edit" element={<RoleForm />} />
               <Route path="users/new" element={<UserForm />} />
