@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import categoryService from "../../services/categoryService";
-import axios from "axios";
+import API from "../../services/axios"; // ✅ Use central axios instance
 
-const DEFAULT_FORM = { name: "", description: "", type: "both" };
+const DEFAULT_FORM = { name: "", description: "", type: "all" };
 
 export default function CategoryForm() {
   const { id } = useParams();
@@ -18,12 +18,13 @@ export default function CategoryForm() {
   useEffect(() => {
     if (!isEdit) return;
     setLoading(true);
-    categoryService.getCategoryById(id)
-      .then(cat =>
+    categoryService
+      .getCategoryById(id)
+      .then((cat) =>
         setForm({
           name: cat.name,
           description: cat.description || "",
-          type: cat.type || "both",
+          type: cat.type || "all",
         })
       )
       .catch(() => setMsg("Failed to load category"))
@@ -41,7 +42,7 @@ export default function CategoryForm() {
       if (isEdit) await categoryService.updateCategory(id, form);
       else await categoryService.createCategory(form);
       setMsg("Saved successfully");
-      setTimeout(() => navigate("/admin/categories"), 600);
+      setTimeout(() => navigate("/admin/categories"), 800);
     } catch (err) {
       setMsg(err.response?.data?.message || "Something went wrong.");
     } finally {
@@ -59,10 +60,12 @@ export default function CategoryForm() {
     setUploading(true);
     setMsg("");
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/categories/bulk-upload`,
+      const res = await API.post(
+        "/admin/categories/bulk-upload",
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
       setMsg(`Bulk upload success: ${res.data.count} categories added`);
       setTimeout(() => navigate("/admin/categories"), 1000);
@@ -70,7 +73,7 @@ export default function CategoryForm() {
       setMsg(err.response?.data?.message || "Bulk upload failed.");
     } finally {
       setUploading(false);
-      e.target.value = ""; // Reset input
+      e.target.value = "";
     }
   };
 
@@ -81,12 +84,16 @@ export default function CategoryForm() {
       </h2>
 
       {msg && (
-        <p className="text-sm text-center text-red-600 dark:text-red-400">{msg}</p>
+        <p className="text-sm text-center text-red-600 dark:text-red-400">
+          {msg}
+        </p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">Name</label>
+          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">
+            Name
+          </label>
           <input
             name="name"
             value={form.name}
@@ -98,7 +105,9 @@ export default function CategoryForm() {
         </div>
 
         <div>
-          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">Description</label>
+          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">
+            Description
+          </label>
           <textarea
             name="description"
             value={form.description}
@@ -109,7 +118,9 @@ export default function CategoryForm() {
         </div>
 
         <div>
-          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">Type</label>
+          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">
+            Type
+          </label>
           <select
             name="type"
             value={form.type}
@@ -118,7 +129,10 @@ export default function CategoryForm() {
           >
             <option value="quiz">Quiz</option>
             <option value="blog">Blog</option>
-            <option value="both">Both</option>
+            <option value="tutorial">Tutorial</option>
+            <option value="resume">Resume</option>
+            <option value="faq">FAQ</option>
+            <option value="all">All</option>
           </select>
         </div>
 
@@ -127,7 +141,11 @@ export default function CategoryForm() {
           disabled={loading}
           className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 disabled:opacity-50"
         >
-          {loading ? "Saving..." : isEdit ? "Update Category" : "Create Category"}
+          {loading
+            ? "Saving..."
+            : isEdit
+            ? "Update Category"
+            : "Create Category"}
         </button>
       </form>
 
@@ -142,7 +160,9 @@ export default function CategoryForm() {
           disabled={uploading}
           className="w-full bg-white dark:bg-gray-800 border rounded px-3 py-2 text-sm file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700"
         />
-        {uploading && <p className="text-xs text-gray-400 mt-2">Uploading...</p>}
+        {uploading && (
+          <p className="text-xs text-gray-400 mt-2">Uploading...</p>
+        )}
       </div>
     </div>
   );
