@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaList, FaEye, FaEyeSlash } from "react-icons/fa";
 import topicService from "../../services/topicService";
 
 export default function TopicsPage() {
@@ -103,19 +103,27 @@ export default function TopicsPage() {
                     )}
                   </td>
                   <td className="px-6 py-4 text-center space-x-2">
-                    <button
-                      onClick={() => navigate(`${t._id}/edit`)}
-                      className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"
-                    >
-                      <FaEdit className="mr-1" /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(t._id)}
-                      className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
-                    >
-                      <FaTrash className="mr-1" /> Delete
-                    </button>
-                  </td>
+  <button
+    onClick={() => navigate(`${t._id}/edit`)}
+    className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"
+  >
+    <FaEdit className="mr-1" /> Edit
+  </button>
+  <button
+    onClick={() => handleDelete(t._id)}
+    className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+  >
+    <FaTrash className="mr-1" /> Delete
+  </button>
+
+  <button
+    onClick={() => navigate(`/admin/topics/${t._id}/subtopics`)}
+    className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+  >
+    <FaList className="mr-1" /> SubTopics
+  </button>
+</td>
+
                 </tr>
               ))
             )}
