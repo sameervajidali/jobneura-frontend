@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEdit, FaTrash, FaList, FaEye, FaEyeSlash,FaSearch } from "react-icons/fa";
+import { FaEdit, FaTrash, FaList, FaEye, FaEyeSlash,FaSearch,FaPlus } from "react-icons/fa";
 import topicService from "../../services/topicService";
 
 export default function TopicsPage() {
