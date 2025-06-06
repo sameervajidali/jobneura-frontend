@@ -68,6 +68,7 @@ import CategoriesPage from "./pages/admin/CategoriesPage";
 import AdminJobsPage from "./pages/admin/jobs/AdminJobsPage";
 import SeoManager from "./pages/admin/SeoManager";
 import AdminBlogEditPage from "./pages/admin/blogs/AdminBlogEditPage";
+import CategoryTopicsPage from "../pages/admin/CategoryTopicsPage";
 // … import any other admin pages …
 
 import Navbar from "./components/layouts/Navbar";
@@ -215,6 +216,7 @@ function LayoutWrapper() {
               <Route path="categories" element={<CategoriesPage />} />
               <Route path="categories/new" element={<CategoryForm />} />
               <Route path="categories/:id/edit" element={<CategoryForm />} />
+              <Route path="/categories/:id/topics" element={<CategoryTopicsPage />} />
               <Route path="topics" element={<TopicsPage />} />
               <Route path="topics/new" element={<TopicForm />} />
               <Route path="topics/:id/edit" element={<TopicForm />} />
