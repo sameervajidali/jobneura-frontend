@@ -32,6 +32,13 @@ export function deleteCategory(id) {
     .then(res => res.data);
 }
 
+// ✅ BULK UPLOAD CATEGORIES (CSV/XLSX File)
+export function bulkUploadCategories(formData) {
+  return API.post("/admin/categories/bulk-upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  }).then(res => res.data);
+}
+
 // ─────────────────────────────────────────────────────────
 // ✅ EXPORT SERVICE OBJECT
 const categoryService = {
@@ -40,6 +47,7 @@ const categoryService = {
   createCategory,
   updateCategory,
   deleteCategory,
+  bulkUploadCategories,
 };
 
 export default categoryService;
