@@ -9,14 +9,18 @@ import {
   FaSort,
   FaSortUp,
   FaSortDown,
+  FaUpload,
 } from "react-icons/fa";
 import categoryService from "../../services/categoryService";
+import Papa from "papaparse";
 
 export default function CategoriesPage() {
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
+  const [bulkError, setBulkError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -32,7 +36,6 @@ export default function CategoriesPage() {
     })();
   }, []);
 
-  // Filter and sort categories
   const processed = useMemo(() => {
     const term = search.toLowerCase();
     return cats
@@ -66,22 +69,65 @@ export default function CategoriesPage() {
     }
   };
 
+  const handleCSVUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setBulkError("");
+
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const rows = results.data;
+        try {
+          for (let row of rows) {
+            if (!row.name) continue;
+            await categoryService.createCategory({
+              name: row.name.trim(),
+              description: row.description?.trim() || "",
+            });
+          }
+          const refreshed = await categoryService.getAllCategories();
+          setCats(refreshed);
+        } catch (err) {
+          setBulkError("Bulk upload failed. Ensure your file has valid 'name' and 'description' columns.");
+        } finally {
+          setUploading(false);
+        }
+      },
+      error: () => {
+        setUploading(false);
+        setBulkError("Failed to parse file. Make sure it's a valid CSV format.");
+      }
+    });
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Header and search/new */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-4 gap-4">
         <h1 className="text-2xl font-semibold">Categories</h1>
-        <div className="flex items-center gap-2 w-full lg:w-auto">
-          <div className="relative flex-1 lg:flex-none">
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          <div className="relative">
             <input
               type="text"
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search categories..."
-              className="w-full lg:w-64 border border-gray-300 rounded pl-10 pr-4 py-2 focus:ring-2 focus:ring-indigo-400"
+              className="w-64 border border-gray-300 rounded pl-10 pr-4 py-2 focus:ring-2 focus:ring-indigo-400"
             />
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
+          <label className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded cursor-pointer hover:bg-green-200">
+            <FaUpload className="mr-2" /> Bulk Upload
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleCSVUpload}
+              className="hidden"
+              disabled={uploading}
+            />
+          </label>
           <Link
             to="new"
             className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
@@ -91,7 +137,10 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      {/* Categories Table */}
+      {bulkError && (
+        <div className="mb-4 text-sm text-red-600 text-center">{bulkError}</div>
+      )}
+
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -123,15 +172,11 @@ export default function CategoriesPage() {
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
-                  Loading…
-                </td>
+                <td colSpan={5} className="py-8 text-center text-gray-500">Loading…</td>
               </tr>
             ) : processed.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
-                  No categories found.
-                </td>
+                <td colSpan={5} className="py-8 text-center text-gray-500">No categories found.</td>
               </tr>
             ) : (
               processed.map((cat, idx) => (
@@ -167,7 +212,6 @@ export default function CategoriesPage() {
   );
 }
 
-// SortIcon helper
 function SortIcon({ label, sortKey, sortConfig }) {
   const isActive = sortConfig.key === sortKey;
   return (

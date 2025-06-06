@@ -1,29 +1,19 @@
 import React from 'react';
 import HeroSection from '../components/landing/HeroSection';
 import FeaturesSection from '../components/landing/FeaturesSection';
-import JobsPreview from '../components/landing/JobsPreview';
-import QuizzesPreview from '../components/landing/QuizzesPreview';
-import CTABanner from '../components/landing/CTABanner';
+import CertificateShowcase from '../components/landing/CertificateShowcase';
+// import TutorialsPreview from '../components/landing/TutorialsPreview';
+// import BlogsPreview from '../components/landing/BlogsPreview';
 
 function HomePage() {
   return (
-   
-     <div>
-      {/* Hero Section */}
+    <div>
       <HeroSection />
-
-      {/* Features Section */}
       <FeaturesSection />
-
-      {/* Jobs Preview Section */}
-      <JobsPreview />
-      {/* Quizzes Preview Section */}
-      <QuizzesPreview />
-
-      {/* Call To Action Banner */}
-      <CTABanner />
-  </div>
+      <CertificateShowcase />
+      {/* <TutorialsPreview />
+      <BlogsPreview /> */}
+    </div>
   );
 }
-
 export default HomePage;

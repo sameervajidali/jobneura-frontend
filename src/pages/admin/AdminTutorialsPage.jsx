@@ -11,7 +11,8 @@ function AdminTutorialsPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
-  const [total, setTotal] = useState(0);
+    const [total, setTotal] = useState(0);
+    
 
   // For add/edit modal
   const [editingTutorial, setEditingTutorial] = useState(null);
