@@ -216,7 +216,7 @@ function LayoutWrapper() {
               <Route path="categories" element={<CategoriesPage />} />
               <Route path="categories/new" element={<CategoryForm />} />
               <Route path="categories/:id/edit" element={<CategoryForm />} />
-              <Route path="/categories/:id/topics" element={<CategoryTopicsPage />} />
+              <Route path="categories/:id/topics" element={<CategoryTopicsPage />} />
               <Route path="topics" element={<TopicsPage />} />
               <Route path="topics/new" element={<TopicForm />} />
               <Route path="topics/:id/edit" element={<TopicForm />} />
