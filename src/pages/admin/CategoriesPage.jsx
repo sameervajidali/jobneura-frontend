@@ -8,7 +8,8 @@ import {
   FaSearch,
   FaSort,
   FaSortUp,
-  FaSortDown
+  FaSortDown,
+  FaEye
 } from "react-icons/fa";
 import categoryService from "../../services/categoryService";
 
@@ -93,48 +94,33 @@ export default function CategoriesPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="w-12 px-4 py-3"><input type="checkbox" disabled /></th>
-              <th
-                className="w-12 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                onClick={() => handleSort("sr")}
-              >
-                <SortIcon label="#" sortKey="sr" sortConfig={sortConfig} />
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                onClick={() => handleSort("name")}
-              >
-                <SortIcon label="Name" sortKey="name" sortConfig={sortConfig} />
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer"
-                onClick={() => handleSort("description")}
-              >
-                <SortIcon label="Description" sortKey="description" sortConfig={sortConfig} />
-              </th>
-              <th className="w-40 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                Actions
-              </th>
+              <th className="w-12 px-4 py-3 text-xs font-medium text-gray-500 uppercase">#</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onClick={() => handleSort("name")}>Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer" onClick={() => handleSort("description")}>Description</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Visible</th>
+              <th className="w-40 px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">Loading…</td>
+                <td colSpan={6} className="py-8 text-center text-gray-500">Loading…</td>
               </tr>
             ) : processed.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">No categories found.</td>
+                <td colSpan={6} className="py-8 text-center text-gray-500">No categories found.</td>
               </tr>
             ) : (
               processed.map((cat, idx) => (
                 <tr key={cat._id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                  <td className="px-4 py-3 text-center">
-                    <input type="checkbox" className="h-4 w-4 text-indigo-600" disabled />
-                  </td>
                   <td className="px-4 py-3 text-center text-sm text-gray-700">{idx + 1}</td>
-                  <td className="px-6 py-3 text-sm text-gray-900">{cat.name}</td>
+                  <td className="px-6 py-3 text-sm text-indigo-700 font-semibold">{cat.name}</td>
                   <td className="px-6 py-3 text-sm text-gray-700">{cat.description || '—'}</td>
+                  <td className="px-6 py-3 text-sm text-gray-700 capitalize">{cat.type || '—'}</td>
+                  <td className="px-6 py-3 text-sm text-green-600 text-center">
+                    <FaEye title="Visible" />
+                  </td>
                   <td className="px-6 py-3 text-center space-x-3">
                     <button
                       type="button"
