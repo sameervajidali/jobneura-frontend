@@ -8,19 +8,15 @@ import {
   FaSearch,
   FaSort,
   FaSortUp,
-  FaSortDown,
-  FaUpload,
+  FaSortDown
 } from "react-icons/fa";
 import categoryService from "../../services/categoryService";
-import Papa from "papaparse";
 
 export default function CategoriesPage() {
   const [cats, setCats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "name", direction: "asc" });
-  const [bulkError, setBulkError] = useState("");
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -69,40 +65,6 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleCSVUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    setBulkError("");
-
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        const rows = results.data;
-        try {
-          for (let row of rows) {
-            if (!row.name) continue;
-            await categoryService.createCategory({
-              name: row.name.trim(),
-              description: row.description?.trim() || "",
-            });
-          }
-          const refreshed = await categoryService.getAllCategories();
-          setCats(refreshed);
-        } catch (err) {
-          setBulkError("Bulk upload failed. Ensure your file has valid 'name' and 'description' columns.");
-        } finally {
-          setUploading(false);
-        }
-      },
-      error: () => {
-        setUploading(false);
-        setBulkError("Failed to parse file. Make sure it's a valid CSV format.");
-      }
-    });
-  };
-
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-4 gap-4">
@@ -118,16 +80,6 @@ export default function CategoriesPage() {
             />
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
-          <label className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded cursor-pointer hover:bg-green-200">
-            <FaUpload className="mr-2" /> Bulk Upload
-            <input
-              type="file"
-              accept=".csv"
-              onChange={handleCSVUpload}
-              className="hidden"
-              disabled={uploading}
-            />
-          </label>
           <Link
             to="new"
             className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
@@ -136,10 +88,6 @@ export default function CategoriesPage() {
           </Link>
         </div>
       </div>
-
-      {bulkError && (
-        <div className="mb-4 text-sm text-red-600 text-center">{bulkError}</div>
-      )}
 
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200">
