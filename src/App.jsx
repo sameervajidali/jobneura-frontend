@@ -84,6 +84,8 @@ import TutorialsPage from "./pages/TutorialsPage";
 import BlogPage from "./pages/BlogPage";
 import AdminTutorialsPage from "./pages/admin/AdminTutorialsPage";
 import SubTopicsPage from "./pages/admin/subTopicPage";
+import SubTopicForm from "./pages/admin/SubTopicForm"; // for add/edit
+import SubTopicBulkUploadPage from "./pages/admin/SubTopicBulkUploadPage"; // create if missing
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -221,7 +223,10 @@ function LayoutWrapper() {
               <Route path="topics" element={<TopicsPage />} />
               <Route path="topics/new" element={<TopicForm />} />
               <Route path="topics/:id/edit" element={<TopicForm />} />
-              <Route path="topics/:topicId/subtopics" element={<SubTopicsPage />} />
+              <Route path="admin/topics/:topicId/subtopics" element={<SubTopicsPage />} />
+              <Route path="topics/:topicId/subtopics/new" element={<SubTopicForm />} />
+              <Route path="topics/:topicId/subtopics/:subtopicId/edit" element={<SubTopicForm />} />
+              <Route path="topics/:topicId/subtopics/bulk-upload" element={<SubTopicBulkUploadPage />} />
               <Route path="roles/new" element={<RoleForm />} />
               <Route path="roles/:id/edit" element={<RoleForm />} />
               <Route path="users/new" element={<UserForm />} />
