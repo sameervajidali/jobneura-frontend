@@ -8,6 +8,8 @@ export default function SubTopicBulkUploadPage() {
   const [file, setFile] = useState(null);
   const [jsonText, setJsonText] = useState("");
   const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
@@ -18,22 +20,24 @@ export default function SubTopicBulkUploadPage() {
     if (!file) return alert("Please select a file.");
     setLoading(true);
     setMessage("");
+    setSuccess(false);
+    setErrors([]);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      await axios.post(
+      const res = await axios.post(
         `/api/admin/subtopics/bulk-upload?topic=${topicId}`,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      setMessage("✅ SubTopics uploaded successfully!");
+      setMessage(`✅ ${res.data.message || "SubTopics uploaded successfully!"}`);
+      setSuccess(true);
     } catch (err) {
       setMessage(err.response?.data?.message || "❌ Upload failed.");
+      setSuccess(false);
     } finally {
       setLoading(false);
     }
@@ -41,18 +45,26 @@ export default function SubTopicBulkUploadPage() {
 
   const uploadJSON = async () => {
     try {
-      const parsed = JSON.parse(jsonText);
+      const parsedData = JSON.parse(jsonText);
       setLoading(true);
-      await axios.post(
+      setMessage("");
+      setSuccess(false);
+      setErrors([]);
+
+      const res = await axios.post(
         `/api/admin/subtopics/bulk-json?topic=${topicId}`,
         { subtopics: parsedData },
         { headers: { "Content-Type": "application/json" } }
       );
-      setMessage("✅ JSON SubTopics uploaded successfully!");
+
+      setMessage(`✅ ${res.data.message}`);
+      setSuccess(true);
+      if (res.data.errors?.length) {
+        setErrors(res.data.errors);
+      }
     } catch (err) {
-      setMessage(
-        err.response?.data?.message || "❌ Invalid JSON or upload failed."
-      );
+      setMessage(err.response?.data?.message || "❌ Invalid JSON or upload failed.");
+      setSuccess(false);
     } finally {
       setLoading(false);
     }
@@ -65,9 +77,26 @@ export default function SubTopicBulkUploadPage() {
       </h1>
 
       {message && (
-        <p className="text-sm text-center text-red-600 dark:text-red-400">
+        <p
+          className={`text-sm text-center font-medium ${
+            success ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+          }`}
+        >
           {message}
         </p>
+      )}
+
+      {errors.length > 0 && (
+        <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 p-3 rounded text-sm text-red-800 dark:text-red-300 space-y-1">
+          <strong>Some entries failed:</strong>
+          <ul className="list-disc list-inside">
+            {errors.map((e, idx) => (
+              <li key={idx}>
+                <strong>{e.name || "Unnamed"}:</strong> {e.message}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="space-y-4">
