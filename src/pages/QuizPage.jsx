@@ -183,12 +183,12 @@ export default function QuizPage() {
   return (
     <div className="max-w-3xl mx-auto mt-6 px-4 sm:px-6 lg:px-8">
       <Helmet>
-        <title>{quiz.title} – Quiz | JobNeura</title>
-        <meta name="description" content={`Take the ${quiz.title} quiz on JobNeura and test your knowledge.`} />
+        <title>{quiz.subTopic.name} – Quiz | JobNeura</title>
+        <meta name="description" content={`Take the ${quiz.subTopic.name} quiz on JobNeura and test your knowledge.`} />
       </Helmet>
 
       <div className="bg-white shadow-md rounded-2xl p-6">
-        <h1 className="text-2xl font-bold mb-4 text-indigo-700">{quiz.title}</h1>
+        <h1 className="text-2xl font-bold mb-4 text-indigo-700">{quiz.subTopic.name}</h1>
 
         <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
           <p>Question {currentIndex + 1} of {total}</p>

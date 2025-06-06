@@ -65,7 +65,7 @@ function QuizzesPreview() {
 
                 {/* Title */}
                 <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                  {quiz.title}
+                  {quiz.subTopic.name}
                 </h3>
 
                 {/* Category */}

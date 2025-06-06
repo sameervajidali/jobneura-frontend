@@ -145,7 +145,7 @@ export default function QuizLandingPage() {
                 className="bg-white rounded-2xl border hover:shadow-lg p-6 transition-all flex flex-col justify-between"
               >
                 <div className="flex flex-col gap-1">
-                  <h3 className="text-lg font-bold text-indigo-700">{quiz.title}</h3>
+                  <h3 className="text-lg font-bold text-indigo-700">{quiz.subTopic.name}</h3>
                   <p className="text-sm text-gray-600">
                     {quiz.questions} Questions | {quiz.time}
                   </p>

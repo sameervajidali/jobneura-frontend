@@ -105,7 +105,7 @@ export default function QuizStartPage() {
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       {/* Header + Timer */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">{quiz.title}</h1>
+        <h1 className="text-2xl font-bold">{quiz.subTopic.name}</h1>
         <div className="w-40">
           <div className="relative h-3 bg-gray-200 rounded-full overflow-hidden mb-1">
             <motion.div

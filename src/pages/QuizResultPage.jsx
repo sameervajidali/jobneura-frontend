@@ -51,7 +51,7 @@ useEffect(() => {
   const downloadReport = () => {
     const payload = {
       quiz:        attempt.quiz._id,
-      title:       attempt.quiz.title,
+      title:       attempt.quiz.subTopic.name,
       score:       attempt.score,
       total:       attempt.totalQuestions,
       rank:        stats.rank,
@@ -72,7 +72,7 @@ useEffect(() => {
   };
 
   // Social share text & URL
-  const shareText = `I scored ${attempt.score}/${attempt.totalQuestions} on "${attempt.quiz.title}"!`;
+  const shareText = `I scored ${attempt.score}/${attempt.totalQuestions} on "${attempt.quiz.subTopic.name}"!`;
   const shareUrl  = encodeURIComponent(window.location.href);
 
   return (
@@ -80,7 +80,7 @@ useEffect(() => {
       {/* 1️⃣ Header Summary */}
       <div className="bg-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">{attempt.quiz.title}</h1>
+          <h1 className="text-3xl font-bold text-gray-800">{attempt.quiz.subTopic.name}</h1>
           <p className="mt-2 text-lg text-gray-700">
             Score{' '}
             <span className="font-semibold text-indigo-600">

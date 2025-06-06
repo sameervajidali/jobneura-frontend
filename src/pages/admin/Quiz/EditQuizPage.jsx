@@ -53,7 +53,7 @@ export default function EditQuizPage() {
 
         // 4. Seed form state with quiz values
         setForm({
-          title:      quiz.title,
+          title:      quiz.subTopic.name,
           category:   quiz.category._id,
           topic:      quiz.topic._id,
           level:      quiz.level,
