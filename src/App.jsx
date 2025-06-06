@@ -221,7 +221,7 @@ function LayoutWrapper() {
               <Route path="topics" element={<TopicsPage />} />
               <Route path="topics/new" element={<TopicForm />} />
               <Route path="topics/:id/edit" element={<TopicForm />} />
-              <Route path="/admin/topics/:topicId/subtopics" element={<SubTopicsPage />} />
+              <Route path="topics/:topicId/subtopics" element={<SubTopicsPage />} />
               <Route path="roles/new" element={<RoleForm />} />
               <Route path="roles/:id/edit" element={<RoleForm />} />
               <Route path="users/new" element={<UserForm />} />
