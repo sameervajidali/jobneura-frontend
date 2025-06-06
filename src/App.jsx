@@ -223,7 +223,7 @@ function LayoutWrapper() {
               <Route path="topics" element={<TopicsPage />} />
               <Route path="topics/new" element={<TopicForm />} />
               <Route path="topics/:id/edit" element={<TopicForm />} />
-              <Route path="admin/topics/:topicId/subtopics" element={<SubTopicsPage />} />
+              <Route path="topics/:topicId/subtopics" element={<SubTopicsPage />} />
               <Route path="topics/:topicId/subtopics/new" element={<SubTopicForm />} />
               <Route path="topics/:topicId/subtopics/:subtopicId/edit" element={<SubTopicForm />} />
               <Route path="topics/:topicId/subtopics/bulk-upload" element={<SubTopicBulkUploadPage />} />
