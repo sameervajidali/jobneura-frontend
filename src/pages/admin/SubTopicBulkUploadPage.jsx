@@ -23,9 +23,13 @@ export default function SubTopicBulkUploadPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      await axios.post(`/api/admin/subtopics/bulk-upload?topic=${topicId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios.post(
+        `/api/admin/subtopics/bulk-upload?topic=${topicId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
 
       setMessage("✅ SubTopics uploaded successfully!");
     } catch (err) {
@@ -39,10 +43,16 @@ export default function SubTopicBulkUploadPage() {
     try {
       const parsed = JSON.parse(jsonText);
       setLoading(true);
-      await axios.post(`/api/admin/subtopics/bulk-json?topic=${topicId}`, { subtopics: parsed });
+      await axios.post(
+        `/api/admin/subtopics/bulk-json?topic=${topicId}`,
+        { subtopics: parsedData },
+        { headers: { "Content-Type": "application/json" } }
+      );
       setMessage("✅ JSON SubTopics uploaded successfully!");
     } catch (err) {
-      setMessage(err.response?.data?.message || "❌ Invalid JSON or upload failed.");
+      setMessage(
+        err.response?.data?.message || "❌ Invalid JSON or upload failed."
+      );
     } finally {
       setLoading(false);
     }
@@ -55,13 +65,17 @@ export default function SubTopicBulkUploadPage() {
       </h1>
 
       {message && (
-        <p className="text-sm text-center text-red-600 dark:text-red-400">{message}</p>
+        <p className="text-sm text-center text-red-600 dark:text-red-400">
+          {message}
+        </p>
       )}
 
       <div className="space-y-4">
         {/* File Upload */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Upload CSV/XLSX</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Upload CSV/XLSX
+          </label>
           <input
             type="file"
             accept=".csv,.xlsx"
@@ -79,7 +93,9 @@ export default function SubTopicBulkUploadPage() {
 
         {/* JSON Paste */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Paste JSON</label>
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Paste JSON
+          </label>
           <textarea
             rows={6}
             value={jsonText}
