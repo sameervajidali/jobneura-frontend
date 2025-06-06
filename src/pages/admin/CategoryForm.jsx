@@ -60,9 +60,13 @@ export default function CategoryForm() {
     setUploading(true);
     setMsg("");
     try {
-      const res = await API.post("/admin/categories/bulk-upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await API.post(
+        "/admin/categories/bulk-upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       setMsg(`Bulk upload success: ${res.data.count} categories added`);
       setTimeout(() => navigate("/admin/categories"), 1000);
     } catch (err) {
@@ -87,13 +91,9 @@ export default function CategoryForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Link
-            to={`/admin/categories/${cat._id}/topics`}
-            className="text-indigo-600 hover:underline"
-          >
-            {cat.name}
-          </Link>
-
+          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">
+            Name
+          </label>
           <input
             name="name"
             value={form.name}
