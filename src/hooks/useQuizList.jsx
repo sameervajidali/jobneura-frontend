@@ -1,45 +1,48 @@
 // src/hooks/useQuizList.js
-import { useState, useEffect } from 'react';
-import API from '../services/axios.js';
+import { useState, useEffect } from "react";
+import API from "../services/axios.js";
 
 export default function useQuizList({ page = 1, limit = 12, ...otherFilters }) {
   const [quizzes, setQuizzes] = useState([]);
-  const [total,   setTotal]   = useState(0);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
-    setError('');
+    setError("");
 
     // build query params
     const params = { page, limit };
     Object.entries(otherFilters).forEach(([k, v]) => {
-      if (v != null && v !== '') params[k] = v;
+      if (v != null && v !== "") params[k] = v;
     });
 
-    console.log('🌐 Fetching /quizzes with', params);
+    
     API.get('/quizzes', { params })
-      .then(res => {     
+  .then(res => {     
+    console.log('API RAW RESPONSE', res.data);
 
-console.log('API RAW RESPONSE', res.data);   // <---- ADD THIS LINE
-        setQuizzes(res.data.quizzes || []);
-        setTotal(res.data.total || 0);
-        
-        console.log("ALL QUIZZES RAW", quizzes);
-quizzes.forEach(q => {
-  if (typeof q.subTopic === "string") {
-    console.warn("BAD QUIZ!", q);
-  }
-});
+    // CHECK *THE DATA YOU RECEIVED* DIRECTLY
+    res.data.quizzes.forEach(q => {
+      if (typeof q.subTopic === "string") {
+        console.warn("BAD QUIZ FROM API!", q);
+      } else {
+        console.log("GOOD QUIZ", q.subTopic);
+      }
+    });
 
+    setQuizzes(res.data.quizzes || []);
+    setTotal(res.data.total || 0);
+  })
+  .catch(err => {
+    console.error("API ERROR", err);
+    setError(err.response?.data?.message || "Failed to fetch quizzes");
+  })
+  .finally(() => {
+    setLoading(false);
+  });
 
-      })
-      .catch(err => {
-        console.error('❌ Quiz list fetch error:', err);
-        setError(err.response?.data?.message || err.message);
-      })
-      .finally(() => setLoading(false));
   }, [page, limit, JSON.stringify(otherFilters)]);
 
   return { quizzes, total, page, limit, loading, error };

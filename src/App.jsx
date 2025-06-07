@@ -31,6 +31,7 @@ import AdminDashboardHome from "./pages/admin/AdminDashboardHome";
 import AdminUsersPage from "./pages/admin/Users";
 import UserDetails from "./pages/admin/Users/UserDetails";
 import UserForm from "./pages/admin/Users/UserForm";
+import TestQuizPage from './pages/TestQuizPage'; // path as per your project
 
 // Admin Pages
 
@@ -170,6 +171,7 @@ function LayoutWrapper() {
           <Route path="/tutorials" element={<TutorialsPage />} />
           <Route path="/blogs" element={<BlogPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
+          <Route path="/test-quiz" element={<TestQuizPage />} />
           {/* Quizzes & Leaderboard */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
