@@ -513,12 +513,11 @@ export default function AdminQuizPanel() {
         <table className="min-w-full divide-y divide-gray-200 table-auto">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-2"></th>
+              <th className="px-4 py-2">[]</th>
               <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase">#</th>
               <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase text-center">Topic</th>
               <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase text-center">Category</th>
               <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase text-center">SubTopic</th>
-              <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase">Title</th>
               <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase">Level</th>
               <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase">Questions</th>
               <th className="px-6 py-2 text-xs font-medium text-gray-500 uppercase">Active</th>
@@ -576,6 +575,7 @@ export default function AdminQuizPanel() {
                       ? q.subTopic
                       : ''}
                   </td>
+                  
                   <td className="px-6 py-2 text-sm text-gray-700">{q.level}</td>
                   <td className="px-6 py-2 text-sm text-gray-700">{q.questions?.length ?? 0}</td>
                   <td className="px-6 py-2 text-center">
