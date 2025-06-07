@@ -108,7 +108,7 @@ export default function AdminQuizPanel() {
       q.category && typeof q.category === 'object'
         ? q.category.name
         : q.category || '';
-    const title = q.title || '';
+    const title = q.subTopic?.name || "—";
     return (
       topicName.toLowerCase().includes(term) ||
       categoryName.toLowerCase().includes(term) ||
