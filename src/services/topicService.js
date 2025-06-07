@@ -39,6 +39,15 @@ export function bulkUploadTopics(formData) {
   }).then(res => res.data);
 }
 
+
+export const bulkUploadTopicsJSON = (payload) =>
+  API.post('/admin/topics/bulk-upload/json', payload).then(res => res.data);
+
+export const bulkUploadTopicsCSV = (formData) =>
+  API.post('/admin/topics/bulk-upload/csv', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }).then(res => res.data);
+
 // ─────────────────────────────────────────────────────────
 // ✅ EXPORT AS SINGLE SERVICE OBJECT
 const topicService = {
@@ -48,6 +57,8 @@ const topicService = {
   updateTopic,
   deleteTopic,
   bulkUploadTopics,
+   bulkUploadTopicsJSON,
+  bulkUploadTopicsCSV,
 };
 
 export default topicService;
