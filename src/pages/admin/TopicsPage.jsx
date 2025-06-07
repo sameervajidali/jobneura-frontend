@@ -1,6 +1,14 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEdit, FaTrash, FaList, FaEye, FaEyeSlash,FaSearch,FaPlus } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaList,
+  FaEye,
+  FaEyeSlash,
+  FaSearch,
+  FaPlus,
+} from "react-icons/fa";
 import topicService from "../../services/topicService";
 
 export default function TopicsPage() {
@@ -27,7 +35,10 @@ export default function TopicsPage() {
     return topics.filter((t) => {
       const name = t.name || "";
       const category = (t.category && t.category.name) || "";
-      return name.toLowerCase().includes(term) || category.toLowerCase().includes(term);
+      return (
+        name.toLowerCase().includes(term) ||
+        category.toLowerCase().includes(term)
+      );
     });
   }, [topics, search]);
 
@@ -45,7 +56,9 @@ export default function TopicsPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* ─── Header ───────────────────────────────────── */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Topics</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+          Topics
+        </h1>
         <div className="flex items-center gap-2 w-full md:w-auto">
           <div className="relative flex-1 md:flex-none">
             <input
@@ -63,6 +76,12 @@ export default function TopicsPage() {
           >
             <FaPlus className="mr-2" /> New Topic
           </button>
+          <button
+            onClick={() => setBulkModal(true)}
+            className="inline-flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+          >
+            <FaPlus className="mr-2" /> Bulk Upload
+          </button>
         </div>
       </div>
 
@@ -71,59 +90,99 @@ export default function TopicsPage() {
         <table className="min-w-full table-auto divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">#</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">Type</th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">Visible</th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">
+                #
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">
+                Category
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">
+                Type
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">
+                Visible
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {loading ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">Loading…</td>
+                <td
+                  colSpan={6}
+                  className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
+                >
+                  Loading…
+                </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">No topics found.</td>
+                <td
+                  colSpan={6}
+                  className="px-6 py-8 text-center text-gray-500 dark:text-gray-400"
+                >
+                  No topics found.
+                </td>
               </tr>
             ) : (
               filtered.map((t, idx) => (
-                <tr key={t._id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                  <td className="px-6 py-4 text-center text-sm text-gray-700 dark:text-gray-300">{idx + 1}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{t.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">{t.category?.name || "—"}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">{t.type || "quiz"}</td>
+                <tr
+                  key={t._id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                >
+                  <td className="px-6 py-4 text-center text-sm text-gray-700 dark:text-gray-300">
+                    {idx + 1}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                    {t.name}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                    {t.category?.name || "—"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    {t.type || "quiz"}
+                  </td>
                   <td className="px-6 py-4 text-center">
                     {t.isVisible ? (
-                      <FaEye className="text-green-500 inline" title="Visible" />
+                      <FaEye
+                        className="text-green-500 inline"
+                        title="Visible"
+                      />
                     ) : (
-                      <FaEyeSlash className="text-gray-400 inline" title="Hidden" />
+                      <FaEyeSlash
+                        className="text-gray-400 inline"
+                        title="Hidden"
+                      />
                     )}
                   </td>
                   <td className="px-6 py-4 text-center space-x-2">
-  <button
-    onClick={() => navigate(`${t._id}/edit`)}
-    className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"
-  >
-    <FaEdit className="mr-1" /> Edit
-  </button>
-  <button
-    onClick={() => handleDelete(t._id)}
-    className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
-  >
-    <FaTrash className="mr-1" /> Delete
-  </button>
+                    <button
+                      onClick={() => navigate(`${t._id}/edit`)}
+                      className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200"
+                    >
+                      <FaEdit className="mr-1" /> Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(t._id)}
+                      className="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                    >
+                      <FaTrash className="mr-1" /> Delete
+                    </button>
 
-  <button
-    onClick={() => navigate(`/admin/topics/${t._id}/subtopics`)}
-    className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-  >
-    <FaList className="mr-1" /> SubTopics
-  </button>
-</td>
-
+                    <button
+                      onClick={() =>
+                        navigate(`/admin/topics/${t._id}/subtopics`)
+                      }
+                      className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                    >
+                      <FaList className="mr-1" /> SubTopics
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
