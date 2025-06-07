@@ -6,10 +6,9 @@ export default function useTestQuizzes() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    API.get('/quizzes/test-quizzes').then(res => {
-  console.log("DATA FROM TEST API", res.data.quizzes);
-});
-
+    API.get('/quizzes/test-quizzes')
+      .then(res => setData(res.data))
+      .catch(err => setData({ error: err.message }));
   }, []);
 
   return data;
