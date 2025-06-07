@@ -576,7 +576,6 @@ export default function AdminQuizPanel() {
                       ? q.subTopic
                       : ''}
                   </td>
-                  <td className="px-6 py-2 text-sm text-gray-700">{q.title}</td>
                   <td className="px-6 py-2 text-sm text-gray-700">{q.level}</td>
                   <td className="px-6 py-2 text-sm text-gray-700">{q.questions?.length ?? 0}</td>
                   <td className="px-6 py-2 text-center">
