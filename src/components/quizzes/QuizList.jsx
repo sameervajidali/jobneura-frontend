@@ -77,9 +77,15 @@ export default function QuizList({ filters, onPageChange }) {
   </div>
 
   {/* Title */}
-  <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 flex-1 leading-tight line-clamp-2">
-    {q.title}
-  </h3>
+<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4 flex-1 leading-tight line-clamp-2">
+  {q.subTopic?.name || "—"}
+</h3>
+
+ <p className="text-xs text-red-500">
+  subTopic raw: {JSON.stringify(q.subTopic)}
+</p>
+
+
 
   {/* Stats Row */}
   <div className="flex items-center justify-between mb-4 px-2 text-indigo-400 dark:text-indigo-300">
