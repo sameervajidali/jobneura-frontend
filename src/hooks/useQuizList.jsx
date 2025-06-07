@@ -20,9 +20,20 @@ export default function useQuizList({ page = 1, limit = 12, ...otherFilters }) {
 
     console.log('🌐 Fetching /quizzes with', params);
     API.get('/quizzes', { params })
-      .then(res => {
+      .then(res => {     
+
+console.log('API RAW RESPONSE', res.data);   // <---- ADD THIS LINE
         setQuizzes(res.data.quizzes || []);
         setTotal(res.data.total || 0);
+        
+        console.log("ALL QUIZZES RAW", quizzes);
+quizzes.forEach(q => {
+  if (typeof q.subTopic === "string") {
+    console.warn("BAD QUIZ!", q);
+  }
+});
+
+
       })
       .catch(err => {
         console.error('❌ Quiz list fetch error:', err);
