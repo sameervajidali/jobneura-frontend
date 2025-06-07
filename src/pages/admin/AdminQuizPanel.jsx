@@ -108,11 +108,19 @@ export default function AdminQuizPanel() {
       q.category && typeof q.category === 'object'
         ? q.category.name
         : q.category || '';
-    const title = q.subTopic?.name || "—";
+
+    const subTopicName =
+  typeof q.subTopic === 'object' && q.subTopic && q.subTopic.name
+    ? q.subTopic.name
+    : typeof q.subTopic === 'string'
+    ? q.subTopic
+    : '';
+
+    const title = q.title || '';
     return (
       topicName.toLowerCase().includes(term) ||
       categoryName.toLowerCase().includes(term) ||
-      title.toLowerCase().includes(term)
+      subTopicName.toLowerCase().includes(term)
     );
   });
 
@@ -245,7 +253,7 @@ export default function AdminQuizPanel() {
                   <td className="px-6 py-2 text-sm text-gray-700 text-center">
                     {typeof q.category === 'object' ? q.category.name : q.category}
                   </td>
-                  <td className="px-6 py-2 text-sm text-gray-700">{q.title}</td>
+                  <td className="px-6 py-2 text-sm text-gray-700">{q.subTopicName}</td>
                   <td className="px-6 py-2 text-sm text-gray-700">{q.level}</td>
                   <td className="px-6 py-2 text-sm text-gray-700">{q.questions?.length ?? 0}</td>
                   <td className="px-6 py-2 text-center">
