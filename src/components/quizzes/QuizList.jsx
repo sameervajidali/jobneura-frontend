@@ -58,8 +58,8 @@ export default function QuizList({ filters = {}, onPageChange }) {
             >
               {/* Category + New */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-300">
-                  {q.category?.name || "—"}
+                <span className="text-xs  uppercase tracking-widest text-indigo-600 dark:text-indigo-300">
+                  {q.topic?.name || "—"}
                 </span>
                 {isNew && (
                   <span className="flex items-center ml-2 text-green-500 font-semibold text-xs">
@@ -90,9 +90,13 @@ export default function QuizList({ filters = {}, onPageChange }) {
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <UserIcon className="w-5 h-5" />
-                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                  {/* <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                     {(typeof q.attemptCount === "number" ? q.attemptCount : 0)} tries
-                  </span>
+                  </span> */}
+                  <div style={{ backgroundColor: "#ff0", color: "#000" }}>
+  attemptCount: {q.attemptCount}
+</div>
+
                 </div>
               </div>
 
