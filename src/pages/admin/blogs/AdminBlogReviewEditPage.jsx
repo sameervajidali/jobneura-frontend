@@ -6,17 +6,22 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useParams, useNavigate } from "react-router-dom";
 
-import {
-  blogCategoryService,
-  getBlogById,
-  updateBlog,
-  updateBlogStatus,
-} from "../../../services/blogService";
+import blogCategoryService from "../../../services/blogCategoryService.js";
+import blogService from "../../../services/blogService.js"; // We'll use .get and .update here
 
+// Status options as lowercase for backend/API compatibility
+const STATUS_OPTIONS = [
+  { value: "draft", label: "Draft" },
+  { value: "review", label: "Review" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+];
+
+// Zod schema for validation
 const blogSchema = z.object({
   title: z.string().min(5, "Title is required"),
   category: z.string().min(1, "Category is required"),
-  status: z.enum(["Draft", "Published"]),
+  status: z.enum(["draft", "review", "published", "archived"]),
   content: z.string().min(10, "Content is required"),
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
@@ -27,8 +32,8 @@ export default function AdminBlogReviewEditPage() {
   const { blogId } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
@@ -44,7 +49,7 @@ export default function AdminBlogReviewEditPage() {
     defaultValues: {
       title: "",
       category: "",
-      status: "Draft",
+      status: "draft",
       content: "",
       metaTitle: "",
       metaDescription: "",
@@ -55,38 +60,37 @@ export default function AdminBlogReviewEditPage() {
   const watchStatus = watch("status");
   const watchContent = watch("content");
 
- useEffect(() => {
-     blogCategoryService()
-       .then(data => {
-         if (Array.isArray(data)) setCategories(data);
-         else if (Array.isArray(data.categories)) setCategories(data.categories);
-         else setCategories([]);
-       })
-       .catch(() => setCategories([]));
- 
-     if (blogId) {
-       setLoading(true);
-       getBlogById(blogId)
-         .then(data => {
-           reset({
-             title: data.title,
-             category: data.category?._id || '',
-             status: data.status,
-             content: data.content,
-             metaTitle: data.metaTitle || '',
-             metaDescription: data.metaDescription || '',
-             metaKeywords: data.metaKeywords || '',
-           });
-           setFeaturedImage(data.featuredImage || null);
-         })
-         .catch(() => setLoadError('Failed to load blog'))
-         .finally(() => setLoading(false));
-     }
-   }, [blogId, reset]);
+  // Load categories and blog post (if editing)
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      blogCategoryService.list(),
+      blogId ? blogService.get(blogId) : Promise.resolve(null),
+    ])
+      .then(([cats, post]) => {
+        setCategories(cats || []);
+        if (post) {
+          reset({
+            title: post.title || "",
+            category: post.category?._id?.toString() || "",
+            status: post.status || "draft",
+            content: post.content || "",
+            metaTitle: post.metaTitle || "",
+            metaDescription: post.metaDescription || "",
+            metaKeywords: post.metaKeywords || "",
+          });
+        }
+      })
+      .catch(() => setError("Failed to load data"))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line
+  }, [blogId, reset]);
 
+  // Submit form
   const onSubmit = async (data) => {
     try {
-      await updateBlog(blogId, data);
+      await blogService.update(blogId, data);
       alert("Blog details saved successfully.");
       reset(data);
     } catch {
@@ -94,10 +98,11 @@ export default function AdminBlogReviewEditPage() {
     }
   };
 
+  // Change blog status only
   const changeStatus = async (newStatus) => {
     setUpdatingStatus(true);
     try {
-      await updateBlogStatus(blogId, newStatus);
+      await blogService.update(blogId, { status: newStatus });
       alert(`Blog status changed to ${newStatus}`);
       reset({ ...watch(), status: newStatus });
     } catch {
@@ -107,14 +112,15 @@ export default function AdminBlogReviewEditPage() {
     }
   };
 
-  if (loading) return <p>Loading blog data...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
+  if (loading) return <p className="p-10 text-center">Loading blog data…</p>;
+  if (error) return <p className="text-red-600 p-10 text-center">{error}</p>;
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white rounded shadow space-y-8">
       <h1 className="text-3xl font-bold mb-4">Review & Edit Blog</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Title */}
         <div>
           <label className="block font-semibold mb-1" htmlFor="title">
             Title
@@ -132,6 +138,7 @@ export default function AdminBlogReviewEditPage() {
           )}
         </div>
 
+        {/* Category */}
         <div>
           <label className="block font-semibold mb-1" htmlFor="category">
             Category
@@ -151,12 +158,12 @@ export default function AdminBlogReviewEditPage() {
               </option>
             ))}
           </select>
-
           {errors.category && (
             <p className="text-red-600 mt-1">{errors.category.message}</p>
           )}
         </div>
 
+        {/* Status */}
         <div>
           <label className="block font-semibold mb-1" htmlFor="status">
             Status
@@ -166,11 +173,15 @@ export default function AdminBlogReviewEditPage() {
             {...register("status")}
             className="w-full border px-3 py-2 rounded focus:outline-none"
           >
-            <option value="Draft">Draft</option>
-            <option value="Published">Published</option>
+            {STATUS_OPTIONS.map(opt => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
 
+        {/* Content */}
         <div>
           <label className="block font-semibold mb-1">Content</label>
           <Controller
@@ -180,7 +191,7 @@ export default function AdminBlogReviewEditPage() {
               <ReactQuill
                 {...field}
                 theme="snow"
-                placeholder="Write your blog content here..."
+                placeholder="Write your blog content here…"
                 className={`${errors.content ? "border-red-500" : ""}`}
               />
             )}
@@ -190,11 +201,9 @@ export default function AdminBlogReviewEditPage() {
           )}
         </div>
 
+        {/* SEO Metadata */}
         <fieldset className="border border-gray-300 rounded p-4">
-          <legend className="font-semibold mb-2">
-            SEO Metadata (optional)
-          </legend>
-
+          <legend className="font-semibold mb-2">SEO Metadata (optional)</legend>
           <div className="mb-4">
             <label htmlFor="metaTitle" className="block mb-1">
               Meta Title
@@ -206,7 +215,6 @@ export default function AdminBlogReviewEditPage() {
               placeholder="SEO title"
             />
           </div>
-
           <div className="mb-4">
             <label htmlFor="metaDescription" className="block mb-1">
               Meta Description
@@ -219,7 +227,6 @@ export default function AdminBlogReviewEditPage() {
               rows={3}
             />
           </div>
-
           <div>
             <label htmlFor="metaKeywords" className="block mb-1">
               Meta Keywords
@@ -242,6 +249,7 @@ export default function AdminBlogReviewEditPage() {
         </button>
       </form>
 
+      {/* Live Preview */}
       <div className="border border-gray-300 rounded p-6 mt-8">
         <h2 className="text-xl font-semibold mb-4">Live Preview</h2>
         <article
@@ -250,20 +258,35 @@ export default function AdminBlogReviewEditPage() {
         />
       </div>
 
+      {/* Status Change Buttons */}
       <div className="flex space-x-4 mt-6">
         <button
-          onClick={() => changeStatus("Published")}
-          disabled={updatingStatus || watchStatus === "Published"}
+          onClick={() => changeStatus("published")}
+          disabled={updatingStatus || watchStatus === "published"}
           className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700 disabled:opacity-50"
         >
           Publish
         </button>
         <button
-          onClick={() => changeStatus("Draft")}
-          disabled={updatingStatus || watchStatus === "Draft"}
+          onClick={() => changeStatus("draft")}
+          disabled={updatingStatus || watchStatus === "draft"}
           className="bg-yellow-500 text-white px-6 py-3 rounded hover:bg-yellow-600 disabled:opacity-50"
         >
           Send Back to Draft
+        </button>
+        <button
+          onClick={() => changeStatus("review")}
+          disabled={updatingStatus || watchStatus === "review"}
+          className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600 disabled:opacity-50"
+        >
+          Mark as Review
+        </button>
+        <button
+          onClick={() => changeStatus("archived")}
+          disabled={updatingStatus || watchStatus === "archived"}
+          className="bg-gray-500 text-white px-6 py-3 rounded hover:bg-gray-600 disabled:opacity-50"
+        >
+          Archive
         </button>
       </div>
     </div>
