@@ -22,6 +22,8 @@ import html2canvas from "html2canvas";
 
 import quizService from "../services/quizService";
 import certificateService from "../services/certificateService";
+import CertificatePreviewCompact from "../components/CertificatePreviewCompact";
+
 import Certificate from "../components/Certificate";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
@@ -288,7 +290,7 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
                   id="certificate-preview"
                   className="rounded-xl shadow overflow-hidden bg-white"
                 >
-                  <Certificate
+                  <CertificatePreviewCompact
                     recipient={certRecipient}
                     quiz={certQuiz}
                     score={certScore}
@@ -296,7 +298,7 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
                     certId={certId}
                     issued={certIssued}
                     qrUrl={certQrUrl}
-                    compact={true} // 👈 This ensures minimal layout
+                  
                   />
                 </div>
               </Link>
