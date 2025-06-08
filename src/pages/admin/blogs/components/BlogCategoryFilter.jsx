@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import blogCategoryService from "../../../services/blogCategoryService";
+import blogCategoryService from "../../../../services/blogCategoryService";
 import { FaTags } from "react-icons/fa";
 
 export default function BlogCategoryFilter({ value, onChange, disabled }) {
