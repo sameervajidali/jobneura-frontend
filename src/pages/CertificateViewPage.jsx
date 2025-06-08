@@ -1,13 +1,12 @@
-// src/pages/CertificateViewPage.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { verifyCertificate } from "../services/certificateService";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { FaDownload, FaImage, FaPrint, FaShareAlt, FaCheckCircle, FaCopy, FaLink } from "react-icons/fa";
-import CertificateTemplate from "../components/Certificate";
+import Certificate from "../components/Certificate";
 
-const getCertificateUrl = (id) => `${window.location.origin}/certificate/${id}`;
+const getCertificateUrl = (id) => `${window.location.origin}/certificates/${id}`;
 
 export default function CertificateViewPage() {
   const { certificateId } = useParams();
@@ -88,11 +87,11 @@ export default function CertificateViewPage() {
     setTimeout(() => { setCopied(false); setFeedback(""); }, 1400);
   };
 
-  // Social Share (WhatsApp, Twitter, LinkedIn)
+  // Social Share
   const handleShare = (platform) => {
     const url = encodeURIComponent(getCertificateUrl(certificateId));
     const text = encodeURIComponent(
-      `Check out my JobNeura Certificate of Excellence: "${certificate?.title || "Certificate"}" – ${certificate?.recipient || ""}`
+      `Check out my JobNeura Certificate of Excellence: "${certificate?.quiz || certificate?.title || "Certificate"}" – ${certificate?.recipient || ""}`
     );
     let shareUrl = "";
     if (platform === "whatsapp") {
@@ -121,88 +120,45 @@ export default function CertificateViewPage() {
     );
   }
 
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(getCertificateUrl(certificate.certificateId))}&size=100x100`;
+
   return (
     <div className="max-w-4xl mx-auto py-8 px-2 animate-fade-in">
       <div className="flex flex-col items-center gap-7">
         <div
           ref={certRef}
-          className="mb-5 bg-white rounded-2xl shadow-lg overflow-hidden"
-          style={{ border: "2.5px solid #d1d5db" }}
+          className="mb-5"
         >
-          <CertificateTemplate {...certificate} />
+          <Certificate
+            recipient={certificate.recipient}
+            quiz={certificate.quiz}
+            score={certificate.score}
+            date={certificate.date}
+            certId={certificate.certificateId}
+            issued={certificate.issued || "Lucknow, India"}
+            qrUrl={qrUrl}
+          />
         </div>
-        {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 justify-center mb-3">
-          <button
-            onClick={handleDownloadPDF}
-            className="flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition"
-          >
-            <FaDownload /> Download PDF
-          </button>
-          <button
-            onClick={handleDownloadImage}
-            className="flex items-center gap-2 px-5 py-2 bg-violet-500 hover:bg-violet-700 text-white font-semibold rounded-lg shadow transition"
-          >
-            <FaImage /> Download Image
-          </button>
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-5 py-2 bg-slate-500 hover:bg-slate-700 text-white font-semibold rounded-lg shadow transition"
-          >
-            <FaPrint /> Print
-          </button>
-          <button
-            onClick={handleCopyLink}
-            className={`flex items-center gap-2 px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow transition ${copied ? "opacity-80" : ""}`}
-          >
-            <FaLink /> {copied ? "Copied!" : "Copy Link"}
-          </button>
-          {/* Social Share */}
-          <button
-            onClick={() => handleShare("whatsapp")}
-            className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow transition"
-          >
-            <FaShareAlt /> WhatsApp
-          </button>
-          <button
-            onClick={() => handleShare("twitter")}
-            className="flex items-center gap-2 px-5 py-2 bg-blue-400 hover:bg-blue-600 text-white font-semibold rounded-lg shadow transition"
-          >
-            <FaShareAlt /> Twitter
-          </button>
-          <button
-            onClick={() => handleShare("linkedin")}
-            className="flex items-center gap-2 px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg shadow transition"
-          >
-            <FaShareAlt /> LinkedIn
-          </button>
+          <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition"><FaDownload /> Download PDF</button>
+          <button onClick={handleDownloadImage} className="flex items-center gap-2 px-5 py-2 bg-violet-500 hover:bg-violet-700 text-white font-semibold rounded-lg shadow transition"><FaImage /> Download Image</button>
+          <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2 bg-slate-500 hover:bg-slate-700 text-white font-semibold rounded-lg shadow transition"><FaPrint /> Print</button>
+          <button onClick={handleCopyLink} className={`flex items-center gap-2 px-5 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow transition ${copied ? "opacity-80" : ""}`}><FaLink /> {copied ? "Copied!" : "Copy Link"}</button>
+          <button onClick={() => handleShare("whatsapp")} className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow transition"><FaShareAlt /> WhatsApp</button>
+          <button onClick={() => handleShare("twitter")} className="flex items-center gap-2 px-5 py-2 bg-blue-400 hover:bg-blue-600 text-white font-semibold rounded-lg shadow transition"><FaShareAlt /> Twitter</button>
+          <button onClick={() => handleShare("linkedin")} className="flex items-center gap-2 px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg shadow transition"><FaShareAlt /> LinkedIn</button>
         </div>
-        {/* Feedback Message */}
         {feedback && (
           <div className="text-center flex items-center gap-2 mt-2 text-lg text-indigo-700 font-semibold">
             <FaCheckCircle /> {feedback}
           </div>
         )}
-        {/* Verification QR */}
         <div className="mt-6 flex flex-col items-center">
           <span className="text-xs text-gray-500">Scan to verify certificate</span>
-          <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(getCertificateUrl(certificateId))}&size=90x90`}
-            alt="QR for verification"
-            className="rounded-lg border mt-1"
-            style={{ width: 70, height: 70 }}
-          />
-          <a
-            href={getCertificateUrl(certificateId)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 text-indigo-600 underline text-xs"
-          >
-            {getCertificateUrl(certificateId)}
-          </a>
+          <img src={qrUrl} alt="QR for verification" className="rounded-lg border mt-1" style={{ width: 70, height: 70 }} />
+          <a href={getCertificateUrl(certificate.certificateId)} target="_blank" rel="noopener noreferrer" className="mt-1 text-indigo-600 underline text-xs">{getCertificateUrl(certificate.certificateId)}</a>
         </div>
       </div>
     </div>
   );
 }
-

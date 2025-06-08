@@ -87,7 +87,10 @@ export default function QuizResultPage() {
         setLoading(false);
       });
 
-    quizService.getQuizTopThree(quizId).then(setTopPerf).catch(() => {});
+    quizService
+      .getQuizTopThree(quizId)
+      .then(setTopPerf)
+      .catch(() => {});
     setRecLoading(true);
     quizService
       .getRecommendedQuizzes?.(quizId)
@@ -148,7 +151,11 @@ export default function QuizResultPage() {
   const handleDownloadCertificate = () => window.print();
 
   // Social share text & URL
-  const shareText = `🎉 I just earned a "${certificate?.title}" certificate for "${attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"}" on JobNeura!
+  const shareText = `🎉 I just earned a "${
+    certificate?.title
+  }" certificate for "${
+    attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"
+  }" on JobNeura!
 View my certificate: ${certUrl}
 Try this quiz: ${window.location.origin}/quiz/${quizId}`;
 
@@ -200,19 +207,16 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
         {/* 🎉 Certificate Banner (preview + actions) */}
         {certificate && (
           <div className="bg-indigo-50 border border-indigo-200 rounded-2xl shadow-lg p-7 mb-3 flex flex-col md:flex-row gap-8 items-center relative">
-            <Confetti
-              width={width}
-              height={height}
-              numberOfPieces={120}
-              recycle={false}
-              style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
-            />
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-indigo-700 mb-1 flex items-center gap-2">
-                <span role="img" aria-label="celebrate">🎉</span> Certificate Earned!
+                <span role="img" aria-label="celebrate">
+                  🎉
+                </span>{" "}
+                Certificate Earned!
               </h2>
               <p className="text-gray-700 mb-3">
-                Congratulations! You've earned a <b>{certificate.title}</b> certificate for <b>{attempt.quiz?.subTopic?.name ?? attempt.quiz?.title}</b>.
+                Congratulations! You've earned a <b>{certificate.quiz}</b>{" "}
+                certificate for <b>{certificate.quiz}</b>.
               </p>
               <div className="flex flex-wrap gap-3 mt-2">
                 <Link
@@ -222,18 +226,6 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
                   View Full Page
                 </Link>
                 <button
-                  onClick={handleDownloadCertificate}
-                  className="bg-white border border-indigo-600 text-indigo-700 px-5 py-2 rounded-lg font-semibold hover:bg-indigo-50"
-                >
-                  Download PDF
-                </button>
-                <button
-                  onClick={handleDownloadImage}
-                  className="bg-white border border-green-600 text-green-700 px-5 py-2 rounded-lg font-semibold hover:bg-green-50"
-                >
-                  Download as Image
-                </button>
-                <button
                   onClick={handleCopyLink}
                   className="bg-gray-100 border border-gray-300 text-gray-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-200"
                 >
@@ -242,10 +234,18 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
               </div>
               {/* Social Share Buttons */}
               <div className="flex gap-2 mt-4">
-                <FacebookShareButton url={certUrl} quote={shareText}><FacebookIcon round /></FacebookShareButton>
-                <TwitterShareButton url={certUrl} title={shareText}><TwitterIcon round /></TwitterShareButton>
-                <LinkedinShareButton url={certUrl} summary={shareText}><LinkedinIcon round /></LinkedinShareButton>
-                <WhatsappShareButton url={certUrl} title={shareText}><WhatsappIcon round /></WhatsappShareButton>
+                <FacebookShareButton url={certUrl} quote={shareText}>
+                  <FacebookIcon round />
+                </FacebookShareButton>
+                <TwitterShareButton url={certUrl} title={shareText}>
+                  <TwitterIcon round />
+                </TwitterShareButton>
+                <LinkedinShareButton url={certUrl} summary={shareText}>
+                  <LinkedinIcon round />
+                </LinkedinShareButton>
+                <WhatsappShareButton url={certUrl} title={shareText}>
+                  <WhatsappIcon round />
+                </WhatsappShareButton>
               </div>
             </div>
             <div>
@@ -253,9 +253,19 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
                 <div
                   id="certificate-preview"
                   className="rounded-xl shadow overflow-hidden bg-white"
-                  style={{ maxWidth: 350, minWidth: 220 }}
                 >
-                  <Certificate cert={certificate} preview />
+                  <Certificate
+                    recipient={certificate.recipient}
+                    quiz={certificate.quiz}
+                    score={certificate.score}
+                    date={certificate.date}
+                    certId={certificate.certificateId}
+                    issued={certificate.issued || "Lucknow, India"}
+                    qrUrl={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                      certUrl
+                    )}&size=60x60`}
+                    preview
+                  />
                 </div>
               </Link>
             </div>
