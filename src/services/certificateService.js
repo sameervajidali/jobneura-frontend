@@ -1,65 +1,42 @@
-// src/services/certificateService.js
-import axios from './axios'; // Make sure this is your pre-configured axios instance
+import axios from './axios';
 
-// ------------------------------------------------------
-// 1️⃣ Issue a single certificate (Admin only)
-//    Usage: Admin panel, auto-issue after quiz, etc.
-//    Expects: { user, title, score, ... } (see backend model)
-// ------------------------------------------------------
+// 1️⃣ Issue single certificate (Admin)
 export async function issueCertificate(data) {
-  // POST /api/certificates/admin/issue
-  // `data` = { user, title, score, ... }
   const res = await axios.post('/certificates/admin/issue', data);
-  // Returns: { certificate: {...} }
   return res.data.certificate;
 }
 
-// ------------------------------------------------------
-// 2️⃣ Bulk issue certificates (Admin only)
-//    Usage: For batch awards, events, etc.
-//    Expects: [{ user, title, ... }, ...]
-// ------------------------------------------------------
+// 2️⃣ Bulk issue certificates (Admin)
 export async function bulkIssueCertificates(certificates) {
-  // POST /api/certificates/admin/bulk-issue
-  // `certificates` = array of cert objects
   const res = await axios.post('/certificates/admin/bulk-issue', { certificates });
-  // Returns: { certificates: [...] }
   return res.data.certificates;
 }
 
-// ------------------------------------------------------
-// 3️⃣ Publicly verify a certificate by ID (QR code support)
-//    Usage: For the public verify/QR page
-//    Expects: /api/certificates/verify/:certificateId
-// ------------------------------------------------------
+// 3️⃣ Public verify (returns HTML, not JSON!)
 export async function verifyCertificate(certificateId) {
-  // GET /api/certificates/verify/:certificateId
-  // Returns: { valid: true/false, certificate: {...} }
-  const res = await axios.get(`/certificates/verify/${certificateId}`);
-  return res.data; // { valid, certificate, ... }
+  const res = await axios.get(`/certificates/verify/${certificateId}`, {
+    headers: { Accept: 'application/json' } // <-- only if your backend supports JSON
+  });
+  return res.data; // May be HTML string if not JSON!
 }
 
-// ------------------------------------------------------
-// 4️⃣ Get all certificates for a user (User dashboard)
-//    Usage: User profile "My Certificates"
-//    Secure: Only for logged-in user or admin
-//    Expects: /api/certificates?user=<userId>
-// ------------------------------------------------------
+// 4️⃣ Get all certificates for logged-in user (recommended!)
+export async function getMyCertificates() {
+  // Only fetches for current authenticated user
+  const res = await axios.get('/certificates');
+  return res.data.certificates;
+}
+
+// 5️⃣ (OPTIONAL, Admin) Get all certificates for specific user (if backend supports)
+// Only works if you build a route: GET /api/certificates?user=<id> for admins
 export async function getUserCertificates(userId) {
-  // GET /api/certificates?user=<userId>
-  // Returns: { certificates: [...] }
   const res = await axios.get('/certificates', { params: { user: userId } });
   return res.data.certificates;
 }
 
-// ------------------------------------------------------
-// 5️⃣ Get a certificate by its internal Mongo ID
-//    Usage: Admin detail view or private download
-//    Expects: /api/certificates/:id
-// ------------------------------------------------------
+// 6️⃣ (OPTIONAL, Admin) Get certificate by internal Mongo ID (if backend supports)
+// Only works if you add GET /api/certificates/:id route in your backend
 export async function getCertificateById(id) {
-  // GET /api/certificates/:id
-  // Returns: { certificate: {...} }
   const res = await axios.get(`/certificates/${id}`);
   return res.data.certificate;
 }
@@ -68,6 +45,7 @@ export default {
   issueCertificate,
   bulkIssueCertificates,
   verifyCertificate,
+  getMyCertificates,
   getUserCertificates,
   getCertificateById,
 };
