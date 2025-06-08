@@ -6,27 +6,28 @@ import {
 import quizService from "../services/quizService";
 import certificateService from "../services/certificateService";
 import Certificate from "../components/Certificate";
+import Confetti from "react-confetti"; // npm i react-confetti
+import useWindowSize from "react-use/lib/useWindowSize"; // npm i react-use
 
 export default function QuizResultPage() {
   const { quizId, attemptId } = useParams();
+  const [attempt, setAttempt] = useState(null);
+  const [stats, setStats] = useState({ rank: 0, total: 0, pct: 0 });
+  const [chartData, setChartData] = useState([]);
+  const [breakdown, setBreakdown] = useState([]);
+  const [topPerformers, setTopPerf] = useState([]);
+  const [certificate, setCertificate] = useState(null);
+  const [showCert, setShowCert] = useState(false);
+  const [recommended, setRecommended] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [recLoading, setRecLoading] = useState(true);
 
-  const [attempt, setAttempt]           = useState(null);
-  const [stats, setStats]               = useState({ rank: 0, total: 0, pct: 0 });
-  const [chartData, setChartData]       = useState([]);
-  const [breakdown, setBreakdown]       = useState([]);
-  const [topPerformers, setTopPerf]     = useState([]);
-  const [certificate, setCertificate]   = useState(null);
-  const [showCert, setShowCert]         = useState(false);
-  const [recommended, setRecommended]   = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [error, setError]               = useState("");
-  const [recLoading, setRecLoading]     = useState(true);
+  const { width, height } = useWindowSize();
 
-  // Fetch main data
   useEffect(() => {
     setLoading(true);
-    quizService
-      .getAttemptStats(attemptId)
+    quizService.getAttemptStats(attemptId)
       .then(({ attempt, rank, totalCount, percentile }) => {
         setAttempt(attempt);
         setStats({ rank, total: totalCount, pct: percentile });
@@ -35,7 +36,7 @@ export default function QuizResultPage() {
           { name: "Incorrect", value: attempt.totalQuestions - attempt.correctAnswers },
         ]);
         setBreakdown(
-          (attempt.answers ?? []).map((ans) => ({
+          (attempt.answers ?? []).map(ans => ({
             text: ans.question?.text ?? "No Question Text",
             options: ans.question?.options ?? [],
             selected: ans.selectedIndex,
@@ -43,13 +44,12 @@ export default function QuizResultPage() {
             explanation: ans.question?.explanation,
           }))
         );
-        // 2️⃣ Fetch certificate for this attempt if eligible
+        // 🎉 Fetch certificate for this attempt
         certificateService
           .getUserCertificates(attempt?.user?._id)
           .then((certs) => {
-            // Find by quiz/title or however you link
             const cert = (certs || []).find(
-              (c) => c.title === attempt?.quiz?.subTopic?.name
+              c => c.title === attempt?.quiz?.subTopic?.name
             );
             setCertificate(cert || null);
           });
@@ -61,10 +61,8 @@ export default function QuizResultPage() {
       });
 
     quizService.getQuizTopThree(quizId).then(setTopPerf).catch(() => {});
-
     setRecLoading(true);
-    quizService
-      .getRecommendedQuizzes?.(quizId)
+    quizService.getRecommendedQuizzes?.(quizId)
       .then((rec) => { setRecommended(rec || []); setRecLoading(false); })
       .catch(() => setRecLoading(false));
   }, [quizId, attemptId]);
@@ -91,20 +89,33 @@ export default function QuizResultPage() {
     );
   }
 
-  // Download certificate as PDF
-  const handleDownloadCertificate = () => {
-    window.print(); // Replace with custom PDF export
+  // Download certificate as PDF (plug in your pdf logic)
+  const handleDownloadCertificate = () => window.print();
+  const handleCopyLink = () => {
+    if (certificate) {
+      const url = `${window.location.origin}/certificate/${certificate.certificateId}`;
+      navigator.clipboard.writeText(url);
+      alert("Certificate link copied!");
+    }
   };
-
-  // Download a JSON report (add this function as needed)
-  const downloadReport = () => {};
+  const handleShare = () => {
+    if (navigator.share && certificate) {
+      navigator.share({
+        title: "Check out my JobNeura Certificate!",
+        url: `${window.location.origin}/certificate/${certificate.certificateId}`
+      });
+    } else {
+      handleCopyLink();
+    }
+  };
 
   // Social share text & URL
   const shareText = `I scored ${attempt.score}/${attempt.totalQuestions} on "${attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"}"!`;
-  const shareUrl  = encodeURIComponent(window.location.href);
+  const shareUrl = encodeURIComponent(window.location.href);
 
   return (
     <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto py-8 px-2">
+
       {/* ==== SIDEBAR: Recommendations ==== */}
       <aside className="md:w-72 w-full flex-shrink-0">
         <div className="sticky top-8">
@@ -135,7 +146,74 @@ export default function QuizResultPage() {
 
       {/* ==== MAIN CONTENT ==== */}
       <main className="flex-1 space-y-8">
-        {/* 1️⃣ Header Summary + Certificate */}
+
+        {/* 🎉 Certificate Banner */}
+        {certificate && (
+          <>
+            <div className="bg-gradient-to-r from-indigo-50 via-white to-indigo-100 border border-indigo-200 rounded-2xl shadow-lg p-7 mb-3 flex flex-col md:flex-row gap-6 items-center animate-fadeIn">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold text-indigo-700 mb-1 flex items-center gap-2">
+                  <span role="img" aria-label="celebrate">🎉</span> Certificate Earned!
+                </h2>
+                <p className="text-gray-700 mb-3">
+                  Congratulations! You've earned a <b>{certificate.title}</b> certificate.
+                </p>
+                <div className="flex flex-wrap gap-3 mt-2">
+                  <button
+                    onClick={() => setShowCert(true)}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-semibold shadow"
+                  >
+                    View Certificate
+                  </button>
+                  <button
+                    onClick={handleDownloadCertificate}
+                    className="bg-white border border-indigo-600 text-indigo-700 px-5 py-2 rounded-lg font-semibold hover:bg-indigo-50"
+                  >
+                    Download PDF
+                  </button>
+                  <button
+                    onClick={handleCopyLink}
+                    className="bg-gray-100 border border-gray-300 text-gray-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-200"
+                  >
+                    Copy Link
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="bg-green-50 border border-green-400 text-green-800 px-5 py-2 rounded-lg font-semibold hover:bg-green-100"
+                  >
+                    Share
+                  </button>
+                </div>
+              </div>
+              <img src="/certificate-illustration.svg" alt="Certificate Illustration" className="w-40 h-40 hidden md:block" />
+            </div>
+            {/* Confetti celebration (modal) */}
+            {showCert && <Confetti width={width} height={height} numberOfPieces={180} recycle={false} />}
+          </>
+        )}
+
+        {/* CERTIFICATE MODAL */}
+        {showCert && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center animate-fadeIn">
+            <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full relative">
+              <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl" onClick={() => setShowCert(false)}>&times;</button>
+              <Certificate cert={certificate} />
+              <div className="flex justify-center gap-4 mt-7">
+                <button onClick={handleDownloadCertificate} className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                  Download PDF
+                </button>
+                <button onClick={handleCopyLink} className="bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-300">
+                  Copy Link
+                </button>
+                <button onClick={handleShare} className="bg-green-50 border border-green-400 text-green-800 px-5 py-2 rounded-lg font-semibold hover:bg-green-100">
+                  Share
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 1️⃣ Quiz Title + Score Block */}
         <div className="bg-white p-8 rounded-2xl shadow-lg flex flex-col md:flex-row md:justify-between gap-6 items-center">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
@@ -155,32 +233,7 @@ export default function QuizResultPage() {
               Rank <span className="font-medium">#{stats.rank}</span> of {stats.total} &middot; Top {stats.pct}%
             </div>
           </div>
-          {/* CERTIFICATE BLOCK */}
-          {certificate && (
-            <div className="flex flex-col items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-green-50 text-green-700 font-semibold mb-1 text-sm shadow">
-                <svg width="20" height="20" fill="none" stroke="currentColor" className="inline mr-1"><path d="M7 12l3 3 7-7" strokeWidth="2" /></svg>
-                Certificate Earned
-              </span>
-              <button onClick={() => setShowCert(true)} className="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 font-medium text-sm">
-                View Certificate
-              </button>
-              <button onClick={handleDownloadCertificate} className="px-4 py-2 rounded-md bg-gray-200 text-indigo-700 hover:bg-gray-300 font-medium text-sm">
-                Download PDF
-              </button>
-            </div>
-          )}
         </div>
-
-        {/* CERTIFICATE MODAL */}
-        {showCert && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center">
-            <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full relative">
-              <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl" onClick={() => setShowCert(false)}>&times;</button>
-              <Certificate cert={certificate} />
-            </div>
-          </div>
-        )}
 
         {/* 2️⃣ Performance Chart */}
         <div className="bg-white p-6 rounded-2xl shadow-md">
