@@ -16,15 +16,15 @@ import {
   FacebookIcon,
   TwitterIcon,
   LinkedinIcon,
-  WhatsappIcon
+  WhatsappIcon,
 } from "react-share";
 import html2canvas from "html2canvas";
 
 import quizService from "../services/quizService";
 import certificateService from "../services/certificateService";
 import Certificate from "../components/Certificate";
-import Confetti from "react-confetti"; // npm i react-confetti
-import useWindowSize from "react-use/lib/useWindowSize"; // npm i react-use
+import Confetti from "react-confetti";
+import useWindowSize from "react-use/lib/useWindowSize";
 
 export default function QuizResultPage() {
   const { quizId, attemptId } = useParams();
@@ -34,15 +34,12 @@ export default function QuizResultPage() {
   const [breakdown, setBreakdown] = useState([]);
   const [topPerformers, setTopPerf] = useState([]);
   const [certificate, setCertificate] = useState(null);
-  const [showCert, setShowCert] = useState(false);
   const [recommended, setRecommended] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [recLoading, setRecLoading] = useState(true);
 
   const { width, height } = useWindowSize();
-
-  
 
   useEffect(() => {
     setLoading(true);
@@ -67,10 +64,11 @@ export default function QuizResultPage() {
             explanation: ans.question?.explanation,
           }))
         );
-        // 🎉 Fetch certificate for this attempt
+        // Fetch certificate for this attempt
         certificateService
           .getUserCertificates(attempt?.user?._id)
           .then((certs = []) => {
+            // Match by title or subtopic name
             const quizSubTopic = (attempt?.quiz?.subTopic?.name || "")
               .toLowerCase()
               .trim();
@@ -84,15 +82,12 @@ export default function QuizResultPage() {
           });
         setLoading(false);
       })
-      .catch((e) => {
+      .catch(() => {
         setError("Unable to load quiz results.");
         setLoading(false);
       });
 
-    quizService
-      .getQuizTopThree(quizId)
-      .then(setTopPerf)
-      .catch(() => {});
+    quizService.getQuizTopThree(quizId).then(setTopPerf).catch(() => {});
     setRecLoading(true);
     quizService
       .getRecommendedQuizzes?.(quizId)
@@ -125,51 +120,43 @@ export default function QuizResultPage() {
     );
   }
 
-  // Download certificate as PDF (plug in your pdf logic)
-  const handleDownloadCertificate = () => window.print();
+  // Certificate share/copy/download
+  const certUrl = certificate
+    ? `${window.location.origin}/certificates/${certificate.certificateId}`
+    : window.location.href;
+
   const handleCopyLink = () => {
     if (certificate) {
-      const url = `${window.location.origin}/certificate/${certificate.certificateId}`;
-      navigator.clipboard.writeText(url);
+      navigator.clipboard.writeText(certUrl);
       alert("Certificate link copied!");
     }
   };
-  const certUrl = certificate
-  ? `${window.location.origin}/certificates/${certificate.certificateId}`
-  : window.location.href;
 
-const handleDownloadImage = () => {
-  const el = document.getElementById("certificate-preview");
-  if (!el) return;
-  html2canvas(el).then((canvas) => {
-    const link = document.createElement("a");
-    link.download = `Certificate-${certificate.certificateId}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  });
-};
-
-  const handleShare = () => {
-    if (navigator.share && certificate) {
-      navigator.share({
-        title: "Check out my JobNeura Certificate!",
-        url: `${window.location.origin}/certificate/${certificate.certificateId}`,
-      });
-    } else {
-      handleCopyLink();
-    }
+  // Download certificate preview as image (PNG)
+  const handleDownloadImage = () => {
+    const el = document.getElementById("certificate-preview");
+    if (!el) return;
+    html2canvas(el, { backgroundColor: "#fff", scale: 2 }).then((canvas) => {
+      const link = document.createElement("a");
+      link.download = `Certificate-${certificate.certificateId}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    });
   };
 
+  // Print (simple for preview, PDF should be from view page)
+  const handleDownloadCertificate = () => window.print();
+
   // Social share text & URL
-  const shareText = `I scored ${attempt.score}/${attempt.totalQuestions} on "${
-    attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"
-  }"!`;
-  const shareUrl = encodeURIComponent(window.location.href);
+  const shareText = `🎉 I just earned a "${certificate?.title}" certificate for "${attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"}" on JobNeura!
+View my certificate: ${certUrl}
+Try this quiz: ${window.location.origin}/quiz/${quizId}`;
 
   return (
     <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto py-8 px-2">
+      {/* Test Banner */}
       <div style={{ background: "red", color: "white", padding: "10px" }}>
-        QUIZ RESULT PAGE VERSION: TEST 1
+        TEST 1
       </div>
 
       {/* ==== SIDEBAR: Recommendations ==== */}
@@ -210,105 +197,67 @@ const handleDownloadImage = () => {
 
       {/* ==== MAIN CONTENT ==== */}
       <main className="flex-1 space-y-8">
-        {/* 🎉 Certificate Banner */}
-        const shareText = `🎉 I just earned a "${certificate?.title}" certificate for "${attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"}" on JobNeura!
-View my certificate: ${certUrl}
-Try this quiz: ${window.location.origin}/quiz/${quizId}`;
-
-       {certificate && (
-  <div className="bg-indigo-50 border border-indigo-200 rounded-2xl shadow-lg p-7 mb-3 flex flex-col md:flex-row gap-8 items-center relative">
-    {/* Confetti when certificate is earned */}
-    <Confetti
-      width={width}
-      height={height}
-      numberOfPieces={120}
-      recycle={false}
-      style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
-    />
-
-    <div className="flex-1">
-      <h2 className="text-2xl font-bold text-indigo-700 mb-1 flex items-center gap-2">
-        <span role="img" aria-label="celebrate">🎉</span> Certificate Earned!
-      </h2>
-      <p className="text-gray-700 mb-3">
-        Congratulations! You've earned a <b>{certificate.title}</b> certificate for <b>{attempt.quiz?.subTopic?.name}</b>.
-      </p>
-      <div className="flex flex-wrap gap-3 mt-2">
-        <Link
-          to={`/certificates/${certificate.certificateId}`}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-semibold shadow"
-        >
-          View Full Page
-        </Link>
-        <button
-          onClick={handleDownloadCertificate}
-          className="bg-white border border-indigo-600 text-indigo-700 px-5 py-2 rounded-lg font-semibold hover:bg-indigo-50"
-        >
-          Download PDF
-        </button>
-        <button
-          onClick={handleDownloadImage}
-          className="bg-white border border-green-600 text-green-700 px-5 py-2 rounded-lg font-semibold hover:bg-green-50"
-        >
-          Download as Image
-        </button>
-        <button
-          onClick={handleCopyLink}
-          className="bg-gray-100 border border-gray-300 text-gray-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-200"
-        >
-          Copy Link
-        </button>
-      </div>
-      {/* Social Share Buttons */}
-      <div className="flex gap-2 mt-4">
-        <FacebookShareButton url={certUrl} quote={shareText}><FacebookIcon round /></FacebookShareButton>
-        <TwitterShareButton url={certUrl} title={shareText}><TwitterIcon round /></TwitterShareButton>
-        <LinkedinShareButton url={certUrl} summary={shareText}><LinkedinIcon round /></LinkedinShareButton>
-        <WhatsappShareButton url={certUrl} title={shareText}><WhatsappIcon round /></WhatsappShareButton>
-      </div>
-    </div>
-    <div>
-      <Link to={`/certificates/${certificate.certificateId}`}>
-        <div id="certificate-preview" className="rounded-xl shadow overflow-hidden bg-white">
-          <Certificate cert={certificate} preview />
-        </div>
-      </Link>
-    </div>
-  </div>
-)}
-
-
-        {/* CERTIFICATE MODAL */}
-        {showCert && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center animate-fadeIn">
-            <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full relative">
-              <button
-                className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl"
-                onClick={() => setShowCert(false)}
-              >
-                &times;
-              </button>
-              <Certificate cert={certificate} />
-              <div className="flex justify-center gap-4 mt-7">
+        {/* 🎉 Certificate Banner (preview + actions) */}
+        {certificate && (
+          <div className="bg-indigo-50 border border-indigo-200 rounded-2xl shadow-lg p-7 mb-3 flex flex-col md:flex-row gap-8 items-center relative">
+            <Confetti
+              width={width}
+              height={height}
+              numberOfPieces={120}
+              recycle={false}
+              style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none" }}
+            />
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-indigo-700 mb-1 flex items-center gap-2">
+                <span role="img" aria-label="celebrate">🎉</span> Certificate Earned!
+              </h2>
+              <p className="text-gray-700 mb-3">
+                Congratulations! You've earned a <b>{certificate.title}</b> certificate for <b>{attempt.quiz?.subTopic?.name ?? attempt.quiz?.title}</b>.
+              </p>
+              <div className="flex flex-wrap gap-3 mt-2">
+                <Link
+                  to={`/certificates/${certificate.certificateId}`}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-semibold shadow"
+                >
+                  View Full Page
+                </Link>
                 <button
                   onClick={handleDownloadCertificate}
-                  className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+                  className="bg-white border border-indigo-600 text-indigo-700 px-5 py-2 rounded-lg font-semibold hover:bg-indigo-50"
                 >
                   Download PDF
                 </button>
                 <button
+                  onClick={handleDownloadImage}
+                  className="bg-white border border-green-600 text-green-700 px-5 py-2 rounded-lg font-semibold hover:bg-green-50"
+                >
+                  Download as Image
+                </button>
+                <button
                   onClick={handleCopyLink}
-                  className="bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-300"
+                  className="bg-gray-100 border border-gray-300 text-gray-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-200"
                 >
                   Copy Link
                 </button>
-                <button
-                  onClick={handleShare}
-                  className="bg-green-50 border border-green-400 text-green-800 px-5 py-2 rounded-lg font-semibold hover:bg-green-100"
-                >
-                  Share
-                </button>
               </div>
+              {/* Social Share Buttons */}
+              <div className="flex gap-2 mt-4">
+                <FacebookShareButton url={certUrl} quote={shareText}><FacebookIcon round /></FacebookShareButton>
+                <TwitterShareButton url={certUrl} title={shareText}><TwitterIcon round /></TwitterShareButton>
+                <LinkedinShareButton url={certUrl} summary={shareText}><LinkedinIcon round /></LinkedinShareButton>
+                <WhatsappShareButton url={certUrl} title={shareText}><WhatsappIcon round /></WhatsappShareButton>
+              </div>
+            </div>
+            <div>
+              <Link to={`/certificates/${certificate.certificateId}`}>
+                <div
+                  id="certificate-preview"
+                  className="rounded-xl shadow overflow-hidden bg-white"
+                  style={{ maxWidth: 350, minWidth: 220 }}
+                >
+                  <Certificate cert={certificate} preview />
+                </div>
+              </Link>
             </div>
           </div>
         )}
