@@ -115,6 +115,7 @@ export default function QuizResultPage() {
 
   return (
     <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto py-8 px-2">
+<div style={{ background: "red", color: "white", padding: "10px" }}>QUIZ RESULT PAGE VERSION: TEST 1</div>
 
       {/* ==== SIDEBAR: Recommendations ==== */}
       <aside className="md:w-72 w-full flex-shrink-0">
