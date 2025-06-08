@@ -26,6 +26,17 @@ import Certificate from "../components/Certificate";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 
+// Helper to format date as "8 June 2025"
+function formatAwardDate(date) {
+  if (!date) return "";
+  const d = new Date(date);
+  return d.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 export default function QuizResultPage() {
   const { quizId, attemptId } = useParams();
   const [attempt, setAttempt] = useState(null);
@@ -42,21 +53,24 @@ export default function QuizResultPage() {
   const { width, height } = useWindowSize();
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
+    setError("");
     quizService
       .getAttemptStats(attemptId)
       .then(({ attempt, rank, totalCount, percentile }) => {
+        if (cancelled) return;
         setAttempt(attempt);
         setStats({ rank, total: totalCount, pct: percentile });
         setChartData([
-          { name: "Correct", value: attempt.correctAnswers },
+          { name: "Correct", value: attempt?.correctAnswers || 0 },
           {
             name: "Incorrect",
-            value: attempt.totalQuestions - attempt.correctAnswers,
+            value: Math.max(0, (attempt?.totalQuestions || 0) - (attempt?.correctAnswers || 0)),
           },
         ]);
         setBreakdown(
-          (attempt.answers ?? []).map((ans) => ({
+          (attempt?.answers ?? []).map((ans) => ({
             text: ans.question?.text ?? "No Question Text",
             options: ans.question?.options ?? [],
             selected: ans.selectedIndex,
@@ -68,37 +82,43 @@ export default function QuizResultPage() {
         certificateService
           .getUserCertificates(attempt?.user?._id)
           .then((certs = []) => {
-            // Match by title or subtopic name
-            const quizSubTopic = (attempt?.quiz?.subTopic?.name || "")
-              .toLowerCase()
-              .trim();
+            const quizSubTopic = (attempt?.quiz?.subTopic?.name || "").toLowerCase().trim();
             const quizTitle = (attempt?.quiz?.title || "").toLowerCase().trim();
             const cert = certs.find(
               (c) =>
                 (c.title || "").toLowerCase().trim() === quizSubTopic ||
                 (c.title || "").toLowerCase().trim() === quizTitle
             );
-            setCertificate(cert || null);
+            if (!cancelled) setCertificate(cert || null);
           });
         setLoading(false);
       })
       .catch(() => {
-        setError("Unable to load quiz results.");
-        setLoading(false);
+        if (!cancelled) {
+          setError("Unable to load quiz results.");
+          setLoading(false);
+        }
       });
 
     quizService
       .getQuizTopThree(quizId)
-      .then(setTopPerf)
+      .then((data) => !cancelled && setTopPerf(data || []))
       .catch(() => {});
+
     setRecLoading(true);
     quizService
       .getRecommendedQuizzes?.(quizId)
       .then((rec) => {
-        setRecommended(rec || []);
-        setRecLoading(false);
+        if (!cancelled) {
+          setRecommended(rec || []);
+          setRecLoading(false);
+        }
       })
-      .catch(() => setRecLoading(false));
+      .catch(() => !cancelled && setRecLoading(false));
+
+    return () => {
+      cancelled = true;
+    };
   }, [quizId, attemptId]);
 
   if (loading) {
@@ -123,7 +143,7 @@ export default function QuizResultPage() {
     );
   }
 
-  // Certificate share/copy/download
+  // --- Certificate share/copy/download ---
   const certUrl = certificate
     ? `${window.location.origin}/certificates/${certificate.certificateId}`
     : window.location.href;
@@ -141,33 +161,48 @@ export default function QuizResultPage() {
     if (!el) return;
     html2canvas(el, { backgroundColor: "#fff", scale: 2 }).then((canvas) => {
       const link = document.createElement("a");
-      link.download = `Certificate-${certificate.certificateId}.png`;
+      link.download = `Certificate-${certificate?.certificateId || "JobNeura"}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     });
   };
 
-  const percentage =
-  attempt && attempt.score && attempt.totalQuestions
-    ? Math.round((attempt.score / attempt.totalQuestions) * 100)
-    : 0;
-
-  // Print (simple for preview, PDF should be from view page)
+  // Print certificate preview (for image preview only!)
   const handleDownloadCertificate = () => window.print();
 
-  // Social share text & URL
-  const shareText = `🎉 I just earned a "${
-    certificate?.title
-  }" certificate for "${
-    attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"
+  // Score in percentage (robust)
+  const percentage =
+    attempt?.score !== undefined && attempt?.totalQuestions
+      ? Math.round((attempt.score / attempt.totalQuestions) * 100)
+      : attempt?.correctAnswers !== undefined && attempt?.totalQuestions
+      ? Math.round((attempt.correctAnswers / attempt.totalQuestions) * 100)
+      : 0;
+
+  // Share text & URL
+  const shareText = `🎉 I just earned a "${certificate?.title || "Certificate"}" certificate for "${
+    attempt?.quiz?.subTopic?.name ?? attempt?.quiz?.title ?? "Quiz"
   }" on JobNeura!
 View my certificate: ${certUrl}
 Try this quiz: ${window.location.origin}/quiz/${quizId}`;
 
+  // --- Certificate details for preview (robust mapping) ---
+  const certRecipient =
+    attempt?.user?.name || certificate?.recipient || "User Name";
+  const certQuiz =
+    attempt?.quiz?.subTopic?.name ||
+    attempt?.quiz?.title ||
+    certificate?.title ||
+    "Quiz";
+  const certScore = percentage;
+  const certId = certificate?.certificateId || "";
+  const certDate = formatAwardDate(attempt?.createdAt || certificate?.issueDate);
+  const certIssued = certificate?.issued || certificate?.location || "Lucknow, India";
+  const certQrUrl = certificate
+    ? `https://api.qrserver.com/v1/create-qr-code/?data=${window.location.origin}/certificates/${certificate.certificateId}&size=80x80`
+    : "";
+
   return (
     <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto py-8 px-2">
-      {/* Test Banner */}
-
       {/* ==== SIDEBAR: Recommendations ==== */}
       <aside className="md:w-72 w-full flex-shrink-0">
         <div className="sticky top-8">
@@ -211,18 +246,14 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
           <div className="bg-indigo-50 border border-indigo-200 rounded-2xl shadow-lg p-7 mb-3 flex flex-col md:flex-row gap-8 items-center relative">
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-indigo-700 mb-1 flex items-center gap-2">
-                <span role="img" aria-label="celebrate">
-                  🎉
-                </span>{" "}
-                Certificate Earned!
+                <span role="img" aria-label="celebrate">🎉</span> Certificate Earned!
               </h2>
               <p className="text-gray-700 mb-3">
-                Congratulations! You've earned a <b>{certificate.quiz}</b>{" "}
-                certificate for <b>{certificate.quiz}</b>.
+                Congratulations! You've earned a <b>{certQuiz}</b> certificate for <b>{certQuiz}</b>.
               </p>
               <div className="flex flex-wrap gap-3 mt-2">
                 <Link
-                  to={`/certificates/${certificate.certificateId}`}
+                  to={`/certificates/${certId}`}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-semibold shadow"
                 >
                   View Full Page
@@ -251,22 +282,19 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
               </div>
             </div>
             <div>
-              <Link to={`/certificates/${certificate.certificateId}`}>
+              <Link to={`/certificates/${certId}`}>
                 <div
                   id="certificate-preview"
                   className="rounded-xl shadow overflow-hidden bg-white"
                 >
-                  
                   <Certificate
-                    recipient={attempt?.user?.name || "User Name"}
-                    quiz={attempt.quiz?.subTopic?.name || attempt.quiz?.title}
-                    score={percentage}
-                    rawScore={attempt.score}
-                    totalQuestions={attempt.totalQuestions}
-                    date={new Date(attempt.createdAt).toLocaleDateString()}
-                    certId={certificate.certificateId}
-                    issued={certificate.location || "Lucknow, India"}
-                    qrUrl={`https://api.qrserver.com/v1/create-qr-code/?data=${window.location.origin}/certificates/${certificate.certificateId}&size=80x80`}
+                    recipient={certRecipient}
+                    quiz={certQuiz}
+                    score={certScore}
+                    date={certDate}
+                    certId={certId}
+                    issued={certIssued}
+                    qrUrl={certQrUrl}
                   />
                 </div>
               </Link>
