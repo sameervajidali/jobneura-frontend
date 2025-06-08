@@ -90,13 +90,9 @@ export default function QuizList({ filters = {}, onPageChange }) {
                 </div>
                 <div className="flex flex-col items-center gap-1">
                   <UserIcon className="w-5 h-5" />
-                  {/* <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                     {(typeof q.attemptCount === "number" ? q.attemptCount : 0)} tries
-                  </span> */}
-                  <div style={{ backgroundColor: "#ff0", color: "#000" }}>
-  attemptCount: {q.attemptCount}
-</div>
-
+                  </span>
                 </div>
               </div>
 
