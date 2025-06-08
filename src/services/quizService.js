@@ -213,6 +213,13 @@ export function saveAlertConfig(payload) {
   return API.post('/quizzes/admin/reports/alerts', payload).then(res => res.data);
 }
 
+
+export async function getRecommendedQuizzes(quizId) {
+  const res = await axios.get(`/quizzes/${quizId}/recommended`);
+  return res.data.recommendedQuizzes; // Adjust this line to your backend response
+}
+
+
 // ─────────────────────────────────────────────────────────────
 // 🧩 Export all quiz service functions
 // ─────────────────────────────────────────────────────────────
@@ -249,6 +256,7 @@ const quizService = {
   getExportHistory,
   getAlerts,
   saveAlertConfig,
+  getRecommendedQuizzes
 };
 
 export default quizService;
