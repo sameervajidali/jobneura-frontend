@@ -7,7 +7,7 @@ import "react-quill/dist/quill.snow.css";
 import { useParams, useNavigate } from "react-router-dom";
 
 import {
-  fetchBlogCategories,
+  blogCategoryService,
   getBlogById,
   updateBlog,
   updateBlogStatus,
@@ -56,7 +56,7 @@ export default function AdminBlogReviewEditPage() {
   const watchContent = watch("content");
 
  useEffect(() => {
-     fetchBlogCategories()
+     blogCategoryService()
        .then(data => {
          if (Array.isArray(data)) setCategories(data);
          else if (Array.isArray(data.categories)) setCategories(data.categories);
