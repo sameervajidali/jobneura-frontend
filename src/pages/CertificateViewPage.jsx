@@ -6,7 +6,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 // Your real JSX certificate template
-import CertificateTemplate from "../components/CertificateTemplate"; // (Move your JSX here for full modularity!)
+import CertificateTemplate from "../components/Certificate"; // (Move your JSX here for full modularity!)
 
 export default function CertificateViewPage() {
   const { certificateId } = useParams();
