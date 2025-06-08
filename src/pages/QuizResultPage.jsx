@@ -296,6 +296,7 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
                     certId={certId}
                     issued={certIssued}
                     qrUrl={certQrUrl}
+                    compact={true} // 👈 This ensures minimal layout
                   />
                 </div>
               </Link>
