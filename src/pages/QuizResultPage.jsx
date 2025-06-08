@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 import quizService from "../services/quizService";
 import certificateService from "../services/certificateService";
@@ -27,16 +32,20 @@ export default function QuizResultPage() {
 
   useEffect(() => {
     setLoading(true);
-    quizService.getAttemptStats(attemptId)
+    quizService
+      .getAttemptStats(attemptId)
       .then(({ attempt, rank, totalCount, percentile }) => {
         setAttempt(attempt);
         setStats({ rank, total: totalCount, pct: percentile });
         setChartData([
           { name: "Correct", value: attempt.correctAnswers },
-          { name: "Incorrect", value: attempt.totalQuestions - attempt.correctAnswers },
+          {
+            name: "Incorrect",
+            value: attempt.totalQuestions - attempt.correctAnswers,
+          },
         ]);
         setBreakdown(
-          (attempt.answers ?? []).map(ans => ({
+          (attempt.answers ?? []).map((ans) => ({
             text: ans.question?.text ?? "No Question Text",
             options: ans.question?.options ?? [],
             selected: ans.selectedIndex,
@@ -47,9 +56,15 @@ export default function QuizResultPage() {
         // 🎉 Fetch certificate for this attempt
         certificateService
           .getUserCertificates(attempt?.user?._id)
-          .then((certs) => {
-            const cert = (certs || []).find(
-              c => c.title === attempt?.quiz?.subTopic?.name
+          .then((certs = []) => {
+            const quizSubTopic = (attempt?.quiz?.subTopic?.name || "")
+              .toLowerCase()
+              .trim();
+            const quizTitle = (attempt?.quiz?.title || "").toLowerCase().trim();
+            const cert = certs.find(
+              (c) =>
+                (c.title || "").toLowerCase().trim() === quizSubTopic ||
+                (c.title || "").toLowerCase().trim() === quizTitle
             );
             setCertificate(cert || null);
           });
@@ -60,10 +75,17 @@ export default function QuizResultPage() {
         setLoading(false);
       });
 
-    quizService.getQuizTopThree(quizId).then(setTopPerf).catch(() => {});
+    quizService
+      .getQuizTopThree(quizId)
+      .then(setTopPerf)
+      .catch(() => {});
     setRecLoading(true);
-    quizService.getRecommendedQuizzes?.(quizId)
-      .then((rec) => { setRecommended(rec || []); setRecLoading(false); })
+    quizService
+      .getRecommendedQuizzes?.(quizId)
+      .then((rec) => {
+        setRecommended(rec || []);
+        setRecLoading(false);
+      })
       .catch(() => setRecLoading(false));
   }, [quizId, attemptId]);
 
@@ -102,7 +124,7 @@ export default function QuizResultPage() {
     if (navigator.share && certificate) {
       navigator.share({
         title: "Check out my JobNeura Certificate!",
-        url: `${window.location.origin}/certificate/${certificate.certificateId}`
+        url: `${window.location.origin}/certificate/${certificate.certificateId}`,
       });
     } else {
       handleCopyLink();
@@ -110,22 +132,30 @@ export default function QuizResultPage() {
   };
 
   // Social share text & URL
-  const shareText = `I scored ${attempt.score}/${attempt.totalQuestions} on "${attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"}"!`;
+  const shareText = `I scored ${attempt.score}/${attempt.totalQuestions} on "${
+    attempt.quiz?.subTopic?.name ?? attempt.quiz?.title ?? "Quiz"
+  }"!`;
   const shareUrl = encodeURIComponent(window.location.href);
 
   return (
     <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto py-8 px-2">
-<div style={{ background: "red", color: "white", padding: "10px" }}>QUIZ RESULT PAGE VERSION: TEST 1</div>
+      <div style={{ background: "red", color: "white", padding: "10px" }}>
+        QUIZ RESULT PAGE VERSION: TEST 1
+      </div>
 
       {/* ==== SIDEBAR: Recommendations ==== */}
       <aside className="md:w-72 w-full flex-shrink-0">
         <div className="sticky top-8">
           <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-            <h2 className="text-lg font-bold text-gray-800 mb-3">Recommended Quizzes</h2>
+            <h2 className="text-lg font-bold text-gray-800 mb-3">
+              Recommended Quizzes
+            </h2>
             <ul className="space-y-3">
               {recLoading && <li className="text-gray-400">Loading...</li>}
               {!recLoading && recommended.length === 0 && (
-                <li className="text-gray-500 text-sm">No recommendations yet.</li>
+                <li className="text-gray-500 text-sm">
+                  No recommendations yet.
+                </li>
               )}
               {recommended
                 ?.filter((q) => q && (q.name || q.title))
@@ -135,8 +165,12 @@ export default function QuizResultPage() {
                       to={`/quiz/${q._id || q.id}`}
                       className="block rounded-lg px-3 py-2 hover:bg-indigo-50 transition"
                     >
-                      <span className="font-semibold text-indigo-700">{q.name || q.title || "Untitled Quiz"}</span>
-                      <span className="block text-xs text-gray-500">{q.topic?.name || q.subTopic?.name || "General"}</span>
+                      <span className="font-semibold text-indigo-700">
+                        {q.name || q.title || "Untitled Quiz"}
+                      </span>
+                      <span className="block text-xs text-gray-500">
+                        {q.topic?.name || q.subTopic?.name || "General"}
+                      </span>
                     </Link>
                   </li>
                 ))}
@@ -147,17 +181,20 @@ export default function QuizResultPage() {
 
       {/* ==== MAIN CONTENT ==== */}
       <main className="flex-1 space-y-8">
-
         {/* 🎉 Certificate Banner */}
         {certificate && (
           <>
             <div className="bg-gradient-to-r from-indigo-50 via-white to-indigo-100 border border-indigo-200 rounded-2xl shadow-lg p-7 mb-3 flex flex-col md:flex-row gap-6 items-center animate-fadeIn">
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-indigo-700 mb-1 flex items-center gap-2">
-                  <span role="img" aria-label="celebrate">🎉</span> Certificate Earned!
+                  <span role="img" aria-label="celebrate">
+                    🎉
+                  </span>{" "}
+                  Certificate Earned!
                 </h2>
                 <p className="text-gray-700 mb-3">
-                  Congratulations! You've earned a <b>{certificate.title}</b> certificate.
+                  Congratulations! You've earned a <b>{certificate.title}</b>{" "}
+                  certificate.
                 </p>
                 <div className="flex flex-wrap gap-3 mt-2">
                   <button
@@ -186,10 +223,21 @@ export default function QuizResultPage() {
                   </button>
                 </div>
               </div>
-              <img src="/certificate-illustration.svg" alt="Certificate Illustration" className="w-40 h-40 hidden md:block" />
+              <img
+                src="/certificate-illustration.svg"
+                alt="Certificate Illustration"
+                className="w-40 h-40 hidden md:block"
+              />
             </div>
             {/* Confetti celebration (modal) */}
-            {showCert && <Confetti width={width} height={height} numberOfPieces={180} recycle={false} />}
+            {showCert && (
+              <Confetti
+                width={width}
+                height={height}
+                numberOfPieces={180}
+                recycle={false}
+              />
+            )}
           </>
         )}
 
@@ -197,16 +245,30 @@ export default function QuizResultPage() {
         {showCert && (
           <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex items-center justify-center animate-fadeIn">
             <div className="bg-white rounded-xl shadow-xl p-8 max-w-3xl w-full relative">
-              <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl" onClick={() => setShowCert(false)}>&times;</button>
+              <button
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl"
+                onClick={() => setShowCert(false)}
+              >
+                &times;
+              </button>
               <Certificate cert={certificate} />
               <div className="flex justify-center gap-4 mt-7">
-                <button onClick={handleDownloadCertificate} className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700">
+                <button
+                  onClick={handleDownloadCertificate}
+                  className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-indigo-700"
+                >
                   Download PDF
                 </button>
-                <button onClick={handleCopyLink} className="bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-300">
+                <button
+                  onClick={handleCopyLink}
+                  className="bg-gray-200 text-gray-800 px-5 py-2 rounded-lg font-semibold hover:bg-gray-300"
+                >
                   Copy Link
                 </button>
-                <button onClick={handleShare} className="bg-green-50 border border-green-400 text-green-800 px-5 py-2 rounded-lg font-semibold hover:bg-green-100">
+                <button
+                  onClick={handleShare}
+                  className="bg-green-50 border border-green-400 text-green-800 px-5 py-2 rounded-lg font-semibold hover:bg-green-100"
+                >
                   Share
                 </button>
               </div>
@@ -231,14 +293,17 @@ export default function QuizResultPage() {
               </span>
             </div>
             <div className="mt-1 text-sm text-gray-500">
-              Rank <span className="font-medium">#{stats.rank}</span> of {stats.total} &middot; Top {stats.pct}%
+              Rank <span className="font-medium">#{stats.rank}</span> of{" "}
+              {stats.total} &middot; Top {stats.pct}%
             </div>
           </div>
         </div>
 
         {/* 2️⃣ Performance Chart */}
         <div className="bg-white p-6 rounded-2xl shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Performance Breakdown</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Performance Breakdown
+          </h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData}>
               <XAxis dataKey="name" tick={{ fill: "#4B5563" }} />
@@ -251,24 +316,48 @@ export default function QuizResultPage() {
 
         {/* 3️⃣ Q-by-Q Review */}
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-gray-800">Detailed Answers</h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            Detailed Answers
+          </h2>
           {breakdown.map((b, i) => {
             const isCorrect = b.selected === b.correctIdx;
             return (
-              <div key={i} className={`p-5 rounded-2xl shadow-sm ${isCorrect ? "bg-green-50" : "bg-red-50"}`}>
-                <p className="font-medium text-gray-800 mb-3">Q{i + 1}. {b.text}</p>
+              <div
+                key={i}
+                className={`p-5 rounded-2xl shadow-sm ${
+                  isCorrect ? "bg-green-50" : "bg-red-50"
+                }`}
+              >
+                <p className="font-medium text-gray-800 mb-3">
+                  Q{i + 1}. {b.text}
+                </p>
                 <div className="space-y-2">
                   {(b.options || []).map((opt, idx) => (
                     <div key={idx} className="flex items-center">
-                      <input type="radio" checked={b.selected === idx} readOnly className="form-radio text-indigo-600" />
-                      <span className={`ml-3 ${idx === b.correctIdx ? "font-semibold text-green-800" : b.selected === idx ? "text-red-600" : "text-gray-700"}`}>
+                      <input
+                        type="radio"
+                        checked={b.selected === idx}
+                        readOnly
+                        className="form-radio text-indigo-600"
+                      />
+                      <span
+                        className={`ml-3 ${
+                          idx === b.correctIdx
+                            ? "font-semibold text-green-800"
+                            : b.selected === idx
+                            ? "text-red-600"
+                            : "text-gray-700"
+                        }`}
+                      >
                         {opt}
                       </span>
                     </div>
                   ))}
                 </div>
                 {!isCorrect && b.explanation && (
-                  <p className="mt-3 text-sm italic text-gray-600">Explanation: {b.explanation}</p>
+                  <p className="mt-3 text-sm italic text-gray-600">
+                    Explanation: {b.explanation}
+                  </p>
                 )}
               </div>
             );
@@ -277,9 +366,13 @@ export default function QuizResultPage() {
 
         {/* 4️⃣ Top 3 Block */}
         <div className="bg-white p-6 rounded-2xl shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">This Week’s Top 3</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            This Week’s Top 3
+          </h2>
           <ol className="space-y-2">
-            {topPerformers?.length === 0 && <li className="text-gray-400">No data yet.</li>}
+            {topPerformers?.length === 0 && (
+              <li className="text-gray-400">No data yet.</li>
+            )}
             {topPerformers?.filter(Boolean).map((u, idx) => (
               <li key={u._id || idx} className="flex justify-between">
                 <span className="font-medium text-gray-700">
