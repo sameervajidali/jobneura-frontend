@@ -186,9 +186,35 @@ export default function CertificateViewPage() {
 
   const searchParams = new URLSearchParams(window.location.search);
 
-  const isOG = new URLSearchParams(window.location.search).get("og") === "true";
+  const isOG = new URLSearchParams(window.location.search).get("og") === "1";
 
- return (
+  return isOG ? (
+  <div
+    style={{
+      width: "1200px",
+      height: "630px",
+      background: "#fff",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 0,
+      margin: 0,
+    }}
+  >
+    <div ref={certRef}>
+      <Certificate
+        recipient={recipient}
+        quiz={quiz}
+        score={score}
+        date={date}
+        certId={certId}
+        issued={issued}
+        qrUrl=""
+        preview
+      />
+    </div>
+  </div>
+) : (
   <div className="max-w-4xl mx-auto py-8 px-2 animate-fade-in">
     {/* ✅ Helmet OG Meta only if certificate exists */}
     {certificate && (
@@ -212,8 +238,7 @@ export default function CertificateViewPage() {
       {/* ✅ Certificate block - scaled if OG */}
       <div
         ref={certRef}
-        className={isOG ? "scale-[1.25] mt-10" : "mb-5"}
-        style={{ transform: isOG ? "scale(1.25)" : undefined }}
+        className="mb-5"
       >
         <Certificate
           recipient={recipient}
@@ -222,8 +247,7 @@ export default function CertificateViewPage() {
           date={date}
           certId={certId}
           issued={issued}
-          qrUrl={isOG ? "" : qrUrl}
-          preview={isOG}
+          qrUrl={qrUrl}
         />
       </div>
 
@@ -284,7 +308,9 @@ export default function CertificateViewPage() {
           )}
 
           <div className="mt-6 flex flex-col items-center">
-            <span className="text-xs text-gray-500">Scan to verify certificate</span>
+            <span className="text-xs text-gray-500">
+              Scan to verify certificate
+            </span>
             <img
               src={qrUrl}
               alt="QR for verification"
