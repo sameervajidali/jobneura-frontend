@@ -9,7 +9,7 @@ import axios from './axios'; // Make sure this is your pre-configured axios inst
 export async function issueCertificate(data) {
   // POST /api/certificates/admin/issue
   // `data` = { user, title, score, ... }
-  const res = await axios.post('/api/certificates/admin/issue', data);
+  const res = await axios.post('/certificates/admin/issue', data);
   // Returns: { certificate: {...} }
   return res.data.certificate;
 }
@@ -22,7 +22,7 @@ export async function issueCertificate(data) {
 export async function bulkIssueCertificates(certificates) {
   // POST /api/certificates/admin/bulk-issue
   // `certificates` = array of cert objects
-  const res = await axios.post('/api/certificates/admin/bulk-issue', { certificates });
+  const res = await axios.post('/certificates/admin/bulk-issue', { certificates });
   // Returns: { certificates: [...] }
   return res.data.certificates;
 }
@@ -35,7 +35,7 @@ export async function bulkIssueCertificates(certificates) {
 export async function verifyCertificate(certificateId) {
   // GET /api/certificates/verify/:certificateId
   // Returns: { valid: true/false, certificate: {...} }
-  const res = await axios.get(`/api/certificates/verify/${certificateId}`);
+  const res = await axios.get(`/certificates/verify/${certificateId}`);
   return res.data; // { valid, certificate, ... }
 }
 
@@ -48,7 +48,7 @@ export async function verifyCertificate(certificateId) {
 export async function getUserCertificates(userId) {
   // GET /api/certificates?user=<userId>
   // Returns: { certificates: [...] }
-  const res = await axios.get('/api/certificates', { params: { user: userId } });
+  const res = await axios.get('/certificates', { params: { user: userId } });
   return res.data.certificates;
 }
 
@@ -60,7 +60,7 @@ export async function getUserCertificates(userId) {
 export async function getCertificateById(id) {
   // GET /api/certificates/:id
   // Returns: { certificate: {...} }
-  const res = await axios.get(`/api/certificates/${id}`);
+  const res = await axios.get(`/certificates/${id}`);
   return res.data.certificate;
 }
 
