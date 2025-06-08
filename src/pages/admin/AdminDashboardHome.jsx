@@ -262,7 +262,7 @@ export default function AdminDashboardHome() {
               <tbody className="divide-y">
                 {recentQuizzes.map((q) => (
                   <tr key={q._id}>
-                    <td className="py-2 text-gray-700">{q.title}</td>
+                    <td className="py-2 text-gray-700">{q.subTopic}</td>
                     <td className="py-2 text-gray-700">
                       {Array.isArray(q.questions) ? q.questions.length : "–"}
                     </td>

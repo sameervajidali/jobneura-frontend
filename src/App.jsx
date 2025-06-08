@@ -87,6 +87,8 @@ import AdminTutorialsPage from "./pages/admin/AdminTutorialsPage";
 import SubTopicsPage from "./pages/admin/subTopicPage";
 import SubTopicForm from "./pages/admin/SubTopicForm"; // for add/edit
 import SubTopicBulkUploadPage from "./pages/admin/SubTopicBulkUploadPage"; // create if missing
+import CertificateViewPage from "./pages/CertificateViewPage";
+import CertificateTest from "./pages/CertificateTest";
 
 // --- AppInitializer: waits for session check before rendering ---
 function AppInitializer({ children }) {
@@ -172,6 +174,8 @@ function LayoutWrapper() {
           <Route path="/blogs" element={<BlogPage />} />
           <Route path="/activate" element={<AccountActivationPage />} />
           <Route path="/test-quiz" element={<TestQuizPage />} />
+          <Route path="/certificate-test" element={<CertificateTest />} />
+
           {/* Quizzes & Leaderboard */}
           <Route path="/quizzes" element={<QuizExplorerPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
@@ -180,6 +184,8 @@ function LayoutWrapper() {
             path="/quiz/:quizId/result/:attemptId"
             element={<QuizResultPage />}
           />
+          <Route path="/certificates/:certificateId" element={<CertificateViewPage />} />
+
           <Route
             path="/account-activation-info"
             element={<AccountActivationInfo />}
