@@ -446,6 +446,8 @@ export default function CertificateViewPage() {
   const issued = certificate.issued || "Lucknow, India";
 
   return (
+
+    
     <div className="max-w-4xl mx-auto py-8 px-2 animate-fade-in">
       <div className="flex flex-col items-center gap-7">
         <div ref={certRef} className="mb-5">
