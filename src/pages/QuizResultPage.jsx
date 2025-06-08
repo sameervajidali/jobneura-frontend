@@ -147,6 +147,11 @@ export default function QuizResultPage() {
     });
   };
 
+  const percentage =
+  attempt && attempt.score && attempt.totalQuestions
+    ? Math.round((attempt.score / attempt.totalQuestions) * 100)
+    : 0;
+
   // Print (simple for preview, PDF should be from view page)
   const handleDownloadCertificate = () => window.print();
 
@@ -162,9 +167,6 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
   return (
     <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto py-8 px-2">
       {/* Test Banner */}
-      <div style={{ background: "red", color: "white", padding: "10px" }}>
-        TEST 1
-      </div>
 
       {/* ==== SIDEBAR: Recommendations ==== */}
       <aside className="md:w-72 w-full flex-shrink-0">
@@ -254,17 +256,17 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
                   id="certificate-preview"
                   className="rounded-xl shadow overflow-hidden bg-white"
                 >
+                  
                   <Certificate
-                    recipient={certificate.recipient}
-                    quiz={certificate.quiz}
-                    score={certificate.score}
-                    date={certificate.date}
+                    recipient={attempt?.user?.name || "User Name"}
+                    quiz={attempt.quiz?.subTopic?.name || attempt.quiz?.title}
+                    score={percentage}
+                    rawScore={attempt.score}
+                    totalQuestions={attempt.totalQuestions}
+                    date={new Date(attempt.createdAt).toLocaleDateString()}
                     certId={certificate.certificateId}
-                    issued={certificate.issued || "Lucknow, India"}
-                    qrUrl={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
-                      certUrl
-                    )}&size=60x60`}
-                    preview
+                    issued={certificate.location || "Lucknow, India"}
+                    qrUrl={`https://api.qrserver.com/v1/create-qr-code/?data=${window.location.origin}/certificates/${certificate.certificateId}&size=80x80`}
                   />
                 </div>
               </Link>
