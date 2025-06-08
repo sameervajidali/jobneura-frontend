@@ -187,9 +187,10 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
 
   // --- Certificate details for preview (robust mapping) ---
   const certRecipient =
-    attempt?.user?.name || certificate?.recipient || "User Name";
+     certificate?.user?.name || attempt?.user?.name || certificate?.recipient || "User Name";
   const certQuiz =
     attempt?.quiz?.subTopic?.name ||
+
     attempt?.quiz?.title ||
     certificate?.title ||
     "Quiz";

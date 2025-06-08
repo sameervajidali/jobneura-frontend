@@ -18,26 +18,19 @@ export default function useQuizList({ page = 1, limit = 12, ...otherFilters }) {
       if (v != null && v !== "") params[k] = v;
     });
 
-    API.get("/quizzes", { params })
+    API.get("/quizzes/", { params })
       .then((res) => {
-        console.log("API RAW RESPONSE", res.data);
+        console.log("Full API Response", res.data);
+  const quiz = res.data.quizzes?.[0];
+  console.log("attemptCount from quiz:", quiz?.attemptCount); // This will work now
 
-        // CHECK *THE DATA YOU RECEIVED* DIRECTLY
-        res.data.quizzes.forEach((q) => {
-          if (typeof q.subTopic === "string") {
-          } else {
-          }
-        });
-
-        setQuizzes(res.data.quizzes || []);
+  setQuizzes(res.data.quizzes || []);
         setTotal(res.data.total || 0);
       })
       .catch((err) => {
         setError(err.response?.data?.message || "Failed to fetch quizzes");
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, [page, limit, JSON.stringify(otherFilters)]);
 
   return { quizzes, total, page, limit, loading, error };
