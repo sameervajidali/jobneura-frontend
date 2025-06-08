@@ -1,281 +1,269 @@
-import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import AdminBlogPreviewModal from './components/AdminBlogPreviewModal';
-import { useParams, useNavigate } from 'react-router-dom';
-
-import {
-  fetchBlogCategories,
-  getBlogById,
-  createBlog,
-  updateBlog,
-} from '../../../services/blogService';
-
-const blogSchema = z.object({
-  title: z.string().min(5, 'Title is required'),
-  category: z.string().min(1, 'Category is required'),
-  status: z.enum(['Draft', 'Published']),
-  content: z.string().min(10, 'Content is required'),
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  metaKeywords: z.string().optional(),
-});
+import React, { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import blogService from "../../../services/blogService";
+import blogCategoryService from "../../../services/blogCategoryService";
+import blogTagService from "../../../services/blogTagService";
+import { FaArrowLeft, FaSave, FaSpinner } from "react-icons/fa";
+import toast from "react-hot-toast"; // or your preferred toast library
 
 export default function AdminBlogEditPage() {
-  const { blogId } = useParams();
+  const { id } = useParams(); // blog ID for edit, undefined for create
   const navigate = useNavigate();
 
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [loadError, setLoadError] = useState(null);
-  const [isPreviewOpen, setPreviewOpen] = useState(false);
-  const [featuredImage, setFeaturedImage] = useState(null);
-  const [featuredImageFile, setFeaturedImageFile] = useState(null);
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    watch,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: zodResolver(blogSchema),
-    defaultValues: {
-      title: '',
-      category: '',
-      status: 'Draft',
-      content: '',
-      metaTitle: '',
-      metaDescription: '',
-      metaKeywords: '',
-    },
+  const [form, setForm] = useState({
+    title: "",
+    summary: "",
+    content: "",
+    category: "",
+    tags: [],
+    coverImageUrl: "",
+    status: "draft",
   });
+  const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const fileInputRef = useRef();
 
-  const blogForPreview = {
-    title: watch('title'),
-    authorName: 'You',
-    publishedAt: watch('status') === 'Published' ? new Date().toISOString() : null,
-    content: watch('content') || '',
-    featuredImage,
-  };
-
+  // --- Load categories/tags & (if edit) post data ---
   useEffect(() => {
-    fetchBlogCategories()
-      .then(data => {
-        if (Array.isArray(data)) setCategories(data);
-        else if (Array.isArray(data.categories)) setCategories(data.categories);
-        else setCategories([]);
-      })
-      .catch(() => setCategories([]));
-
-    if (blogId) {
-      setLoading(true);
-      getBlogById(blogId)
-        .then(data => {
-          reset({
-            title: data.title,
-            category: data.category?._id || '',
-            status: data.status,
-            content: data.content,
-            metaTitle: data.metaTitle || '',
-            metaDescription: data.metaDescription || '',
-            metaKeywords: data.metaKeywords || '',
+    setLoading(true);
+    Promise.all([
+      blogCategoryService.list(),
+      blogTagService.list(),
+      id ? blogService.get(id) : Promise.resolve(null),
+    ])
+      .then(([cat, tg, post]) => {
+        setCategories(cat || []);
+        setTags(tg || []);
+        if (post) {
+          setForm({
+            title: post.title || "",
+            summary: post.summary || "",
+            content: post.content || "",
+            category: post.category?._id || "",
+            tags: (post.tags || []).map((t) => t._id || t),
+            coverImageUrl: post.coverImageUrl || "",
+            status: post.status || "draft",
           });
-          setFeaturedImage(data.featuredImage || null);
-        })
-        .catch(() => setLoadError('Failed to load blog'))
-        .finally(() => setLoading(false));
-    }
-  }, [blogId, reset]);
+        }
+      })
+      .catch(() => setError("Failed to load categories/tags or post"))
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  useEffect(() => {
-    return () => {
-      if (featuredImage) URL.revokeObjectURL(featuredImage);
-    };
-  }, [featuredImage]);
+  // --- Handle form input ---
+  function onChange(e) {
+    const { name, value } = e.target;
+    setForm((f) => ({
+      ...f,
+      [name]: value,
+    }));
+  }
 
-  const onSubmit = async formData => {
+  // --- Tag selection (multi-select) ---
+  function onTagsChange(e) {
+    const opts = Array.from(e.target.selectedOptions).map((opt) => opt.value);
+    setForm((f) => ({ ...f, tags: opts }));
+  }
+
+  // --- Cover image upload (simulate upload, replace with mediaService if needed) ---
+  async function handleImageUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Simulate upload, or use blogMediaService.upload(formData)
+    const url = URL.createObjectURL(file); // For preview only; replace with uploaded url in prod
+    setForm((f) => ({ ...f, coverImageUrl: url }));
+    toast.success("Image selected (replace this with real upload in prod)");
+  }
+
+  // --- Handle submit (create or update) ---
+  async function onSubmit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
     try {
-      // TODO: handle file upload and set formData.featuredImage URL
-
-      if (blogId) {
-        await updateBlog(blogId, formData);
-        alert('Blog updated successfully');
+      if (id) {
+        await blogService.update(id, form);
+        toast.success("Blog post updated!");
       } else {
-        const data = await createBlog(formData);
-        alert('Blog created successfully');
-        navigate(`/admin/blogs/${data._id}`);
-        return;
+        await blogService.create(form);
+        toast.success("Blog post created!");
       }
-      navigate('/admin/blogs');
-    } catch {
-      alert('Failed to save blog');
+      navigate("/admin/blogs");
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || err.message || "Failed to save post"
+      );
+      toast.error("Failed to save blog post");
+    } finally {
+      setSaving(false);
     }
-  };
+  }
 
-  const handleImageChange = e => {
-    const file = e.target.files[0];
-    if (file) {
-      setFeaturedImage(URL.createObjectURL(file));
-      setFeaturedImageFile(file);
-    }
-  };
-
-  if (loading) return <div className="text-center py-10">Loading blog data...</div>;
-  if (loadError) return <p className="text-red-600">{loadError}</p>;
+  // --- UI ---
+  if (loading)
+    return (
+      <div className="p-8 text-center">
+        <FaSpinner className="inline animate-spin mr-2" />
+        Loading...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="p-8 text-center text-red-600">
+        <p>{error}</p>
+        <button
+          className="btn btn-primary mt-4"
+          onClick={() => navigate("/admin/blogs")}
+        >
+          <FaArrowLeft className="mr-2" />
+          Back to Blog List
+        </button>
+      </div>
+    );
 
   return (
-    <>
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded shadow space-y-6">
-        <h1 className="text-2xl font-bold">{blogId ? 'Edit Blog' : 'Add New Blog'}</h1>
-
+    <section className="max-w-3xl mx-auto p-4 md:p-8 bg-white rounded-lg shadow">
+      <header className="mb-6 flex items-center gap-4">
+        <button
+          className="btn btn-light"
+          onClick={() => navigate("/admin/blogs")}
+        >
+          <FaArrowLeft className="mr-2" />
+          Back
+        </button>
+        <h1 className="text-xl font-bold">
+          {id ? "Edit Blog Post" : "Create New Blog Post"}
+        </h1>
+      </header>
+      <form onSubmit={onSubmit} className="space-y-6">
+        {/* Title */}
         <div>
-          <label htmlFor="title" className="block font-semibold mb-1">Title</label>
+          <label className="block mb-1 font-medium">Title</label>
           <input
-            id="title"
-            {...register('title')}
-            aria-invalid={errors.title ? 'true' : 'false'}
-            className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
-            type="text"
-            placeholder="Enter blog title"
-            aria-describedby="title-error"
+            className="input w-full"
+            name="title"
+            value={form.title}
+            onChange={onChange}
+            required
+            maxLength={150}
+            placeholder="Enter blog post title"
           />
-          {errors.title && <p id="title-error" className="text-red-600 mt-1">{errors.title.message}</p>}
         </div>
-
+        {/* Summary */}
         <div>
-          <label htmlFor="category" className="block font-semibold mb-1">Category</label>
+          <label className="block mb-1 font-medium">Summary</label>
+          <textarea
+            className="input w-full"
+            name="summary"
+            value={form.summary}
+            onChange={onChange}
+            rows={2}
+            maxLength={300}
+            placeholder="Short summary (for list & SEO)..."
+          />
+        </div>
+        {/* Content */}
+        <div>
+          <label className="block mb-1 font-medium">Content (HTML or Markdown)</label>
+          <textarea
+            className="input w-full"
+            name="content"
+            value={form.content}
+            onChange={onChange}
+            rows={8}
+            required
+            placeholder="Write your blog post here…"
+          />
+        </div>
+        {/* Category */}
+        <div>
+          <label className="block mb-1 font-medium">Category</label>
           <select
-            id="category"
-            {...register('category')}
-            aria-invalid={errors.category ? 'true' : 'false'}
-            className={`w-full border px-3 py-2 rounded focus:outline-none ${errors.category ? 'border-red-500' : 'border-gray-300'}`}
-            aria-describedby="category-error"
+            className="input w-full"
+            name="category"
+            value={form.category}
+            onChange={onChange}
+            required
           >
             <option value="">Select category</option>
-            {categories.map(cat => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
             ))}
           </select>
-          {errors.category && <p id="category-error" className="text-red-600 mt-1">{errors.category.message}</p>}
         </div>
-
+        {/* Tags */}
         <div>
-          <label htmlFor="status" className="block font-semibold mb-1">Status</label>
+          <label className="block mb-1 font-medium">Tags</label>
           <select
-            id="status"
-            {...register('status')}
-            className="w-full border px-3 py-2 rounded focus:outline-none"
+            className="input w-full"
+            name="tags"
+            multiple
+            value={form.tags}
+            onChange={onTagsChange}
+            size={Math.min(tags.length, 5)}
           >
-            <option value="Draft">Draft</option>
-            <option value="Published">Published</option>
+            {tags.map((tag) => (
+              <option key={tag._id} value={tag._id}>
+                {tag.name}
+              </option>
+            ))}
           </select>
         </div>
-
+        {/* Cover Image */}
         <div>
-          <label className="block font-semibold mb-1">Content</label>
-          <Controller
-            control={control}
-            name="content"
-            render={({ field }) => (
-              <ReactQuill
-                {...field}
-                theme="snow"
-                placeholder="Write your blog content here..."
-                className={`${errors.content ? 'border-red-500' : ''}`}
+          <label className="block mb-1 font-medium">Cover Image</label>
+          <div className="flex gap-4 items-center">
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              className="input"
+              style={{ maxWidth: 240 }}
+              onChange={handleImageUpload}
+            />
+            {form.coverImageUrl && (
+              <img
+                src={form.coverImageUrl}
+                alt="cover"
+                className="w-24 h-20 object-cover rounded shadow"
               />
             )}
-          />
-          {errors.content && <p className="text-red-600 mt-1">{errors.content.message}</p>}
+          </div>
+          <small className="text-gray-500">Choose an image for post cover (jpg, png).</small>
         </div>
-
+        {/* Status */}
         <div>
-          <label className="block font-semibold mb-1">Featured Image</label>
-          {featuredImage && (
-            <img
-              src={featuredImage}
-              alt="Featured preview"
-              className="mb-2 max-h-48 object-cover rounded"
-            />
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded file:border-0
-              file:text-sm file:font-semibold
-              file:bg-indigo-50 file:text-indigo-700
-              hover:file:bg-indigo-100"
-          />
+          <label className="block mb-1 font-medium">Status</label>
+          <select
+            className="input w-full"
+            name="status"
+            value={form.status}
+            onChange={onChange}
+          >
+            <option value="draft">Draft</option>
+            <option value="review">Review</option>
+            <option value="published">Published</option>
+            <option value="archived">Archived</option>
+          </select>
         </div>
-
-        <fieldset className="border border-gray-300 rounded p-4">
-          <legend className="font-semibold mb-2">SEO Metadata (optional)</legend>
-
-          <div className="mb-4">
-            <label htmlFor="metaTitle" className="block mb-1">Meta Title</label>
-            <input
-              id="metaTitle"
-              {...register('metaTitle')}
-              className="w-full border px-3 py-2 rounded focus:outline-none border-gray-300"
-              type="text"
-              placeholder="SEO title"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="metaDescription" className="block mb-1">Meta Description</label>
-            <textarea
-              id="metaDescription"
-              {...register('metaDescription')}
-              className="w-full border px-3 py-2 rounded focus:outline-none border-gray-300"
-              placeholder="SEO description"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="metaKeywords" className="block mb-1">Meta Keywords</label>
-            <input
-              id="metaKeywords"
-              {...register('metaKeywords')}
-              className="w-full border px-3 py-2 rounded focus:outline-none border-gray-300"
-              type="text"
-              placeholder="Comma-separated keywords"
-            />
-          </div>
-        </fieldset>
-
-        <div className="flex space-x-4">
+        {/* Save Button */}
+        <div>
           <button
+            className="btn btn-primary flex items-center gap-2"
             type="submit"
-            disabled={isSubmitting}
-            className="bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700 disabled:opacity-50"
+            disabled={saving}
           >
-            {blogId ? 'Update Blog' : 'Create Blog'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setPreviewOpen(true)}
-            className="bg-gray-200 px-6 py-3 rounded hover:bg-gray-300"
-          >
-            Preview
+            {saving && <FaSpinner className="animate-spin" />}
+            <FaSave />
+            {id ? "Update" : "Create"}
           </button>
         </div>
       </form>
-
-      <AdminBlogPreviewModal
-        isOpen={isPreviewOpen}
-        onClose={() => setPreviewOpen(false)}
-        blog={blogForPreview}
-      />
-    </>
+    </section>
   );
 }

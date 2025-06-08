@@ -1,75 +1,31 @@
-// src/services/blogService.js
-import API from './axios'; // Axios instance with baseURL set to your backend API
 
-// ──────────────────────────────────────────────
-// 📄 Fetch paginated blog list with filters
-// GET /api/blogs?params
-export function fetchBlogs(params = {}) {
-  return API.get('/blogs', { params }).then(res => res.data);
-}
+import API from './axios';
 
-// ──────────────────────────────────────────────
-// 📄 Fetch single blog by ID
-// GET /api/blogs/:blogId
-export function getBlogById(blogId) {
-  return API.get(`/blogs/${blogId}`).then(res => res.data);
-}
-
-// ──────────────────────────────────────────────
-// ✍️ Create new blog (admin only)
-// POST /api/blogs
-export function createBlog(data) {
-  return API.post('/blogs', data).then(res => res.data);
-}
-
-// ──────────────────────────────────────────────
-// ✍️ Update existing blog by ID (admin only)
-// PATCH /api/blogs/:blogId
-export function updateBlog(blogId, data) {
-  return API.patch(`/blogs/${blogId}`, data).then(res => res.data);
-}
-
-// ──────────────────────────────────────────────
-// 🗑️ Soft delete blog by ID (admin only)
-// DELETE /api/blogs/:blogId
-export function deleteBlog(blogId) {
-  return API.delete(`/blogs/${blogId}`).then(res => res.data);
-}
-
-// ──────────────────────────────────────────────
-// 📂 Fetch categories filtered for blogs
-// GET /api/categories?type=blog (adjust endpoint as per backend)
-export function fetchBlogCategories() {
-  return API.get('/admin/categories', { params: { type: 'blog' } }).then(res => res.data);
-}
-
-// ──────────────────────────────────────────────
-// Optional: publish or unpublish blog by updating status
-export function publishBlog(blogId) {
-  return updateBlog(blogId, { status: 'Published' });
-}
-
-export function unpublishBlog(blogId) {
-  return updateBlog(blogId, { status: 'Draft' });
-}
-
-export function updateBlogStatus(blogId, status) {
-  return updateBlog(blogId, { status });
-}
-
-
-// ──────────────────────────────────────────────
-// Export all as default for easy import
+// Blog Post Services
 const blogService = {
-  fetchBlogs,
-  updateBlogStatus,
-  getBlogById,
-  createBlog,
-  updateBlog,
-  deleteBlog,
-  fetchBlogCategories,
-  publishBlog,
-  unpublishBlog,
+  // List all blog posts (with optional filters)
+  list: (params = {}) => API.get('/blog', { params }).then(r => r.data),
+
+  // Get single post by slug
+  get: (slug) => API.get(`/blog/${slug}`).then(r => r.data),
+
+  // Get my posts (authenticated)
+  listMy: () => API.get('/blog/my-posts').then(r => r.data),
+
+  // Create a new post
+  create: (data) => API.post('/blog', data).then(r => r.data),
+
+  // Update post by ID
+  update: (id, data) => API.put(`/blog/${id}`, data).then(r => r.data),
+
+  // Delete post by ID
+  delete: (id) => API.delete(`/blog/${id}`).then(r => r.data),
+
+  // Publish post
+  publish: (id) => API.patch(`/blog/${id}/publish`).then(r => r.data),
+
+  // Get post revisions
+  getRevisions: (id) => API.get(`/blog/${id}/revisions`).then(r => r.data),
 };
 
 export default blogService;

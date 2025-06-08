@@ -1,167 +1,188 @@
-import React, { useEffect, useState } from 'react';
-import {
-  fetchBlogs,
-  fetchBlogCategories,
-  updateBlogStatus,
-  deleteBlog,
-} from '../../../services/blogService';
-import { useNavigate } from 'react-router-dom';
-import BlogCategoryFilter from './components/BlogCategoryFilter';
-import BlogStatusFilter from './components/BlogStatusFilter';
-import BlogSearchInput from './components/BlogSearchInput';
-import BlogPagination from './components/BlogPagination';
-import BulkActionsToolbar from './components/BulkActionsToolbar';
-import BlogTableRow from './components/BlogTableRow';
+import React, { useEffect, useState } from "react";
+import blogService from "../../../services/blogService";
+import { format } from "date-fns";
+import BlogCategoryFilter from "./components/BlogCategoryFilter";
+import BlogStatusFilter from "./components/BlogStatusFilter";
+import BlogSearchInput from "./components/BlogSearchInput";
+import BlogPagination from "./components/BlogPagination";
+import BulkActionsToolbar from "./components/BulkActionsToolbar";
+import AdminBlogPreviewModal from "./components/AdminBlogPreviewModal";
+import { FaEdit, FaEye, FaTrash, FaPlus } from "react-icons/fa";
+import { cn } from "@/lib/utils"; // if you use a classnames util
 
 export default function AdminBlogListPage() {
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // --- STATE ---
+  const [posts, setPosts] = useState([]);
+  const [selected, setSelected] = useState(new Set());
+  const [filters, setFilters] = useState({
+    category: "",
+    status: "",
+    search: "",
+    page: 1,
+    limit: 10,
+  });
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [previewPost, setPreviewPost] = useState(null);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [page, setPage] = useState(1);
-  const limit = 10;
-  const [totalBlogs, setTotalBlogs] = useState(0);
-  const navigate = useNavigate();
-  const [selectedBlogs, setSelectedBlogs] = useState(new Set());
-
-  // Categories for dropdown filter
-  const [categories, setCategories] = useState([]);
-
-  const transformedBlogs = blogs.map(blog => ({
-  ...blog,
-  authorName: blog.author?.name || 'Unknown',
-  categoryName: blog.category?.name || 'N/A',
-  categoryId: blog.category?._id?.toString() || '',  // for any future use
-}));
-
-  // Fetch categories once on mount
+  // --- LOAD POSTS ---
   useEffect(() => {
-    fetchBlogCategories()
+    setLoading(true);
+    setError("");
+    blogService
+      .list(filters)
       .then((data) => {
-        if (Array.isArray(data)) setCategories(data);
-        else if (Array.isArray(data.categories)) setCategories(data.categories);
-        else setCategories([]);
+        setPosts(data.posts || []);
+        setTotal(data.count || 0);
       })
-      .catch(() => setCategories([]));
-  }, []);
+      .catch((err) =>
+        setError(
+          err?.response?.data?.message ||
+            err.message ||
+            "Failed to load blog posts"
+        )
+      )
+      .finally(() => setLoading(false));
+  }, [filters]);
 
-  // Fetch blogs on filter or page change
-  useEffect(() => {
-    async function loadBlogs() {
-      setLoading(true);
-      setError(null);
-      try {
-        const { blogs, total } = await fetchBlogs({
-          page,
-          limit,
-          search: searchTerm,
-          category: categoryFilter,
-          status: statusFilter,
-        });
+  // --- BULK ACTIONS ---
+  function handleBulkDelete() {
+    if (!window.confirm("Delete selected posts?")) return;
+    Promise.all([...selected].map((id) => blogService.delete(id)))
+      .then(() => {
+        setSelected(new Set());
+        setFilters((f) => ({ ...f })); // reload
+      })
+      .catch(() => alert("Failed to delete selected posts"));
+  }
 
-        // Flatten authorName and categoryName from nested objects
-        const transformedBlogs = blogs.map(blog => ({
-          ...blog,
-          authorName: blog.author?.name || 'Unknown',
-          categoryName: blog.category?.name || 'N/A',
-        }));
-
-        setBlogs(transformedBlogs);
-        setTotalBlogs(total);
-      } catch {
-        setError('Failed to load blogs');
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadBlogs();
-  }, [page, limit, searchTerm, categoryFilter, statusFilter]);
-
-  // Bulk delete, publish etc. omitted for brevity
-
+  // --- TABLE UI ---
   return (
-    <div className="p-6 bg-white rounded shadow">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Manage Blogs</h1>
+    <section className="p-4 md:p-8 max-w-screen-2xl mx-auto">
+      <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+        <h1 className="text-2xl font-bold">Manage Blog Posts</h1>
+        <div className="flex flex-wrap gap-2">
+          <BlogCategoryFilter
+            value={filters.category}
+            onChange={(val) =>
+              setFilters((f) => ({ ...f, category: val, page: 1 }))
+            }
+          />
+          <BlogStatusFilter
+            value={filters.status}
+            onChange={(val) =>
+              setFilters((f) => ({ ...f, status: val, page: 1 }))
+            }
+          />
+          <BlogSearchInput
+            value={filters.search}
+            onChange={(val) =>
+              setFilters((f) => ({ ...f, search: val, page: 1 }))
+            }
+          />
+        </div>
+
         <button
-          onClick={() => navigate('/admin/blogs/new')}
-          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+          className="btn btn-primary ml-auto"
+          onClick={() => (window.location.href = "/admin/blogs/new")}
         >
-          + New Blog
+          <FaPlus className="mr-2" />
+          New Post
         </button>
-      </div>
+      </header>
 
-      <div className="flex flex-wrap gap-4 mb-4 items-center">
-        <BlogSearchInput value={searchTerm} onChange={setSearchTerm} />
-        <BlogCategoryFilter
-          categories={categories}
-          value={categoryFilter}
-          onChange={setCategoryFilter}
+      {/* Bulk Actions */}
+      {selected.size > 0 && (
+        <BulkActionsToolbar
+          count={selected.size}
+          onDelete={handleBulkDelete}
+          onClear={() => setSelected(new Set())}
         />
-        <BlogStatusFilter value={statusFilter} onChange={setStatusFilter} />
-      </div>
+      )}
 
-      {/* Bulk Actions Toolbar could go here */}
-
-      {error && <p className="text-red-600 my-4">{error}</p>}
-
+      {/* Loading/Error/Empty */}
       {loading ? (
-        <div className="text-center py-10">Loading blogs...</div>
+        <div className="text-center p-10">Loading posts…</div>
+      ) : error ? (
+        <div className="text-center text-red-600 p-10">{error}</div>
+      ) : posts.length === 0 ? (
+        <div className="text-center text-gray-500 p-10">
+          No blog posts found.
+        </div>
       ) : (
-        <>
-          <table className="w-full border-collapse table-auto">
-            <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="p-3">
+        <div className="overflow-x-auto bg-white shadow rounded-lg">
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-100 text-xs text-gray-500 uppercase">
+              <tr>
+                <th className="p-3 w-4">
                   <input
                     type="checkbox"
-                    checked={selectedBlogs.size === blogs.length && blogs.length > 0}
-                    onChange={() => {/* Implement select all toggle logic */}}
-                    aria-label="Select all blogs"
+                    checked={selected.size === posts.length}
+                    onChange={(e) =>
+                      setSelected(
+                        e.target.checked
+                          ? new Set(posts.map((p) => p._id))
+                          : new Set()
+                      )
+                    }
                   />
                 </th>
-                <th className="p-3">Title</th>
-                <th className="p-3">Author</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Created At</th>
-                <th className="p-3">Actions</th>
+                <th className="p-3 text-left">Title</th>
+                <th className="p-3 text-left">Category</th>
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-left">Author</th>
+                <th className="p-3 text-left">Published</th>
+                <th className="p-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {blogs.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center p-6">
-                    No blogs found.
-                  </td>
-                </tr>
-              ) : (
-                blogs.map(blog => (
-                  <BlogTableRow
-                    key={blog._id}
-                    blog={blog}
-                    isSelected={selectedBlogs.has(blog._id)}
-                    toggleSelect={() => {/* Toggle selection logic */}}
-                    onDeleted={() => setPage(1)} // refresh after delete
-                    onEdit={() => navigate(`/admin/blogs/${blog._id}`)}
-                    onPreview={() => navigate(`/admin/blogs/review/${blog._id}`)}
-                  />
-                ))
-              )}
+              {posts.map((post) => (
+                <BlogTableRow
+                  key={post._id}
+                  post={post}
+                  selected={selected.has(post._id)}
+                  onSelect={(id) => {
+                    setSelected((prev) => {
+                      const next = new Set(prev);
+                      next.has(id) ? next.delete(id) : next.add(id);
+                      return next;
+                    });
+                  }}
+                  onPreview={setPreviewPost}
+                  onEdit={(post) => navigate(`/admin/blogs/edit/${post._id}`)}
+                  onDelete={async (post) => {
+                    if (window.confirm(`Delete "${post.title}"?`)) {
+                      await blogService.delete(post._id);
+                      setFilters((f) => ({ ...f })); // reload
+                    }
+                  }}
+                />
+              ))}
             </tbody>
           </table>
-
-          <BlogPagination
-            total={totalBlogs}
-            currentPage={page}
-            pageSize={limit}
-            onPageChange={setPage}
-          />
-        </>
+        </div>
       )}
-    </div>
+
+      {/* Pagination */}
+      {total > filters.limit && (
+        <div className="mt-4">
+          <BlogPagination
+            page={filters.page}
+            limit={filters.limit}
+            total={total}
+            onChange={(page) => setFilters((f) => ({ ...f, page }))}
+          />
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {previewPost && (
+        <AdminBlogPreviewModal
+          post={previewPost}
+          onClose={() => setPreviewPost(null)}
+        />
+      )}
+    </section>
   );
 }

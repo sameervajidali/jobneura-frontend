@@ -1,31 +1,40 @@
-import React from 'react';
+// src/pages/admin/blogs/components/BulkActionsToolbar.jsx
 
-export default function BulkActionsToolbar({ selectedCount, onDelete, onPublish, onUnpublish }) {
-  if (selectedCount === 0) return null;
+import React from "react";
+import { FaTrash, FaTimes } from "react-icons/fa";
 
+export default function BulkActionsToolbar({
+  count,
+  onDelete,
+  onClear,
+  onPublish, // (optional: pass if you want bulk publish)
+  disabled,
+}) {
   return (
-    <div className="mb-4 flex items-center space-x-4 bg-gray-100 p-3 rounded">
-      <p className="text-gray-700 font-medium">{selectedCount} selected</p>
-
+    <div className="flex flex-wrap gap-2 items-center p-3 mb-2 bg-blue-50 border border-blue-200 rounded shadow-sm animate-fade-in">
+      <span className="font-semibold text-blue-700">
+        {count} selected
+      </span>
+      {onPublish && (
+        <button
+          className="btn btn-success"
+          onClick={onPublish}
+          disabled={disabled}
+        >
+          Publish Selected
+        </button>
+      )}
       <button
-        onClick={onPublish}
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-      >
-        Publish
-      </button>
-
-      <button
-        onClick={onUnpublish}
-        className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-      >
-        Unpublish
-      </button>
-
-      <button
+        className="btn btn-danger"
         onClick={onDelete}
-        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+        disabled={disabled}
       >
-        Delete
+        <FaTrash className="mr-1" />
+        Delete Selected
+      </button>
+      <button className="btn btn-light" onClick={onClear} disabled={disabled}>
+        <FaTimes className="mr-1" />
+        Clear
       </button>
     </div>
   );

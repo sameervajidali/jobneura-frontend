@@ -1,31 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaTimesCircle } from "react-icons/fa";
 
-export default function BlogSearchInput({ value, onChange }) {
-  const [inputValue, setInputValue] = useState(value || '');
+export default function BlogSearchInput({ value, onChange, placeholder = "Search...", debounce = 400 }) {
+  const [input, setInput] = useState(value || "");
 
+  // Debounced change
   useEffect(() => {
     const handler = setTimeout(() => {
-      onChange(inputValue);
-    }, 300); // 300ms debounce
-
-    // Cleanup timeout on unmount or value change
+      if (input !== value) onChange(input);
+    }, debounce);
     return () => clearTimeout(handler);
-  }, [inputValue, onChange]);
+    // eslint-disable-next-line
+  }, [input]);
+
+  // If value prop changes from outside, update local state
+  useEffect(() => {
+    setInput(value || "");
+  }, [value]);
 
   return (
-    <div className="flex flex-col">
-      <label htmlFor="blog-search" className="sr-only">
-        Search blogs
-      </label>
+    <div className="flex items-center border rounded px-2 py-1 bg-white shadow-sm">
+      <FaSearch className="text-gray-400 mr-2" />
       <input
-        id="blog-search"
-        type="search"
-        placeholder="Search blogs..."
-        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        value={inputValue}
-        onChange={e => setInputValue(e.target.value)}
-        autoComplete="off"
+        className="flex-1 outline-none text-sm"
+        type="text"
+        placeholder={placeholder}
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        style={{ minWidth: 120 }}
       />
+      {input && (
+        <button
+          type="button"
+          className="ml-1 text-gray-400 hover:text-red-500 transition"
+          onClick={() => setInput("")}
+          aria-label="Clear search"
+        >
+          <FaTimesCircle />
+        </button>
+      )}
     </div>
   );
 }

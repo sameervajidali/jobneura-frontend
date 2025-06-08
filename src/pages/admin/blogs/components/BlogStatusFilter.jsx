@@ -1,20 +1,30 @@
-import React from 'react';
+import React from "react";
+import { FaFilter } from "react-icons/fa";
 
-export default function BlogStatusFilter({ value, onChange }) {
+const STATUS_OPTIONS = [
+  { value: "", label: "All Statuses" },
+  { value: "draft", label: "Draft" },
+  { value: "review", label: "Review" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+];
+
+export default function BlogStatusFilter({ value, onChange, disabled }) {
   return (
-    <div className="flex flex-col">
-      <label htmlFor="status-filter" className="sr-only">
-        Filter by Status
-      </label>
+    <div className="flex items-center gap-2">
+      <FaFilter className="text-gray-400" />
       <select
-        id="status-filter"
-        className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        className="input px-2 py-1 rounded"
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        style={{ minWidth: 120 }}
       >
-        <option value="">All Statuses</option>
-        <option value="Draft">Draft</option>
-        <option value="Published">Published</option>
+        {STATUS_OPTIONS.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
       </select>
     </div>
   );
