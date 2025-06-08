@@ -1,15 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
+import Select from "react-select";
 import blogService from "../../../services/blogService";
 import blogCategoryService from "../../../services/blogCategoryService";
 import blogTagService from "../../../services/blogTagService";
 import { FaArrowLeft, FaSave, FaSpinner } from "react-icons/fa";
-import toast from "react-hot-toast"; // or your preferred toast library
+import toast from "react-hot-toast";
 
 export default function AdminBlogEditPage() {
-  const { id } = useParams(); // blog ID for edit, undefined for create
+  const { id } = useParams();
   const navigate = useNavigate();
 
+  // --- Form state ---
   const [form, setForm] = useState({
     title: "",
     summary: "",
@@ -26,7 +31,18 @@ export default function AdminBlogEditPage() {
   const [error, setError] = useState("");
   const fileInputRef = useRef();
 
-  // --- Load categories/tags & (if edit) post data ---
+  // --- Rich Editor state ---
+  const editor = useEditor({
+    extensions: [StarterKit, Link],
+    content: "",
+    autofocus: false,
+    editable: true,
+    onUpdate: ({ editor }) => {
+      setForm((f) => ({ ...f, content: editor.getHTML() }));
+    },
+  });
+
+  // --- Load categories, tags, and (if edit) blog post data ---
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -43,15 +59,19 @@ export default function AdminBlogEditPage() {
             summary: post.summary || "",
             content: post.content || "",
             category: post.category?._id || "",
-            tags: (post.tags || []).map((t) => t._id || t),
+            tags: (post.tags || []).map((t) =>
+              typeof t === "object" ? t._id : t
+            ),
             coverImageUrl: post.coverImageUrl || "",
             status: post.status || "draft",
           });
+          editor?.commands.setContent(post.content || "");
         }
       })
       .catch(() => setError("Failed to load categories/tags or post"))
       .finally(() => setLoading(false));
-  }, [id]);
+    // eslint-disable-next-line
+  }, [id, editor]);
 
   // --- Handle form input ---
   function onChange(e) {
@@ -62,20 +82,27 @@ export default function AdminBlogEditPage() {
     }));
   }
 
-  // --- Tag selection (multi-select) ---
-  function onTagsChange(e) {
-    const opts = Array.from(e.target.selectedOptions).map((opt) => opt.value);
-    setForm((f) => ({ ...f, tags: opts }));
+  // --- Tag selection with react-select (chips) ---
+  const tagOptions = tags.map((tag) => ({
+    value: tag._id,
+    label: tag.name,
+  }));
+
+  function onTagsChange(selected) {
+    setForm((f) => ({
+      ...f,
+      tags: selected ? selected.map((s) => s.value) : [],
+    }));
   }
 
-  // --- Cover image upload (simulate upload, replace with mediaService if needed) ---
+  // --- Cover image upload (real upload: integrate your Supabase or media service here) ---
   async function handleImageUpload(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Simulate upload, or use blogMediaService.upload(formData)
-    const url = URL.createObjectURL(file); // For preview only; replace with uploaded url in prod
+    // TODO: Replace with actual upload (Supabase/mediaService)
+    const url = URL.createObjectURL(file); // Preview only
     setForm((f) => ({ ...f, coverImageUrl: url }));
-    toast.success("Image selected (replace this with real upload in prod)");
+    toast.success("Image selected (add cloud upload for production)");
   }
 
   // --- Handle submit (create or update) ---
@@ -84,6 +111,12 @@ export default function AdminBlogEditPage() {
     setSaving(true);
     setError("");
     try {
+      // Validate content length
+      if (!form.title.trim() || !form.content.trim()) {
+        toast.error("Title and content are required.");
+        setSaving(false);
+        return;
+      }
       if (id) {
         await blogService.update(id, form);
         toast.success("Blog post updated!");
@@ -102,7 +135,6 @@ export default function AdminBlogEditPage() {
     }
   }
 
-  // --- UI ---
   if (loading)
     return (
       <div className="p-8 text-center">
@@ -165,18 +197,15 @@ export default function AdminBlogEditPage() {
             placeholder="Short summary (for list & SEO)..."
           />
         </div>
-        {/* Content */}
+        {/* Content (Rich Editor) */}
         <div>
-          <label className="block mb-1 font-medium">Content (HTML or Markdown)</label>
-          <textarea
-            className="input w-full"
-            name="content"
-            value={form.content}
-            onChange={onChange}
-            rows={8}
-            required
-            placeholder="Write your blog post here…"
-          />
+          <label className="block mb-1 font-medium">Content</label>
+          <div className="border rounded bg-gray-50 p-2">
+            <EditorContent editor={editor} />
+          </div>
+          <small className="text-gray-500 block mt-1">
+            Use formatting, links, lists, code, images, and more.
+          </small>
         </div>
         {/* Category */}
         <div>
@@ -196,23 +225,18 @@ export default function AdminBlogEditPage() {
             ))}
           </select>
         </div>
-        {/* Tags */}
+        {/* Tags (Multi-select Chips) */}
         <div>
           <label className="block mb-1 font-medium">Tags</label>
-          <select
-            className="input w-full"
-            name="tags"
-            multiple
-            value={form.tags}
+          <Select
+            isMulti
+            options={tagOptions}
+            value={tagOptions.filter((t) => form.tags.includes(t.value))}
             onChange={onTagsChange}
-            size={Math.min(tags.length, 5)}
-          >
-            {tags.map((tag) => (
-              <option key={tag._id} value={tag._id}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
+            className="basic-multi-select"
+            classNamePrefix="select"
+            placeholder="Select tags..."
+          />
         </div>
         {/* Cover Image */}
         <div>
