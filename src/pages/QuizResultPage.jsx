@@ -246,65 +246,86 @@ Try this quiz: ${window.location.origin}/quiz/${quizId}`;
       <main className="flex-1 space-y-8">
         {/* 🎉 Certificate Banner (preview + actions) */}
         {certificate && (
-          <div className="bg-indigo-50 border border-indigo-200 rounded-2xl shadow-lg p-7 mb-3 flex flex-col md:flex-row gap-8 items-center relative">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-indigo-700 mb-1 flex items-center gap-2">
-                <span role="img" aria-label="celebrate">🎉</span> Certificate Earned!
-              </h2>
-              <p className="text-gray-700 mb-3">
-                Congratulations! You've earned a <b>{certQuiz}</b> certificate for <b>{certQuiz}</b>.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-2">
-                <Link
-                  to={`/certificates/${certId}`}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-semibold shadow"
-                >
-                  View Full Page
-                </Link>
-                <button
-                  onClick={handleCopyLink}
-                  className="bg-gray-100 border border-gray-300 text-gray-700 px-5 py-2 rounded-lg font-semibold hover:bg-gray-200"
-                >
-                  Copy Link
-                </button>
-              </div>
-              {/* Social Share Buttons */}
-              <div className="flex gap-2 mt-4">
-                <FacebookShareButton url={certUrl} quote={shareText}>
-                  <FacebookIcon round />
-                </FacebookShareButton>
-                <TwitterShareButton url={certUrl} title={shareText}>
-                  <TwitterIcon round />
-                </TwitterShareButton>
-                <LinkedinShareButton url={certUrl} summary={shareText}>
-                  <LinkedinIcon round />
-                </LinkedinShareButton>
-                <WhatsappShareButton url={certUrl} title={shareText}>
-                  <WhatsappIcon round />
-                </WhatsappShareButton>
-              </div>
-            </div>
-            <div>
-              <Link to={`/certificates/${certId}`}>
-                <div
-                  id="certificate-preview"
-                  className="rounded-xl shadow overflow-hidden bg-white"
-                >
-                  <CertificatePreviewCompact
-                    recipient={certRecipient}
-                    quiz={certQuiz}
-                    score={certScore}
-                    date={certDate}
-                    certId={certId}
-                    issued={certIssued}
-                    qrUrl={certQrUrl}
-                  
-                  />
-                </div>
-              </Link>
-            </div>
+  <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-200 rounded-2xl shadow-xl p-8 mb-6 flex flex-col md:flex-row items-start md:items-center gap-8">
+    {/* Left Text Section */}
+    <div className="flex-1 space-y-4">
+      <div className="flex items-center gap-2">
+        <span className="text-3xl">🎉</span>
+        <h2 className="text-2xl font-extrabold text-indigo-700 tracking-tight">
+          Certificate Earned!
+        </h2>
+      </div>
+
+      <p className="text-gray-700 text-base">
+        Congratulations! You’ve earned a <span className="font-semibold text-indigo-800">{certQuiz}</span> certificate for outstanding performance.
+      </p>
+
+      <div className="flex flex-wrap gap-3">
+        <Link
+          to={`/certificates/${certId}`}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-full font-semibold shadow-md transition"
+        >
+          View Full Page
+        </Link>
+        <button
+          onClick={handleCopyLink}
+          className="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 px-5 py-2 rounded-full font-medium shadow-sm"
+        >
+          Copy Link
+        </button>
+      </div>
+
+      <div className="flex items-center gap-3 mt-4">
+        <FacebookShareButton url={certUrl} quote={shareText}>
+          <FacebookIcon round size={36} />
+        </FacebookShareButton>
+        <TwitterShareButton url={certUrl} title={shareText}>
+          <TwitterIcon round size={36} />
+        </TwitterShareButton>
+        <LinkedinShareButton url={certUrl} summary={shareText}>
+          <LinkedinIcon round size={36} />
+        </LinkedinShareButton>
+        <WhatsappShareButton url={certUrl} title={shareText}>
+          <WhatsappIcon round size={36} />
+        </WhatsappShareButton>
+      </div>
+    </div>
+
+    {/* Certificate Preview Card */}
+    <Link to={`/certificates/${certId}`} className="flex-shrink-0">
+      <div
+        id="certificate-preview"
+        className="rounded-xl shadow-lg bg-white px-6 py-4 border border-indigo-100 w-[260px] space-y-2 text-center text-sm relative hover:shadow-xl transition"
+      >
+        <div className="text-indigo-700 font-extrabold text-lg">JOBNEURA</div>
+        <div className="text-gray-600 font-medium">Certificate of Excellence</div>
+        <div className="text-gray-700 mt-1">
+          Awarded to <span className="font-semibold text-gray-900">{certRecipient}</span>
+        </div>
+        <div className="text-gray-600">
+          for <span className="font-semibold">{certQuiz}</span>
+        </div>
+        <div className="flex justify-between text-xs text-gray-500 mt-2">
+          <span>Score: {certScore}%</span>
+          <span>Date: {certDate}</span>
+        </div>
+        <div className="text-[11px] text-gray-400 mt-1">
+          Certificate ID: {certId}
+        </div>
+        {certQrUrl && (
+          <div className="mt-2 flex justify-center">
+            <img
+              src={certQrUrl}
+              alt="QR Code"
+              className="h-12 w-12 object-contain border border-gray-300 rounded"
+            />
           </div>
         )}
+      </div>
+    </Link>
+  </div>
+)}
+
 
         {/* 1️⃣ Quiz Title + Score Block */}
         <div className="bg-white p-8 rounded-2xl shadow-lg flex flex-col md:flex-row md:justify-between gap-6 items-center">
