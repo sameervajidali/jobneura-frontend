@@ -61,6 +61,7 @@
     "lucide-react": "^0.503.0",
     "ngrok": "^5.0.0-beta.2",
     "papaparse": "^5.5.2",
+    "prop-types": "^15.8.1",
     "radar": "^0.42.2",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",

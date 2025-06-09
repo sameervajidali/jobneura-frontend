@@ -155,6 +155,9 @@ importers:
       papaparse:
         specifier: ^5.5.2
         version: 5.5.3
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
       radar:
         specifier: ^0.42.2
         version: 0.42.2
