@@ -1,7 +1,8 @@
 // src/components/dashboard/WelcomePanel.jsx
 import React, { useMemo } from "react";
 import { CircleUserRound } from "lucide-react";
-import { useAuth,navigate } from "../../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const PROFILE_FIELDS = [
   "name",
@@ -17,6 +18,7 @@ const PROFILE_FIELDS = [
 
 export default function WelcomePanel() {
   const { user } = useAuth();
+const navigate = useNavigate();
 
   // Greet by first name
   const firstName = useMemo(

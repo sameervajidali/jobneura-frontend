@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaSearch, FaPlus, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import API from "../../../services/axios";
-import { useAuth } from "../../../contexts/AuthContext";
+
 
 export default function AdminUsersPage() {
-   const [users, setUsers] = useState([]);
+
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
