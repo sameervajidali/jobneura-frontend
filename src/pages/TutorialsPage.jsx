@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import Hero from '../components/tutorials/Hero';
 import CategoryFilter from '../components/tutorials/CategoryFilter';
 import TutorialGrid from '../components/tutorials/TutorialGrid';
