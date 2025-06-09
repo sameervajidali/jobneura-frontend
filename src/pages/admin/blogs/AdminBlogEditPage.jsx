@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { createReactEditorJS } from "react-editor-js";
 import Header from "@editorjs/header";
 import List from "@editorjs/list";
-import ImageTool from "@editorjs/image";        // <-- Suspect
+// import ImageTool from "@editorjs/image";        // <-- Suspect
+import SimpleImage from "@editorjs/simple-image";
 import LinkTool from "@editorjs/link";
 import Quote from "@editorjs/quote";
 import Checklist from "@editorjs/checklist";
@@ -23,7 +24,7 @@ import { FaArrowLeft, FaSave, FaSpinner, FaUpload } from "react-icons/fa";
 const EDITOR_JS_TOOLS = {
   header: Header,
   list: List,
-  image: ImageTool,
+  image: SimpleImage, // ⬅️ Replace with this
   linkTool: LinkTool,
   quote: Quote,
   checklist: Checklist,
