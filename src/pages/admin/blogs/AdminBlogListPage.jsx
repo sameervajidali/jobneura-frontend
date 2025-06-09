@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { FaEdit, FaEye, FaTrash, FaPlus } from "react-icons/fa";
 import { CheckCircleIcon } from "@heroicons/react/24/solid";
 import BlogCategoryFilter from "./components/BlogCategoryFilter";
