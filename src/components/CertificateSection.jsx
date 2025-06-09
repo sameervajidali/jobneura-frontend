@@ -7,7 +7,6 @@ export default function CertificateSection({
   certificate,
   onDownloadPDF,
   onCopyLink,
-  onAddLinkedIn,
   onShare,
 }) {
   const [showModal, setShowModal] = useState(false);
@@ -15,7 +14,7 @@ export default function CertificateSection({
 
   if (!certificate) return null;
 
-  const certUrl = `${window.location.origin}/certificate/${certificate.certificateId}`;
+ 
 
   return (
     <>

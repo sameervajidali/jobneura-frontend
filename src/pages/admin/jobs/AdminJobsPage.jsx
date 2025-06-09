@@ -29,10 +29,11 @@ export default function AdminJobsPage() {
   const [workType, setWorkType] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit] = useState(10);
   const [selected, setSelected] = useState(null);
   const [openForm, setOpenForm] = useState(false);
   const [openUpload, setOpenUpload] = useState(false);
+  
 
   const fetchJobs = async () => {
     setLoading(true);

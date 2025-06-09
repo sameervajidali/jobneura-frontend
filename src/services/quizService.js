@@ -1,3 +1,4 @@
+import axios from 'axios';
 
 // src/services/quizService.js
 import API from './axios'; // Axios instance, baseURL includes `/api`

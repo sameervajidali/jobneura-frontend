@@ -6,8 +6,7 @@ import API from "../../../services/axios";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function AdminUsersPage() {
-  const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState([]);
+   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");

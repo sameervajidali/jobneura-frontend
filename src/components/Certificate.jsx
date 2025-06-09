@@ -38,7 +38,7 @@ const Certificate = forwardRef(
       leftRole = "Head of Department",
       rightRole = "Co-Founder",
       preview = false,
-      compact = false, // 👈 Add this
+     
       // Accept full certificate object for legacy support
       certificate = null,
     },

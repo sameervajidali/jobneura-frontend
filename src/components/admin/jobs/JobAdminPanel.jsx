@@ -24,11 +24,13 @@ export default function JobAdminPanel() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 10;
-  const [selected, setSelected] = useState(null);
-  const [openForm, setOpenForm] = useState(false);
-  const [openUpload, setOpenUpload] = useState(false);
+  const [ setSelected] = useState([]);
+const [ setOpenForm] = useState(false);
+const [ setOpenUpload] = useState(false);
 
-  const fetchJobs = async () => {
+ 
+   // 👇 Wrap fetchJobs in useCallback with correct dependencies
+  const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
       const res = await jobService.getAllAdmin({ ...filters, page, limit });
@@ -39,11 +41,13 @@ export default function JobAdminPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, page, limit]);
 
+  // 👇 Call fetchJobs in useEffect; dependency is just fetchJobs
   useEffect(() => {
     fetchJobs();
-  }, [filters, page]);
+  }, [fetchJobs]);
+
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this job?")) {

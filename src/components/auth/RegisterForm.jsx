@@ -13,8 +13,7 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailExists, setEmailExists] = useState(null);
-  const [formError, setFormError] = useState(null);
-  const [loading, setLoading] = useState(false);
+   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth();

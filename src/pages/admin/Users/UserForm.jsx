@@ -49,7 +49,7 @@ if (!isEdit && data.length) {
         // ignore
       }
       try {
-        const payload = await fetch(`/admin/users/${id}`); // adjust endpoint if needed
+       
         // or use service: const userData = await getUserById(id)
         const res = await fetch(`/api/admin/users/${id}`);
         const { user } = await res.json();

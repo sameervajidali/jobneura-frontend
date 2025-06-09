@@ -97,37 +97,40 @@ function AppInitializer({ children }) {
   const navigate = useNavigate();
   const didRedirect = useRef(false);
 
-  useEffect(() => {
-    if (!loading && user && !didRedirect.current) {
-      // didRedirect.current = true;
-      // const path = location.pathname;
+useEffect(() => {
+  if (!loading && user && !didRedirect.current) {
+    // If we have a `from` (quiz or any protected route), let redirectUser handle it
+    const from = location.state?.from?.pathname;
+    if (from) return;
 
-      // if we have a `from` (quiz or any protected route), let redirectUser handle it
-      const from = location.state?.from?.pathname;
-      if (from) return;
+    didRedirect.current = true;
+    const path = location.pathname;
+    const role = (user.role?.name || "").toUpperCase();
 
-      didRedirect.current = true;
-      const path = location.pathname;
-      const role = (user.role?.name || "").toUpperCase();
-
-      // landing‐page redirect
-      if (path === "/" || path === "/login") {
-        if (ADMIN_ROLES.includes(role)) {
-          return navigate("/admin", { replace: true });
-        }
-        return navigate("/dashboard", { replace: true });
+    // landing-page redirect
+    if (path === "/" || path === "/login") {
+      if (ADMIN_ROLES.includes(role)) {
+        return navigate("/admin", { replace: true });
       }
-
-      // deep‐link guards
-
-      if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
-        return navigate("/dashboard", { replace: true });
-      }
-      if (path.startsWith("/dashboard") && ADMIN_ROLES.includes(role)) {
-        return navigate("/admin/users", { replace: true });
-      }
+      return navigate("/dashboard", { replace: true });
     }
-  }, [loading, user, location.pathname, navigate]);
+
+    // deep-link guards
+    if (path.startsWith("/admin") && !ADMIN_ROLES.includes(role)) {
+      return navigate("/dashboard", { replace: true });
+    }
+    if (path.startsWith("/dashboard") && ADMIN_ROLES.includes(role)) {
+      return navigate("/admin/users", { replace: true });
+    }
+  }
+}, [
+  loading,
+  user,
+  location.pathname,
+  location.state?.from?.pathname, // <-- Add this!
+  navigate,
+]);
+
 
   // if (loading) {
   //   return <div className="p-6 text-center">Loading session…</div>;

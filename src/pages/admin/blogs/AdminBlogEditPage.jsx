@@ -88,7 +88,7 @@ export default function AdminBlogEditPage() {
       })
       .catch(() => setError("Failed to load categories/tags or post"))
       .finally(() => setLoading(false));
-    // eslint-disable-next-line
+     
   }, [id]);
 
   // --- Editor output handler
@@ -313,7 +313,7 @@ export default function AdminBlogEditPage() {
           <label className="block mb-1 font-medium">Content</label>
           <div className="border rounded-xl bg-gray-50 p-2 min-h-[320px]">
             <ReactEditorJS
-              tools={{ ...EDITOR_JS_TOOLS, image: { class: ImageTool, config: imageConfig } }}
+              tools={{ ...EDITOR_JS_TOOLS, image: { class: SimpleImage, config: imageConfig } }}
               defaultValue={form.content}
               holder="editorjs"
               onInitialize={instance => (editorCore.current = instance)}

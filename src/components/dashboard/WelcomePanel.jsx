@@ -1,7 +1,7 @@
 // src/components/dashboard/WelcomePanel.jsx
 import React, { useMemo } from "react";
 import { CircleUserRound } from "lucide-react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth,navigate } from "../../contexts/AuthContext";
 
 const PROFILE_FIELDS = [
   "name",

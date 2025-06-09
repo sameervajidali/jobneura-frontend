@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import blogCategoryService from "../../../services/blogCategoryService.js";
 import blogService from "../../../services/blogService.js"; // We'll use .get and .update here
@@ -30,7 +30,6 @@ const blogSchema = z.object({
 
 export default function AdminBlogReviewEditPage() {
   const { blogId } = useParams();
-  const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +83,7 @@ export default function AdminBlogReviewEditPage() {
       })
       .catch(() => setError("Failed to load data"))
       .finally(() => setLoading(false));
-    // eslint-disable-next-line
+     
   }, [blogId, reset]);
 
   // Submit form

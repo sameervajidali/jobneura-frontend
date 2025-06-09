@@ -12,7 +12,7 @@ import {
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
 import { getAvatarUrl } from "../../utils/getAvatarUrl";
-import { useNotifications } from "../../contexts/NotificationContext";
+
 import NotificationBell from "../common/NotificationBell";
 
 export default function Topbar() {
@@ -23,7 +23,6 @@ export default function Topbar() {
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
   const { pathname } = useLocation();
-  const { notifications, markRead } = useNotifications();
 
   const firstName = user?.name?.split(" ")[0] || "Admin";
   const avatarUrl = getAvatarUrl(user?.avatar);
