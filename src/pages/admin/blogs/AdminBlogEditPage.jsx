@@ -3,18 +3,23 @@ import { useParams, useNavigate } from "react-router-dom";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import Placeholder from "@tiptap/extension-placeholder";
 import Select from "react-select";
+import { FaArrowLeft, FaSave, FaSpinner, FaUpload } from "react-icons/fa";
+import toast from "react-hot-toast";
 import blogService from "../../../services/blogService";
 import blogCategoryService from "../../../services/blogCategoryService";
 import blogTagService from "../../../services/blogTagService";
-import { FaArrowLeft, FaSave, FaSpinner } from "react-icons/fa";
-import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import { useDropzone } from "react-dropzone";
 
 export default function AdminBlogEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const fileInputRef = useRef();
 
-  // --- Form state ---
+  // --- Form State ---
   const [form, setForm] = useState({
     title: "",
     summary: "",
@@ -29,20 +34,32 @@ export default function AdminBlogEditPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const fileInputRef = useRef();
 
-  // --- Rich Editor state ---
+  // --- Tag options for react-select ---
+  const tagOptions = tags.map(tag => ({
+    value: tag._id,
+    label: tag.name,
+  }));
+
+  // --- Editor Instance (Tiptap) ---
   const editor = useEditor({
-    extensions: [StarterKit, Link],
+    extensions: [
+      StarterKit,
+      Link.configure({ openOnClick: false }),
+      Image,
+      Placeholder.configure({
+        placeholder: "Start writing your amazing blog post…",
+      }),
+    ],
     content: "",
     autofocus: false,
     editable: true,
     onUpdate: ({ editor }) => {
-      setForm((f) => ({ ...f, content: editor.getHTML() }));
+      setForm(f => ({ ...f, content: editor.getHTML() }));
     },
   });
 
-  // --- Load categories, tags, and (if edit) blog post data ---
+  // --- Load categories, tags, post ---
   useEffect(() => {
     setLoading(true);
     Promise.all([
@@ -59,7 +76,7 @@ export default function AdminBlogEditPage() {
             summary: post.summary || "",
             content: post.content || "",
             category: post.category?._id || "",
-            tags: (post.tags || []).map((t) =>
+            tags: (post.tags || []).map(t =>
               typeof t === "object" ? t._id : t
             ),
             coverImageUrl: post.coverImageUrl || "",
@@ -73,45 +90,53 @@ export default function AdminBlogEditPage() {
     // eslint-disable-next-line
   }, [id, editor]);
 
-  // --- Handle form input ---
+  // --- Form Handlers ---
   function onChange(e) {
     const { name, value } = e.target;
-    setForm((f) => ({
-      ...f,
-      [name]: value,
-    }));
+    setForm(f => ({ ...f, [name]: value }));
   }
-
-  // --- Tag selection with react-select (chips) ---
-  const tagOptions = tags.map((tag) => ({
-    value: tag._id,
-    label: tag.name,
-  }));
 
   function onTagsChange(selected) {
-    setForm((f) => ({
+    setForm(f => ({
       ...f,
-      tags: selected ? selected.map((s) => s.value) : [],
+      tags: selected ? selected.map(s => s.value) : [],
     }));
   }
 
-  // --- Cover image upload (real upload: integrate your Supabase or media service here) ---
-  async function handleImageUpload(e) {
-    const file = e.target.files?.[0];
+  // --- Cover Image: Drag & Drop Upload (Preview) ---
+  const onDrop = React.useCallback(acceptedFiles => {
+    const file = acceptedFiles[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setForm(f => ({ ...f, coverImageUrl: url }));
+      toast.success("Image selected (add cloud upload for production)");
+    }
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    multiple: false,
+  });
+
+  // --- Insert Image to Editor (Tiptap) ---
+  function insertImageToEditor(file) {
     if (!file) return;
-    // TODO: Replace with actual upload (Supabase/mediaService)
-    const url = URL.createObjectURL(file); // Preview only
-    setForm((f) => ({ ...f, coverImageUrl: url }));
-    toast.success("Image selected (add cloud upload for production)");
+    const url = URL.createObjectURL(file); // For preview, swap with real upload for production
+    editor.chain().focus().setImage({ src: url, alt: "Uploaded image" }).run();
   }
 
-  // --- Handle submit (create or update) ---
+  // --- Image upload in editor ---
+  function handleEditorImageUpload(e) {
+    const file = e.target.files?.[0];
+    if (file) insertImageToEditor(file);
+  }
+
+  // --- Submit ---
   async function onSubmit(e) {
     e.preventDefault();
     setSaving(true);
     setError("");
     try {
-      // Validate content length
       if (!form.title.trim() || !form.content.trim()) {
         toast.error("Title and content are required.");
         setSaving(false);
@@ -126,9 +151,7 @@ export default function AdminBlogEditPage() {
       }
       navigate("/admin/blogs");
     } catch (err) {
-      setError(
-        err?.response?.data?.message || err.message || "Failed to save post"
-      );
+      setError(err?.response?.data?.message || err.message || "Failed to save post");
       toast.error("Failed to save blog post");
     } finally {
       setSaving(false);
@@ -146,31 +169,25 @@ export default function AdminBlogEditPage() {
     return (
       <div className="p-8 text-center text-red-600">
         <p>{error}</p>
-        <button
-          className="btn btn-primary mt-4"
-          onClick={() => navigate("/admin/blogs")}
-        >
-          <FaArrowLeft className="mr-2" />
-          Back to Blog List
+        <button className="btn btn-primary mt-4" onClick={() => navigate("/admin/blogs")}>
+          <FaArrowLeft className="mr-2" /> Back to Blog List
         </button>
       </div>
     );
 
   return (
-    <section className="max-w-3xl mx-auto p-4 md:p-8 bg-white rounded-lg shadow">
-      <header className="mb-6 flex items-center gap-4">
-        <button
-          className="btn btn-light"
-          onClick={() => navigate("/admin/blogs")}
-        >
-          <FaArrowLeft className="mr-2" />
-          Back
+    <section className="max-w-3xl mx-auto p-4 md:p-10 bg-white rounded-2xl shadow-lg border border-gray-100">
+      <motion.header
+        className="mb-8 flex items-center gap-4"
+        initial={{ opacity: 0, x: -16 }}
+        animate={{ opacity: 1, x: 0 }}
+      >
+        <button className="btn btn-light" onClick={() => navigate("/admin/blogs")}>
+          <FaArrowLeft className="mr-2" /> Back
         </button>
-        <h1 className="text-xl font-bold">
-          {id ? "Edit Blog Post" : "Create New Blog Post"}
-        </h1>
-      </header>
-      <form onSubmit={onSubmit} className="space-y-6">
+        <h1 className="text-2xl font-bold">{id ? "Edit Blog Post" : "Create Blog Post"}</h1>
+      </motion.header>
+      <form onSubmit={onSubmit} className="space-y-8">
         {/* Title */}
         <div>
           <label className="block mb-1 font-medium">Title</label>
@@ -197,14 +214,59 @@ export default function AdminBlogEditPage() {
             placeholder="Short summary (for list & SEO)..."
           />
         </div>
+        {/* Cover Image (Drag & Drop) */}
+        <div>
+          <label className="block mb-1 font-medium">Cover Image</label>
+          <div
+            {...getRootProps()}
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl min-h-[120px] transition-all cursor-pointer ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:border-indigo-500"}`}
+          >
+            <input {...getInputProps()} />
+            {form.coverImageUrl ? (
+              <img src={form.coverImageUrl} alt="cover" className="w-40 h-28 object-cover rounded-xl shadow" />
+            ) : (
+              <div className="flex flex-col items-center py-4 text-gray-400">
+                <FaUpload className="mb-2 text-xl" />
+                <span>Drag & drop an image or click to select</span>
+              </div>
+            )}
+          </div>
+          <small className="text-gray-500">Choose an image for post cover (jpg, png).</small>
+        </div>
         {/* Content (Rich Editor) */}
         <div>
           <label className="block mb-1 font-medium">Content</label>
-          <div className="border rounded bg-gray-50 p-2">
+          <div className="border rounded-xl bg-gray-50 p-2 min-h-[240px]">
+            {/* Custom toolbar for images, blocks, etc */}
+            <div className="flex gap-2 mb-2">
+              <button
+                type="button"
+                className="btn btn-light btn-xs"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+                aria-label="Bold"
+                title="Bold"
+              >
+                <b>B</b>
+              </button>
+              <button
+                type="button"
+                className="btn btn-light btn-xs"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+                aria-label="Italic"
+                title="Italic"
+              >
+                <i>I</i>
+              </button>
+              <label className="btn btn-light btn-xs cursor-pointer" title="Insert Image">
+                <FaUpload className="inline mr-1" /> Img
+                <input type="file" accept="image/*" onChange={handleEditorImageUpload} hidden />
+              </label>
+              {/* Add more: code, table, link, heading, etc */}
+            </div>
             <EditorContent editor={editor} />
           </div>
           <small className="text-gray-500 block mt-1">
-            Use formatting, links, lists, code, images, and more.
+            Drag and drop blocks, images, and use full formatting.
           </small>
         </div>
         {/* Category */}
@@ -218,47 +280,25 @@ export default function AdminBlogEditPage() {
             required
           >
             <option value="">Select category</option>
-            {categories.map((cat) => (
+            {categories.map(cat => (
               <option key={cat._id} value={cat._id}>
                 {cat.name}
               </option>
             ))}
           </select>
         </div>
-        {/* Tags (Multi-select Chips) */}
+        {/* Tags */}
         <div>
           <label className="block mb-1 font-medium">Tags</label>
           <Select
             isMulti
             options={tagOptions}
-            value={tagOptions.filter((t) => form.tags.includes(t.value))}
+            value={tagOptions.filter(t => form.tags.includes(t.value))}
             onChange={onTagsChange}
             className="basic-multi-select"
             classNamePrefix="select"
             placeholder="Select tags..."
           />
-        </div>
-        {/* Cover Image */}
-        <div>
-          <label className="block mb-1 font-medium">Cover Image</label>
-          <div className="flex gap-4 items-center">
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              className="input"
-              style={{ maxWidth: 240 }}
-              onChange={handleImageUpload}
-            />
-            {form.coverImageUrl && (
-              <img
-                src={form.coverImageUrl}
-                alt="cover"
-                className="w-24 h-20 object-cover rounded shadow"
-              />
-            )}
-          </div>
-          <small className="text-gray-500">Choose an image for post cover (jpg, png).</small>
         </div>
         {/* Status */}
         <div>
