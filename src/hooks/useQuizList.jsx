@@ -18,7 +18,7 @@ export default function useQuizList({ page = 1, limit = 12, ...otherFilters }) {
       if (v != null && v !== "") params[k] = v;
     });
 
-    API.get("/quizzes/", { params })
+    API.get("/quizzes", { params })
       .then((res) => {
         console.log("Full API Response", res.data);
   const quiz = res.data.quizzes?.[0];
